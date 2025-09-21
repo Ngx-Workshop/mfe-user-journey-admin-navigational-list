@@ -15,9 +15,9 @@ import { FormMode } from '../../types/menu.types';
   template: `
     <div class="dialog-header">
       <h2 mat-dialog-title>
-        @if (mode === 'create') {
-        <mat-icon>add</mat-icon> Create Menu Item } @else {
-        <mat-icon>edit</mat-icon> Edit Menu Item }
+        {{
+          mode === 'create' ? 'Create Menu Item' : 'Edit Menu Item'
+        }}
       </h2>
     </div>
 

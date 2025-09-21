@@ -26,11 +26,10 @@ import { FormMode } from '../../types/menu.types';
         (click)="onSave()"
         [disabled]="isFormInvalid || loading"
       >
-        @if (mode === 'create') {
-        <ng-container><mat-icon>save</mat-icon> Create</ng-container>
-        } @else {
-        <ng-container><mat-icon>save</mat-icon> Update</ng-container>
-        }
+        <mat-icon>
+          {{ mode === 'create' ? 'save' : 'edit' }}
+        </mat-icon>
+        {{ mode === 'create' ? 'Create' : 'Update' }}
       </button>
     </div>
   `,

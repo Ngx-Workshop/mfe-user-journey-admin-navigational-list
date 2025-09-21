@@ -48,10 +48,18 @@ export interface FilterChangeEvent {
   ],
   template: `
     <div class="filters">
-      <h3>Filters</h3>
+      <div class="filter-row header">
+        <h3>Filters</h3>
+        <button
+          mat-raised-button
+          (click)="onFilterChange('clearAll')"
+        >
+          <mat-icon>clear_all</mat-icon> Clear All
+        </button>
+      </div>
 
       <div class="filter-row">
-        <mat-form-field appearance="outline">
+        <mat-form-field appearance="outline" class="search-bar">
           <mat-label>Search</mat-label>
           <input
             matInput
@@ -73,6 +81,15 @@ export interface FilterChangeEvent {
           }
         </mat-form-field>
 
+        <mat-checkbox
+          [checked]="includeArchived"
+          (change)="onFilterChange('includeArchived', $event.checked)"
+        >
+          Include Archived
+        </mat-checkbox>
+      </div>
+
+      <div class="filter-row">
         <mat-form-field appearance="outline">
           <mat-label>Domain</mat-label>
           <mat-select
@@ -120,16 +137,6 @@ export interface FilterChangeEvent {
             }
           </mat-select>
         </mat-form-field>
-      </div>
-
-      <div class="filter-row">
-        <mat-checkbox
-          [checked]="includeArchived"
-          (change)="onFilterChange('includeArchived', $event.checked)"
-        >
-          Include Archived
-        </mat-checkbox>
-
         <mat-form-field appearance="outline">
           <mat-label>Auth Required</mat-label>
           <mat-select
@@ -141,21 +148,6 @@ export interface FilterChangeEvent {
             <mat-option [value]="false">Not Required</mat-option>
           </mat-select>
         </mat-form-field>
-
-        <button
-          mat-raised-button
-          (click)="onFilterChange('clearAll')"
-        >
-          <mat-icon>clear_all</mat-icon> Clear All
-        </button>
-
-        <button
-          mat-flat-button
-          color="primary"
-          (click)="onFilterChange('create')"
-        >
-          <mat-icon>add</mat-icon> New Menu Item
-        </button>
       </div>
     </div>
   `,
@@ -166,6 +158,11 @@ export interface FilterChangeEvent {
         padding: 1.5rem;
         border-radius: 8px;
         margin-bottom: 2rem;
+      }
+
+      .search-bar {
+        width: 100%;
+        max-width: 600px;
       }
 
       .filters h3 {
@@ -179,6 +176,10 @@ export interface FilterChangeEvent {
         flex-wrap: wrap;
         align-items: center;
         margin-bottom: 1rem;
+
+        &.header {
+          justify-content: space-between;
+        }
       }
 
       .filter-row:last-child {

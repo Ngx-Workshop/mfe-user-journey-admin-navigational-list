@@ -5,7 +5,6 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import {
   MatSnackBar,
@@ -14,11 +13,8 @@ import {
 import { MenuItemDto } from '@tmdjr/service-navigational-list-contracts';
 import { catchError, of, switchMap, tap } from 'rxjs';
 import { MenuApiService } from '../services/menu-api.service';
+import { MenuDialogService } from '../services/menu-dialog.service';
 import { MenuSearchService } from '../services/menu-search.service';
-import {
-  MenuItemFormComponent,
-  MenuItemFormDialogData,
-} from './menu-item-form.component';
 import { MenuEmptyStateComponent } from './menu-list/menu-empty-state.component';
 import {
   FilterChangeEvent,
@@ -32,7 +28,6 @@ import { MenuItemActionEvent } from './menu-list/menu-item-card.component';
   standalone: true,
   imports: [
     CommonModule,
-    MatDialogModule,
     MatSnackBarModule,
     MatProgressBarModule,
     MenuFiltersComponent,
@@ -91,7 +86,7 @@ import { MenuItemActionEvent } from './menu-list/menu-item-card.component';
 })
 export class MenuListComponent {
   private readonly menuApi = inject(MenuApiService);
-  private readonly dialog = inject(MatDialog);
+  private readonly menuDialog = inject(MenuDialogService);
   private readonly snackBar = inject(MatSnackBar);
   private readonly searchService = inject(MenuSearchService);
 
@@ -135,9 +130,6 @@ export class MenuListComponent {
         break;
       case 'clearAll':
         this.clearAllFilters();
-        break;
-      case 'create':
-        this.openCreate();
         break;
     }
   }
@@ -191,17 +183,7 @@ export class MenuListComponent {
   }
 
   openCreate(): void {
-    const dialogData: MenuItemFormDialogData = {
-      mode: 'create',
-    };
-
-    const dialogRef = this.dialog.open(MenuItemFormComponent, {
-      width: '800px',
-      maxWidth: '90vw',
-      data: dialogData,
-    });
-
-    dialogRef.afterClosed().subscribe((result) => {
+    this.menuDialog.openCreateDialog().subscribe((result) => {
       if (result) {
         this.reload();
       }
@@ -209,18 +191,7 @@ export class MenuListComponent {
   }
 
   editItem(item: MenuItemDto): void {
-    const dialogData: MenuItemFormDialogData = {
-      mode: 'edit',
-      item: item,
-    };
-
-    const dialogRef = this.dialog.open(MenuItemFormComponent, {
-      width: '800px',
-      maxWidth: '90vw',
-      data: dialogData,
-    });
-
-    dialogRef.afterClosed().subscribe((result) => {
+    this.menuDialog.openEditDialog(item).subscribe((result) => {
       if (result) {
         this.reload();
       }

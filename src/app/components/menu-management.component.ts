@@ -15,6 +15,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MenuItemDto } from '@tmdjr/service-navigational-list-contracts';
 import { catchError, of, tap } from 'rxjs';
 import { MenuApiService } from '../services/menu-api.service';
+import { MenuDialogService } from '../services/menu-dialog.service';
 import {
   Domain,
   State,
@@ -54,13 +55,11 @@ interface HierarchyNode {
   template: `
     <div class="container">
       <div class="header">
-        <div class="header-content">
-          <h1>Navigational Menu Management</h1>
-          <p>
+        <h1>Navigational List</h1>
+        <!-- <p>
             Manage navigational menus for different domains,
             structural types, and states
-          </p>
-        </div>
+          </p> -->
       </div>
 
       <mat-tab-group
@@ -73,11 +72,7 @@ interface HierarchyNode {
             <div class="tab-content">
               <div class="list-header">
                 <h2>Menu Management</h2>
-                <button
-                  mat-raised-button
-                  (click)="loadHierarchy()"
-                  [disabled]="hierarchyLoading()"
-                >
+                <button mat-raised-button (click)="openCreate()">
                   <mat-icon>add</mat-icon> New Menu Item
                 </button>
               </div>
@@ -125,24 +120,17 @@ interface HierarchyNode {
         background: linear-gradient(
           135deg,
           var(--mat-sys-primary) 0%,
-          var(--mat-sys-secondary) 100%
+          var(--mat-sys-secondary-fixed) 100%
         );
         color: var(--mat-sys-on-primary);
-        padding: 2rem 0;
+        display: flex;
+        padding: 0 1.125rem;
       }
 
       .header-content {
         max-width: 1400px;
         margin: 0 auto;
         padding: 0 2rem;
-      }
-
-      .header h1 {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        margin: 0 0 0.5rem 0;
-        font-size: 2rem;
       }
 
       .header p {
@@ -187,6 +175,7 @@ interface HierarchyNode {
 })
 export class MenuManagementComponent {
   private readonly menuApi = inject(MenuApiService);
+  private readonly menuDialog = inject(MenuDialogService);
   private readonly snackBar = inject(MatSnackBar);
 
   // State signals
@@ -202,6 +191,15 @@ export class MenuManagementComponent {
     } else if (index === 2 && this.statistics().length === 0) {
       this.loadStatistics();
     }
+  }
+
+  openCreate(): void {
+    this.menuDialog.openCreateDialog().subscribe((result) => {
+      if (result) {
+        // If a reload method is needed in the future, it can be added here
+        // For now, we rely on the child components to handle their own state
+      }
+    });
   }
 
   loadHierarchy(): void {
