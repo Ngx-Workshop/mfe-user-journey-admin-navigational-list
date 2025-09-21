@@ -1,6 +1,7 @@
 export { MenuHierarchyComponent } from './menu-hierarchy.component';
 export { MenuItemFormComponent } from './menu-item-form.component';
 export type { MenuItemFormDialogData } from './menu-item-form.component';
+export { MenuItemsComponent } from './menu-items.component';
 export { MenuListComponent } from './menu-list.component';
 export { MenuEmptyStateComponent } from './menu-list/menu-empty-state.component';
 export { MenuFiltersComponent } from './menu-list/menu-filters.component';
