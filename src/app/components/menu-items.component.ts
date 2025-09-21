@@ -1,11 +1,10 @@
 import {
   CdkDrag,
   CdkDragDrop,
-  CdkDropList,
-  moveItemInArray,
-  transferArrayItem,
   CdkDragEnter,
   CdkDragExit,
+  CdkDropList,
+  moveItemInArray,
 } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
 import {
@@ -51,7 +50,16 @@ interface HierarchyNode {
       (cdkDropListExited)="onDragExit($event)"
       [id]="getDropListId()"
     >
-      @for (item of items; track item._id) {
+      <!-- Drag instructions that appear when dragging -->
+      @if (isDragActive) {
+      <div class="drag-instructions">
+        <mat-icon>info</mat-icon>
+        <span
+          >Drag onto items above to create parent-child relationships,
+          or drag between items to reorder</span
+        >
+      </div>
+      } @for (item of items; track item._id) {
       <div class="menu-item-container">
         <!-- Main menu item with enhanced drop zones -->
         <div
@@ -62,6 +70,9 @@ interface HierarchyNode {
           <!-- Drop zone for making this item a parent -->
           <div
             class="drop-zone-parent"
+            [class.show-nesting-hint]="
+              isDragActive && dragOverItemId !== item._id
+            "
             cdkDropList
             [cdkDropListData]="[item]"
             [cdkDropListConnectedTo]="getConnectedDropLists()"
@@ -71,15 +82,21 @@ interface HierarchyNode {
             [id]="'parent-zone-' + item._id"
           >
             <div class="drop-indicator">
-              <mat-icon>arrow_downward</mat-icon>
-              <span>Drop here to make child of "{{ item.menuItemText }}"</span>
+              <mat-icon>subdirectory_arrow_right</mat-icon>
+              <span
+                >Drop here to nest under "{{
+                  item.menuItemText
+                }}"</span
+              >
             </div>
           </div>
 
           <div
             class="menu-item"
             [class.archived]="item.archived"
-            [class.has-children]="item.children && item.children.length > 0"
+            [class.has-children]="
+              item.children && item.children.length > 0
+            "
             [class.drag-target]="dragOverItemId === item._id"
             cdkDrag
             [cdkDragData]="item"
@@ -94,7 +111,9 @@ interface HierarchyNode {
               <span class="item-route">{{ item.routePath }}</span>
               <span class="item-sort">Sort: {{ item.sortId }}</span>
               @if (item.parentId) {
-              <span class="item-parent">Parent: {{ item.parentId }}</span>
+              <span class="item-parent"
+                >Parent: {{ item.parentId }}</span
+              >
               }
             </div>
             <div class="item-badges">
@@ -103,7 +122,9 @@ interface HierarchyNode {
               } @if (item.archived) {
               <span class="badge archived">Archived</span>
               } @if (item.children && item.children.length > 0) {
-              <span class="badge children">{{ item.children.length }} children</span>
+              <span class="badge children"
+                >{{ item.children.length }} children</span
+              >
               }
             </div>
           </div>
@@ -138,6 +159,43 @@ interface HierarchyNode {
         flex-direction: column;
         gap: 0.5rem;
         margin-left: 2rem;
+        position: relative;
+      }
+
+      .drag-instructions {
+        position: sticky;
+        top: 0;
+        background: var(--mat-sys-primary-container);
+        color: var(--mat-sys-on-primary-container);
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        border: 1px solid var(--mat-sys-primary);
+        z-index: 100;
+        animation: slide-in-down 0.3s ease-out;
+      }
+
+      @keyframes slide-in-down {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .drag-instructions mat-icon {
+        font-size: 1.2rem;
+        height: 1.2rem;
+        width: 1.2rem;
       }
 
       .menu-item-container {
@@ -161,7 +219,7 @@ interface HierarchyNode {
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
       }
 
-      /* Drop zone styling */
+      /* Drop zone styling - Enhanced for better nesting visibility */
       .drop-zone-parent {
         position: absolute;
         top: -8px;
@@ -171,13 +229,44 @@ interface HierarchyNode {
         background: transparent;
         border-radius: 4px;
         opacity: 0;
-        transition: all 0.2s ease;
+        transition: all 0.3s ease;
         z-index: 10;
         pointer-events: none;
       }
 
       .drag-active .drop-zone-parent {
         pointer-events: all;
+      }
+
+      /* Show subtle nesting hints when dragging */
+      .drop-zone-parent.show-nesting-hint {
+        opacity: 0.6;
+        background: linear-gradient(
+          90deg,
+          transparent 0%,
+          var(--mat-sys-tertiary-container) 50%,
+          transparent 100%
+        );
+        border: 1px dashed var(--mat-sys-tertiary);
+        height: 24px;
+        top: -12px;
+        animation: gentle-pulse 2s infinite;
+      }
+
+      @keyframes gentle-pulse {
+        0%,
+        100% {
+          opacity: 0.4;
+        }
+        50% {
+          opacity: 0.7;
+        }
+      }
+
+      .drop-zone-parent.show-nesting-hint .drop-indicator {
+        opacity: 0.8;
+        color: var(--mat-sys-on-tertiary-container);
+        font-weight: 500;
       }
 
       .drop-zone-parent.cdk-drop-list-dragging {
@@ -190,23 +279,51 @@ interface HierarchyNode {
         opacity: 1;
         background: var(--mat-sys-secondary-container);
         border: 2px solid var(--mat-sys-secondary);
-        height: 32px;
-        top: -16px;
+        height: 40px;
+        top: -20px;
+        transform: scaleY(1.1);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        animation: highlight-drop-zone 0.3s ease-in-out;
+      }
+
+      @keyframes highlight-drop-zone {
+        0% {
+          background: var(--mat-sys-primary-container);
+          border-color: var(--mat-sys-primary);
+        }
+        100% {
+          background: var(--mat-sys-secondary-container);
+          border-color: var(--mat-sys-secondary);
+        }
       }
 
       .drop-indicator {
         display: flex;
         align-items: center;
+        justify-content: center;
         gap: 0.5rem;
-        padding: 0.25rem 0.5rem;
+        padding: 0.25rem 0.75rem;
         font-size: 0.75rem;
+        font-weight: 500;
         color: var(--mat-sys-on-primary-container);
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 16px;
         opacity: 0;
-        transition: opacity 0.2s ease;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+        margin: 0 auto;
+        width: fit-content;
+        max-width: 90%;
+        text-align: center;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       }
 
       .drop-zone-parent.cdk-drop-list-receiving-drag .drop-indicator {
         opacity: 1;
+        transform: translateY(2px);
+        background: var(--mat-sys-secondary-container);
+        color: var(--mat-sys-on-secondary-container);
+        border: 1px solid var(--mat-sys-secondary);
       }
 
       .drop-indicator mat-icon {
@@ -278,11 +395,38 @@ interface HierarchyNode {
         border: 1px dashed var(--mat-sys-outline);
         border-radius: 8px;
         margin: 4px 0;
+        position: relative;
+      }
+
+      .menu-items.cdk-drop-list-dragging .menu-item-wrapper::after {
+        content: '↳ Drop here to nest';
+        position: absolute;
+        top: -12px;
+        right: 8px;
+        background: var(--mat-sys-tertiary-container);
+        color: var(--mat-sys-on-tertiary-container);
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 0.7rem;
+        font-weight: 500;
+        opacity: 0.8;
+        z-index: 15;
+        pointer-events: none;
+        transition: all 0.2s ease;
       }
 
       .menu-items.cdk-drop-list-dragging .menu-item-wrapper:hover {
         background: var(--mat-sys-tertiary-container);
         border-color: var(--mat-sys-tertiary);
+        transform: translateY(-1px);
+      }
+
+      .menu-items.cdk-drop-list-dragging
+        .menu-item-wrapper:hover::after {
+        opacity: 1;
+        transform: translateY(-2px);
+        background: var(--mat-sys-secondary-container);
+        color: var(--mat-sys-on-secondary-container);
       }
 
       .children-container {
@@ -456,7 +600,9 @@ export class MenuItemsComponent {
    * Generates a unique ID for this drop list instance
    */
   getDropListId(): string {
-    return `menu-items-${this.domain}-${this.structuralSubtype}-${this.state}-${Math.random().toString(36).substr(2, 9)}`;
+    return `menu-items-${this.domain}-${this.structuralSubtype}-${
+      this.state
+    }-${Math.random().toString(36).substr(2, 9)}`;
   }
 
   /**
@@ -516,9 +662,12 @@ export class MenuItemsComponent {
   /**
    * Handles dropping an item onto another item to create parent-child relationship
    */
-  onDropOntoItem(event: CdkDragDrop<any>, targetItem: MenuItemDto): void {
+  onDropOntoItem(
+    event: CdkDragDrop<any>,
+    targetItem: MenuItemDto
+  ): void {
     const draggedItem = event.item.data as MenuItemDto;
-    
+
     // Prevent dropping item onto itself
     if (draggedItem._id === targetItem._id) {
       return;
@@ -537,11 +686,14 @@ export class MenuItemsComponent {
   /**
    * Checks if an item is a descendant of another item
    */
-  private isDescendant(item: MenuItemDto, ancestorId: string): boolean {
+  private isDescendant(
+    item: MenuItemDto,
+    ancestorId: string
+  ): boolean {
     if (item.parentId === ancestorId) {
       return true;
     }
-    
+
     if (item.parentId) {
       // Find the parent item and check recursively
       const parent = this.findItemInHierarchy(item.parentId);
@@ -549,7 +701,7 @@ export class MenuItemsComponent {
         return this.isDescendant(parent, ancestorId);
       }
     }
-    
+
     return false;
   }
 
@@ -557,7 +709,9 @@ export class MenuItemsComponent {
    * Finds an item by ID in the current hierarchy
    */
   private findItemInHierarchy(itemId: string): MenuItemDto | null {
-    const findInItems = (items: MenuItemDto[]): MenuItemDto | null => {
+    const findInItems = (
+      items: MenuItemDto[]
+    ): MenuItemDto | null => {
       for (const item of items) {
         if (item._id === itemId) {
           return item;
@@ -576,10 +730,17 @@ export class MenuItemsComponent {
   /**
    * Creates a parent-child relationship between two items
    */
-  private createParentChildRelationship(childItem: MenuItemDto, parentItem: MenuItemDto): void {
+  private createParentChildRelationship(
+    childItem: MenuItemDto,
+    parentItem: MenuItemDto
+  ): void {
     // Create updated hierarchy data
-    const updatedItems = this.updateItemParent(this.items, childItem._id, parentItem._id);
-    
+    const updatedItems = this.updateItemParent(
+      this.items,
+      childItem._id,
+      parentItem._id
+    );
+
     // Use the hierarchical reorder service to save the changes
     this.sortingService
       .handleHierarchicalReorder(
@@ -591,10 +752,15 @@ export class MenuItemsComponent {
       )
       .subscribe({
         next: () => {
-          console.log('Successfully created parent-child relationship');
+          console.log(
+            'Successfully created parent-child relationship'
+          );
         },
         error: (error) => {
-          console.error('Failed to create parent-child relationship:', error);
+          console.error(
+            'Failed to create parent-child relationship:',
+            error
+          );
           this.reorderError.emit(error);
         },
       });
@@ -603,15 +769,23 @@ export class MenuItemsComponent {
   /**
    * Updates the parent ID of an item in the hierarchy
    */
-  private updateItemParent(items: MenuItemDto[], itemId: string, newParentId: string): MenuItemDto[] {
-    return items.map(item => {
+  private updateItemParent(
+    items: MenuItemDto[],
+    itemId: string,
+    newParentId: string
+  ): MenuItemDto[] {
+    return items.map((item) => {
       if (item._id === itemId) {
         return { ...item, parentId: newParentId };
       }
       if (item.children) {
         return {
           ...item,
-          children: this.updateItemParent(item.children, itemId, newParentId)
+          children: this.updateItemParent(
+            item.children,
+            itemId,
+            newParentId
+          ),
         };
       }
       return item;
