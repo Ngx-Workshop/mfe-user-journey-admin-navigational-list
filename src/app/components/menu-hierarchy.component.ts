@@ -1,8 +1,15 @@
+import {
+  CdkDrag,
+  CdkDragDrop,
+  CdkDropList,
+  moveItemInArray,
+} from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
   EventEmitter,
+  inject,
   Input,
   Output,
 } from '@angular/core';
@@ -11,7 +18,11 @@ import { MatCardModule } from '@angular/material/card';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MenuItemDto } from '@tmdjr/service-navigational-list-contracts';
+import {
+  MenuItemDto,
+  ReorderDto,
+} from '@tmdjr/service-navigational-list-contracts';
+import { MenuApiService } from '../services/menu-api.service';
 import {
   Domain,
   DOMAIN_OPTIONS,
@@ -42,6 +53,8 @@ interface HierarchyNode {
     MatCardModule,
     MatExpansionModule,
     MatProgressBarModule,
+    CdkDropList,
+    CdkDrag,
   ],
   template: `
     <div class="hierarchy-header">
@@ -103,13 +116,32 @@ interface HierarchyNode {
                     <mat-icon>{{ getStateIcon(state) }}</mat-icon>
                     {{ getStateLabel(state) }}
                   </h4>
-                  <div class="menu-items">
+                  <div
+                    class="menu-items"
+                    cdkDropList
+                    [cdkDropListData]="
+                      getMenuItems(node, structuralSubtype, state)
+                    "
+                    (cdkDropListDropped)="
+                      onDrop(
+                        $event,
+                        node.domain,
+                        structuralSubtype,
+                        state
+                      )
+                    "
+                  >
                     @for (item of getMenuItems(node,
                     structuralSubtype, state); track item._id) {
                     <div
                       class="menu-item"
                       [class.archived]="item.archived"
+                      cdkDrag
+                      [cdkDragData]="item"
                     >
+                      <div class="drag-handle" cdkDragHandle>
+                        <mat-icon>drag_indicator</mat-icon>
+                      </div>
                       <div class="item-info">
                         <span class="item-text">{{
                           item.menuItemText
@@ -208,11 +240,57 @@ interface HierarchyNode {
         border: 1px solid var(--mat-sys-outline-variant);
         border-radius: 4px;
         background: var(--mat-sys-surface-variant);
+        transition: all 0.2s ease;
+        cursor: grab;
+      }
+
+      .menu-item:active {
+        cursor: grabbing;
       }
 
       .menu-item.archived {
         opacity: 0.6;
         background: var(--mat-sys-surface-container);
+      }
+
+      .menu-item.cdk-drag-preview {
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        transform: rotate(2deg);
+        border: 2px solid var(--mat-sys-primary);
+        background: var(--mat-sys-surface);
+      }
+
+      .menu-item.cdk-drag-placeholder {
+        opacity: 0.3;
+        background: var(--mat-sys-surface-container-low);
+        border: 2px dashed var(--mat-sys-outline);
+      }
+
+      .menu-item.cdk-drag-animating {
+        transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+      }
+
+      .menu-items.cdk-drop-list-dragging
+        .menu-item:not(.cdk-drag-placeholder) {
+        transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+      }
+
+      .drag-handle {
+        display: flex;
+        align-items: center;
+        color: var(--mat-sys-on-surface-variant);
+        margin-right: 0.75rem;
+        cursor: grab;
+      }
+
+      .drag-handle:active {
+        cursor: grabbing;
+      }
+
+      .drag-handle mat-icon {
+        font-size: 1.25rem;
+        height: 1.25rem;
+        width: 1.25rem;
       }
 
       .item-info {
@@ -245,7 +323,7 @@ interface HierarchyNode {
         padding: 0.25rem 0.5rem;
         border-radius: 12px;
         font-size: 0.75rem;
-        font-weight: 500;
+        font-weight: 200;
       }
 
       .badge.auth {
@@ -292,6 +370,12 @@ interface HierarchyNode {
           align-items: stretch;
           gap: 0.5rem;
         }
+
+        .drag-handle {
+          align-self: flex-start;
+          margin-right: 0;
+          margin-bottom: 0.25rem;
+        }
       }
     `,
   ],
@@ -301,6 +385,8 @@ export class MenuHierarchyComponent {
   @Input() hierarchyData: HierarchyNode[] = [];
   @Input() loading = false;
   @Output() refreshClick = new EventEmitter<void>();
+
+  private readonly menuApiService = inject(MenuApiService);
 
   // Options for display
   private readonly domainOptions = DOMAIN_OPTIONS;
@@ -394,5 +480,94 @@ export class MenuHierarchyComponent {
       (total, items) => total + (items?.length || 0),
       0
     );
+  }
+
+  onDrop(
+    event: CdkDragDrop<MenuItemDto[]>,
+    domain: Domain,
+    structuralSubtype: StructuralSubtype,
+    state: State
+  ): void {
+    if (event.previousIndex === event.currentIndex) {
+      return; // No position change
+    }
+
+    const items = [...event.container.data];
+    moveItemInArray(items, event.previousIndex, event.currentIndex);
+
+    // Recalculate sortId values to handle duplicates and maintain order
+    const reorderedItems = this.recalculateSortIds(items);
+
+    // Update the hierarchy data locally for immediate UI feedback
+    this.updateLocalHierarchyData(
+      domain,
+      structuralSubtype,
+      state,
+      reorderedItems
+    );
+
+    // Save the reordered items to the backend
+    this.saveReorderedItems(
+      domain,
+      structuralSubtype,
+      state,
+      reorderedItems
+    );
+  }
+
+  private recalculateSortIds(items: MenuItemDto[]): MenuItemDto[] {
+    return items.map((item, index) => ({
+      ...item,
+      sortId: (index + 1) * 10, // Use increments of 10 to allow future insertions
+    }));
+  }
+
+  private updateLocalHierarchyData(
+    domain: Domain,
+    structuralSubtype: StructuralSubtype,
+    state: State,
+    items: MenuItemDto[]
+  ): void {
+    const domainNode = this.hierarchyData.find(
+      (node) => node.domain === domain
+    );
+    if (
+      domainNode?.structuralSubtypes[structuralSubtype]?.states[state]
+    ) {
+      domainNode.structuralSubtypes[structuralSubtype]!.states[
+        state
+      ] = items;
+    }
+  }
+
+  saveReorderedItems(
+    domain: Domain,
+    structuralSubtype: StructuralSubtype,
+    state: State,
+    items: MenuItemDto[]
+  ): void {
+    const reorderDto: ReorderDto = {
+      itemIds: items.map((item) => item._id),
+    };
+
+    this.menuApiService
+      .reorderMenuItems$(domain, structuralSubtype, state, reorderDto)
+      .subscribe({
+        next: (updatedItems) => {
+          // Update local data with the response from server
+          this.updateLocalHierarchyData(
+            domain,
+            structuralSubtype,
+            state,
+            updatedItems
+          );
+        },
+        error: (error) => {
+          console.error('Failed to reorder menu items:', error);
+          // Optionally emit an error event or show a notification
+          // For now, we could refresh the data to restore the original order
+          this.onRefreshClick();
+        },
+      });
   }
 }
