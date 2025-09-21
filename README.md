@@ -1,78 +1,194 @@
-# mfe-user-journey-admin-navigational-list
+# Menu Management System
 
-A user-journey micro frontend built with Angular and Module Federation.
+This Angular MFE provides a comprehensive menu management system for the Ngx-Workshop platform. It enables the creation, editing, and organization of navigational menus across different domains, structural subtypes, and states.
 
-## Overview
+## Features
 
-This micro frontend is part of the NGX Workshop ecosystem and serves as a user-journey component in the overall application architecture.
+### 🎯 Core Functionality
 
-## Getting Started
+- **CRUD Operations**: Create, read, update, delete, archive, and unarchive menu items
+- **Advanced Filtering**: Filter by domain, structural subtype, state, authentication requirement, and search text
+- **Hierarchical View**: Visualize menu structure organized by domain → structural subtype → state
+- **Statistics Dashboard**: View comprehensive statistics about menu items
+- **Real-time Updates**: Automatic refresh after operations
 
-### Prerequisites
+### 🏗️ Menu Hierarchy Structure
 
-- Node.js (v20.19.0 or higher)
-- npm (v8.0.0 or higher)
-
-### Installation
-
-```bash
-npm install
+```
+Domain (ADMIN | WORKSHOP)
+└── Structural Subtype (HEADER | NAV | FOOTER)
+    └── State (FULL | RELAXED | COMPACT)
+        └── Menu Items (sorted by sortId)
 ```
 
-### Development
+### 📱 User Interface
 
-To start the development server:
+- **List View**: Comprehensive table with filtering and search capabilities
+- **Hierarchy View**: Tree-like visualization of the menu structure
+- **Statistics View**: Dashboard showing menu statistics and distributions
+- **Modal Forms**: User-friendly forms for creating and editing menu items
+
+## Architecture
+
+### Components
+
+- **MenuManagementComponent**: Main container with tabs for different views
+- **MenuListComponent**: Displays menu items in a filtered list/grid
+- **MenuItemFormComponent**: Modal form for creating/editing menu items
+
+### Services
+
+- **MenuApiService**: Handles all API communication with the backend
+
+### Types
+
+- **menu.types.ts**: Comprehensive type definitions and constants
+
+## API Integration
+
+The system integrates with the NestJS backend using the `@tmdjr/service-navigational-list-contracts` package, which provides:
+
+- Type-safe DTOs for all operations
+- Complete OpenAPI schema integration
+- Standardized request/response interfaces
+
+### Supported Endpoints
+
+- `GET /menu` - List menu items with filters
+- `POST /menu` - Create new menu item
+- `GET /menu/:id` - Get specific menu item
+- `PATCH /menu/:id` - Update menu item
+- `DELETE /menu/:id` - Delete menu item
+- `PATCH /menu/:id/archive` - Archive menu item
+- `PATCH /menu/:id/unarchive` - Unarchive menu item
+- `GET /menu/hierarchy/:domain` - Get hierarchical view
+- `POST /menu/domain/:domain/structural-subtype/:subtype/state/:state/reorder` - Reorder items
+
+## Menu Item Properties
+
+Each menu item includes:
+
+- **Basic Info**: Text, route path, description, tooltip
+- **Classification**: Domain, structural subtype, state
+- **Configuration**: Sort ID, auth requirement, archived status
+- **Icons**: Optional SVG paths for navigation and header display
+- **Metadata**: Timestamps, version, database ID
+
+## Development
+
+### Running the Application
 
 ```bash
 npm run dev:bundle
 ```
 
-This will:
-- Start the webpack build in watch mode
-- Serve the bundled application on http://localhost:4201
-- Enable CORS for cross-origin requests
+The application will be available at `http://localhost:4201`
 
-### Available Scripts
+### Building for Production
 
-- `npm run dev:bundle` - Start development server with watch mode
-- `npm run build` - Build the application for production
-- `npm run watch` - Build in watch mode only
-- `npm run serve:bundle` - Serve the built application
-- `npm test` - Run unit tests
+```bash
+npm run build
+```
 
-## Architecture
+### Key Dependencies
 
-This micro frontend uses:
-- **Angular 20+** - Frontend framework
-- **Module Federation** - For micro frontend architecture
-- **Webpack** - Module bundler and build tool
-- **TypeScript** - Type-safe JavaScript development
+- **Angular 20**: Latest Angular framework
+- **Angular Material**: UI component library
+- **@tmdjr/service-navigational-list-contracts**: API contracts
+- **Module Federation**: For micro-frontend architecture
 
-## Module Federation Configuration
+## Usage Examples
 
-The micro frontend is exposed via Module Federation and can be consumed by host applications. Check the `webpack.config.js` file for exposed modules and configuration.
+### Creating a Menu Item
 
-## Development Guidelines
+1. Navigate to the "List View" tab
+2. Click "New Menu Item"
+3. Fill in required fields:
+   - Menu Item Text
+   - Route Path
+   - Domain
+   - Structural Subtype
+   - State
+   - Sort ID
+4. Optionally add description, tooltip, and SVG paths
+5. Save to create the item
 
-1. Follow the established coding standards
-2. Write unit tests for new features
-3. Use TypeScript for type safety
-4. Follow Angular best practices
-5. Keep components focused and reusable
+### Filtering Menu Items
 
-## Deployment
+- Use the filter section to narrow down results
+- Combine multiple filters for precise results
+- Use text search to find items by name, route, or description
+- Toggle "Include Archived" to show/hide archived items
 
-The application is automatically deployed via GitHub Actions when changes are pushed to the main branch.
+### Managing Menu Hierarchy
 
-## Repository
+1. Switch to "Hierarchy View" tab
+2. View organized structure by domain → subtype → state
+3. Expand sections to see menu items
+4. Items are automatically sorted by their Sort ID
 
-- **GitHub**: https://github.com/Ngx-Workshop/mfe-user-journey-admin-navigational-list
-- **Type**: user-journey MFE
+### Viewing Statistics
 
-## Support
+1. Go to "Statistics" tab
+2. See comprehensive metrics about your menu system
+3. Track distribution across domains and structural types
 
-For questions or issues, please refer to the NGX Workshop documentation or create an issue in the repository.
+## Best Practices
 
----
+### Sort ID Management
 
-Generated on Sat Sep 20 16:13:13 EDT 2025 using the NGX Workshop MFE creation script.
+- Use consistent increments (e.g., 10, 20, 30) to allow for easy insertion
+- Reserve ranges for different types of menu items
+- Consider logical grouping when assigning sort IDs
+
+### Route Path Conventions
+
+- Use consistent naming patterns
+- Follow Angular route conventions
+- Consider deep-linking requirements
+
+### Domain Organization
+
+- **ADMIN**: Administrative interfaces and tools
+- **WORKSHOP**: User-facing workshop content and features
+
+### Structural Subtype Usage
+
+- **HEADER**: Top-level navigation and branding
+- **NAV**: Main navigation menus
+- **FOOTER**: Footer links and secondary navigation
+
+### State Management
+
+- **FULL**: Complete menu with all items visible
+- **RELAXED**: Reduced menu with less critical items hidden
+- **COMPACT**: Minimal menu for mobile or constrained spaces
+
+## Troubleshooting
+
+### Common Issues
+
+1. **API Connection**: Ensure the backend service is running and accessible
+2. **CORS Issues**: Verify CORS configuration on the backend
+3. **Form Validation**: Check all required fields are filled correctly
+4. **Route Conflicts**: Ensure route paths don't conflict with existing routes
+
+### Error Handling
+
+- All API errors are caught and displayed via snack bar notifications
+- Form validation provides real-time feedback
+- Network errors are handled gracefully with fallback states
+
+## Contributing
+
+When adding new features:
+
+1. Follow the existing component structure
+2. Use Angular Material components consistently
+3. Implement proper error handling
+4. Add TypeScript types for new data structures
+5. Update this documentation
+
+## License
+
+This project is part of the Ngx-Workshop ecosystem.
