@@ -26,6 +26,7 @@ import {
   MenuItemConfigurationComponent,
   MenuItemFormActionsComponent,
   MenuItemFormHeaderComponent,
+  MenuItemParentSelectionComponent,
   MenuItemSvgIconsComponent,
 } from './menu-item-form';
 
@@ -44,6 +45,7 @@ export interface MenuItemFormDialogData {
     MenuItemFormHeaderComponent,
     MenuItemBasicInfoComponent,
     MenuItemClassificationComponent,
+    MenuItemParentSelectionComponent,
     MenuItemConfigurationComponent,
     MenuItemSvgIconsComponent,
     MenuItemFormActionsComponent,
@@ -67,6 +69,12 @@ export interface MenuItemFormDialogData {
           [stateOptions]="stateOptions"
         >
         </ngx-menu-item-classification>
+
+        <ngx-menu-item-parent-selection
+          [form]="form"
+          [currentItemId]="data.item?._id"
+        >
+        </ngx-menu-item-parent-selection>
 
         <ngx-menu-item-configuration [form]="form">
         </ngx-menu-item-configuration>

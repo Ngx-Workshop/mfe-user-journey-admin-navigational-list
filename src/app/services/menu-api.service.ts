@@ -10,6 +10,7 @@ import {
 import { Observable } from 'rxjs';
 import type {
   Domain,
+  HierarchicalReorderDto,
   MenuFilter,
   State,
   StructuralSubtype,
@@ -127,6 +128,22 @@ export class MenuApiService {
   ): Observable<MenuItemDto[]> {
     return this.http.post<MenuItemDto[]>(
       `${this.baseUrl}/domain/${domain}/structural-subtype/${structuralSubtype}/state/${state}/reorder`,
+      reorderDto
+    );
+  }
+
+  /**
+   * Hierarchical reorder menu items within a specific domain/structural subtype/state
+   * Supports complex hierarchical operations including changing parent-child relationships
+   */
+  reorderMenuItemsHierarchical$(
+    domain: Domain,
+    structuralSubtype: StructuralSubtype,
+    state: State,
+    reorderDto: HierarchicalReorderDto
+  ): Observable<MenuItemDto[]> {
+    return this.http.post<MenuItemDto[]>(
+      `${this.baseUrl}/domain/${domain}/structural-subtype/${structuralSubtype}/state/${state}/reorder-hierarchical`,
       reorderDto
     );
   }

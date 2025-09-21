@@ -8,7 +8,13 @@ import {
 } from '@tmdjr/service-navigational-list-contracts';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import { MenuItemFormData } from '../types/menu.types';
+import {
+  Domain,
+  MenuItemFormData,
+  ParentOption,
+  State,
+  StructuralSubtype,
+} from '../types/menu.types';
 import { MenuApiService } from './menu-api.service';
 
 @Injectable({
@@ -36,6 +42,7 @@ export class MenuItemFormService {
       archived: [false],
       navSvgPath: [''],
       headerSvgPath: [''],
+      parentId: [''], // Optional parent selection
     });
   }
 
@@ -56,6 +63,7 @@ export class MenuItemFormService {
       archived: item.archived,
       navSvgPath: item.navSvgPath || '',
       headerSvgPath: item.headerSvgPath || '',
+      parentId: item.parentId || '',
     });
   }
 
@@ -90,6 +98,7 @@ export class MenuItemFormService {
       archived: formData.archived,
       navSvgPath: formData.navSvgPath || undefined,
       headerSvgPath: formData.headerSvgPath || undefined,
+      parentId: formData.parentId || undefined,
       lastUpdated: new Date().toISOString(),
     };
   }
@@ -113,6 +122,7 @@ export class MenuItemFormService {
       archived: formData.archived,
       navSvgPath: formData.navSvgPath || undefined,
       headerSvgPath: formData.headerSvgPath || undefined,
+      parentId: formData.parentId || undefined,
       lastUpdated: new Date().toISOString(),
     };
   }
@@ -254,6 +264,82 @@ export class MenuItemFormService {
       archived: false,
       navSvgPath: '',
       headerSvgPath: '',
+      parentId: '',
     });
+  }
+
+  /**
+   * Gets available parent options for a menu item
+   * Filters out the current item being edited and its descendants to prevent circular references
+   */
+  getParentOptions(
+    domain: Domain,
+    structuralSubtype: StructuralSubtype,
+    state: State,
+    allItems: MenuItemDto[],
+    currentItemId?: string
+  ): ParentOption[] {
+    const options: ParentOption[] = [
+      { value: '', label: 'None (Root Level)' },
+    ];
+
+    // Filter items to same domain/structural subtype/state
+    const availableItems = allItems.filter(
+      (item) =>
+        item.domain === domain &&
+        item.structuralSubtype === structuralSubtype &&
+        item.state === state &&
+        !item.archived &&
+        item._id !== currentItemId // Exclude the current item being edited
+    );
+
+    // If editing an item, exclude its descendants to prevent circular references
+    if (currentItemId) {
+      const excludedIds = this.getDescendantIds(
+        allItems,
+        currentItemId
+      );
+      const filteredItems = availableItems.filter(
+        (item) => !excludedIds.includes(item._id)
+      );
+
+      filteredItems.forEach((item) => {
+        options.push({
+          value: item._id,
+          label: `${item.menuItemText} (${item.routePath})`,
+        });
+      });
+    } else {
+      // For new items, all available items can be parents
+      availableItems.forEach((item) => {
+        options.push({
+          value: item._id,
+          label: `${item.menuItemText} (${item.routePath})`,
+        });
+      });
+    }
+
+    return options;
+  }
+
+  /**
+   * Recursively gets all descendant IDs of a menu item
+   * Used to prevent circular references when selecting parents
+   */
+  private getDescendantIds(
+    allItems: MenuItemDto[],
+    parentId: string
+  ): string[] {
+    const descendants: string[] = [];
+
+    const children = allItems.filter(
+      (item) => item.parentId === parentId
+    );
+    for (const child of children) {
+      descendants.push(child._id);
+      descendants.push(...this.getDescendantIds(allItems, child._id));
+    }
+
+    return descendants;
   }
 }

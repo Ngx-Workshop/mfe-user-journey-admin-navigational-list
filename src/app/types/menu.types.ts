@@ -7,6 +7,18 @@ export type {
   UpdateMenuItemDto,
 } from '@tmdjr/service-navigational-list-contracts';
 
+// Hierarchical reorder DTOs for the new API endpoints
+export interface HierarchicalReorderItemDto {
+  id: string; // Menu item ID
+  sortId: number; // New position in the list
+  parentId?: string; // New parent ID (null for root level)
+  children?: HierarchicalReorderItemDto[]; // Child items
+}
+
+export interface HierarchicalReorderDto {
+  items: HierarchicalReorderItemDto[];
+}
+
 // Import for local use
 import type { MenuItemDto } from '@tmdjr/service-navigational-list-contracts';
 
@@ -63,6 +75,13 @@ export interface StateOption {
   label: string;
 }
 
+// Parent selection option for form dropdown
+export interface ParentOption {
+  value: string;
+  label: string;
+  disabled?: boolean;
+}
+
 // Constants for dropdown options
 export const DOMAIN_OPTIONS: DomainOption[] = [
   { value: DOMAIN.ADMIN, label: 'Admin' },
@@ -110,4 +129,5 @@ export interface MenuItemFormData {
   state: State;
   description?: string;
   archived: boolean;
+  parentId?: string;
 }
