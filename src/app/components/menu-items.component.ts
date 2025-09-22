@@ -42,6 +42,8 @@ interface HierarchyNode {
   template: `
     <div
       class="menu-items"
+      [class]="'nesting-level-' + nestingLevel"
+      [style.margin-left]="nestingLevel > 0 ? '0' : '2rem'"
       cdkDropList
       [cdkDropListData]="items"
       [cdkDropListConnectedTo]="getConnectedDropLists()"
@@ -75,7 +77,10 @@ interface HierarchyNode {
             "
             cdkDropList
             [cdkDropListData]="[item]"
-            [cdkDropListConnectedTo]="getConnectedDropLists()"
+            [cdkDropListConnectedTo]="
+              getConnectedDropListsForParent(item)
+            "
+            [cdkDropListSortingDisabled]="true"
             (cdkDropListDropped)="onDropOntoItem($event, item)"
             (cdkDropListEntered)="onDragEnterItem(item)"
             (cdkDropListExited)="onDragExitItem(item)"
@@ -83,11 +88,13 @@ interface HierarchyNode {
           >
             <div class="drop-indicator">
               <mat-icon>subdirectory_arrow_right</mat-icon>
+              @if (currentDraggedItemId !== item._id) {
               <span
                 >Drop here to nest under "{{
                   item.menuItemText
                 }}"</span
               >
+              }
             </div>
           </div>
 
@@ -100,7 +107,7 @@ interface HierarchyNode {
             [class.drag-target]="dragOverItemId === item._id"
             cdkDrag
             [cdkDragData]="item"
-            (cdkDragStarted)="onDragStarted()"
+            (cdkDragStarted)="onDragStarted(item)"
             (cdkDragEnded)="onDragEnded()"
           >
             <div class="drag-handle" cdkDragHandle>
@@ -109,12 +116,12 @@ interface HierarchyNode {
             <div class="item-info">
               <span class="item-text">{{ item.menuItemText }}</span>
               <span class="item-route">{{ item.routePath }}</span>
-              <span class="item-sort">Sort: {{ item.sortId }}</span>
+              <!-- <span class="item-sort">Sort: {{ item.sortId }}</span>
               @if (item.parentId) {
               <span class="item-parent"
                 >Parent: {{ item.parentId }}</span
               >
-              }
+              } -->
             </div>
             <div class="item-badges">
               @if (item.authRequired) {
@@ -130,15 +137,28 @@ interface HierarchyNode {
           </div>
         </div>
 
-        <!-- Recursive template for children with connected drop lists -->
+        <!-- Recursive template for children with enhanced grouping -->
         @if (item.children && item.children.length > 0) {
         <div class="children-container">
+          <!-- <div class="children-header">
+            <mat-icon class="children-icon"
+              >subdirectory_arrow_right</mat-icon
+            >
+            <span class="children-label"
+              >{{ item.children.length }} nested item{{
+                item.children.length === 1 ? '' : 's'
+              }}</span
+            >
+          </div> -->
           <ngx-menu-items
             [items]="item.children"
             [hierarchyData]="hierarchyData"
             [domain]="domain"
             [structuralSubtype]="structuralSubtype"
             [state]="state"
+            [nestingLevel]="nestingLevel + 1"
+            [parentId]="item._id"
+            [ancestorListIds]="getChildAncestorListIds()"
             (reorderError)="reorderError.emit($event)"
           ></ngx-menu-items>
         </div>
@@ -152,434 +172,7 @@ interface HierarchyNode {
       }
     </div>
   `,
-  styles: [
-    `
-      .menu-items {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-        margin-left: 2rem;
-        position: relative;
-      }
-
-      .drag-instructions {
-        position: sticky;
-        top: 0;
-        background: var(--mat-sys-primary-container);
-        color: var(--mat-sys-on-primary-container);
-        padding: 0.75rem 1rem;
-        border-radius: 8px;
-        margin-bottom: 0.5rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-size: 0.875rem;
-        font-weight: 500;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        border: 1px solid var(--mat-sys-primary);
-        z-index: 100;
-        animation: slide-in-down 0.3s ease-out;
-      }
-
-      @keyframes slide-in-down {
-        from {
-          opacity: 0;
-          transform: translateY(-10px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      .drag-instructions mat-icon {
-        font-size: 1.2rem;
-        height: 1.2rem;
-        width: 1.2rem;
-      }
-
-      .menu-item-container {
-        display: flex;
-        flex-direction: column;
-      }
-
-      .menu-item-wrapper {
-        position: relative;
-        transition: all 0.3s ease;
-      }
-
-      .menu-item-wrapper.drag-active {
-        transform: scale(0.98);
-      }
-
-      .menu-item-wrapper.drag-over {
-        background: var(--mat-sys-primary-container);
-        border-radius: 8px;
-        padding: 4px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      }
-
-      /* Drop zone styling - Enhanced for better nesting visibility */
-      .drop-zone-parent {
-        position: absolute;
-        top: -8px;
-        left: 0;
-        right: 0;
-        height: 16px;
-        background: transparent;
-        border-radius: 4px;
-        opacity: 0;
-        transition: all 0.3s ease;
-        z-index: 10;
-        pointer-events: none;
-      }
-
-      .drag-active .drop-zone-parent {
-        pointer-events: all;
-      }
-
-      /* Show subtle nesting hints when dragging */
-      .drop-zone-parent.show-nesting-hint {
-        opacity: 0.6;
-        background: linear-gradient(
-          90deg,
-          transparent 0%,
-          var(--mat-sys-tertiary-container) 50%,
-          transparent 100%
-        );
-        border: 1px dashed var(--mat-sys-tertiary);
-        height: 24px;
-        top: -12px;
-        animation: gentle-pulse 2s infinite;
-      }
-
-      @keyframes gentle-pulse {
-        0%,
-        100% {
-          opacity: 0.4;
-        }
-        50% {
-          opacity: 0.7;
-        }
-      }
-
-      .drop-zone-parent.show-nesting-hint .drop-indicator {
-        opacity: 0.8;
-        color: var(--mat-sys-on-tertiary-container);
-        font-weight: 500;
-      }
-
-      .drop-zone-parent.cdk-drop-list-dragging {
-        opacity: 1;
-        background: var(--mat-sys-primary-container);
-        border: 2px dashed var(--mat-sys-primary);
-      }
-
-      .drop-zone-parent.cdk-drop-list-receiving-drag {
-        opacity: 1;
-        background: var(--mat-sys-secondary-container);
-        border: 2px solid var(--mat-sys-secondary);
-        height: 40px;
-        top: -20px;
-        transform: scaleY(1.1);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-        animation: highlight-drop-zone 0.3s ease-in-out;
-      }
-
-      @keyframes highlight-drop-zone {
-        0% {
-          background: var(--mat-sys-primary-container);
-          border-color: var(--mat-sys-primary);
-        }
-        100% {
-          background: var(--mat-sys-secondary-container);
-          border-color: var(--mat-sys-secondary);
-        }
-      }
-
-      .drop-indicator {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-        padding: 0.25rem 0.75rem;
-        font-size: 0.75rem;
-        font-weight: 500;
-        color: var(--mat-sys-on-primary-container);
-        background: rgba(255, 255, 255, 0.9);
-        border-radius: 16px;
-        opacity: 0;
-        transition: all 0.2s ease;
-        white-space: nowrap;
-        margin: 0 auto;
-        width: fit-content;
-        max-width: 90%;
-        text-align: center;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      }
-
-      .drop-zone-parent.cdk-drop-list-receiving-drag .drop-indicator {
-        opacity: 1;
-        transform: translateY(2px);
-        background: var(--mat-sys-secondary-container);
-        color: var(--mat-sys-on-secondary-container);
-        border: 1px solid var(--mat-sys-secondary);
-      }
-
-      .drop-indicator mat-icon {
-        font-size: 1rem;
-        height: 1rem;
-        width: 1rem;
-      }
-
-      .menu-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0.75rem;
-        border: 1px solid var(--mat-sys-outline-variant);
-        border-radius: 4px;
-        background: var(--mat-sys-surface-variant);
-        transition: all 0.2s ease;
-        cursor: grab;
-        position: relative;
-        z-index: 5;
-      }
-
-      .menu-item.has-children {
-        border-left: 4px solid var(--mat-sys-primary);
-        background: var(--mat-sys-primary-container);
-      }
-
-      .menu-item.drag-target {
-        border-color: var(--mat-sys-secondary);
-        background: var(--mat-sys-secondary-container);
-        transform: translateY(2px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
-      }
-
-      .menu-item:active {
-        cursor: grabbing;
-      }
-
-      .menu-item.archived {
-        opacity: 0.6;
-        background: var(--mat-sys-surface-container);
-      }
-
-      .menu-item.cdk-drag-preview {
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-        transform: rotate(2deg);
-        border: 2px solid var(--mat-sys-primary);
-        background: var(--mat-sys-surface);
-        z-index: 1000;
-      }
-
-      .menu-item.cdk-drag-placeholder {
-        opacity: 0.3;
-        background: var(--mat-sys-surface-container-low);
-        border: 2px dashed var(--mat-sys-outline);
-      }
-
-      .menu-item.cdk-drag-animating {
-        transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
-      }
-
-      .menu-items.cdk-drop-list-dragging
-        .menu-item:not(.cdk-drag-placeholder) {
-        transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
-      }
-
-      /* Enhanced drag state */
-      .menu-items.cdk-drop-list-dragging .menu-item-wrapper {
-        border: 1px dashed var(--mat-sys-outline);
-        border-radius: 8px;
-        margin: 4px 0;
-        position: relative;
-      }
-
-      .menu-items.cdk-drop-list-dragging .menu-item-wrapper::after {
-        content: '↳ Drop here to nest';
-        position: absolute;
-        top: -12px;
-        right: 8px;
-        background: var(--mat-sys-tertiary-container);
-        color: var(--mat-sys-on-tertiary-container);
-        padding: 2px 8px;
-        border-radius: 12px;
-        font-size: 0.7rem;
-        font-weight: 500;
-        opacity: 0.8;
-        z-index: 15;
-        pointer-events: none;
-        transition: all 0.2s ease;
-      }
-
-      .menu-items.cdk-drop-list-dragging .menu-item-wrapper:hover {
-        background: var(--mat-sys-tertiary-container);
-        border-color: var(--mat-sys-tertiary);
-        transform: translateY(-1px);
-      }
-
-      .menu-items.cdk-drop-list-dragging
-        .menu-item-wrapper:hover::after {
-        opacity: 1;
-        transform: translateY(-2px);
-        background: var(--mat-sys-secondary-container);
-        color: var(--mat-sys-on-secondary-container);
-      }
-
-      .children-container {
-        margin-top: 0.5rem;
-        margin-left: 1.5rem;
-        padding-left: 1rem;
-        border-left: 2px dashed var(--mat-sys-outline-variant);
-        position: relative;
-      }
-
-      .children-container::before {
-        content: '';
-        position: absolute;
-        top: -0.5rem;
-        left: -2px;
-        bottom: 0;
-        width: 2px;
-        background: var(--mat-sys-outline-variant);
-        opacity: 0.5;
-      }
-
-      .drag-handle {
-        display: flex;
-        align-items: center;
-        color: var(--mat-sys-on-surface-variant);
-        margin-right: 0.75rem;
-        cursor: grab;
-        transition: color 0.2s ease;
-      }
-
-      .drag-handle:hover {
-        color: var(--mat-sys-primary);
-      }
-
-      .drag-handle:active {
-        cursor: grabbing;
-      }
-
-      .drag-handle mat-icon {
-        font-size: 1.25rem;
-        height: 1.25rem;
-        width: 1.25rem;
-      }
-
-      .item-info {
-        display: flex;
-        flex-direction: column;
-        gap: 0.25rem;
-        flex: 1;
-      }
-
-      .item-text {
-        font-weight: 500;
-      }
-
-      .item-route {
-        font-size: 0.875rem;
-        color: var(--mat-sys-on-surface-variant);
-        font-family: monospace;
-      }
-
-      .item-sort {
-        font-size: 0.75rem;
-        color: var(--mat-sys-on-surface-variant);
-      }
-
-      .item-parent {
-        font-size: 0.75rem;
-        color: var(--mat-sys-secondary);
-        font-family: monospace;
-      }
-
-      .item-badges {
-        display: flex;
-        gap: 0.5rem;
-        flex-wrap: wrap;
-      }
-
-      .badge {
-        padding: 0.25rem 0.5rem;
-        border-radius: 12px;
-        font-size: 0.75rem;
-        font-weight: 200;
-        white-space: nowrap;
-      }
-
-      .badge.auth {
-        background: var(--mat-sys-error-container);
-        color: var(--mat-sys-on-error-container);
-      }
-
-      .badge.archived {
-        background: var(--mat-sys-secondary-container);
-        color: var(--mat-sys-on-secondary-container);
-      }
-
-      .badge.children {
-        background: var(--mat-sys-tertiary-container);
-        color: var(--mat-sys-on-tertiary-container);
-      }
-
-      .empty-state {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 2rem;
-        text-align: center;
-        opacity: 0.7;
-      }
-
-      .empty-state mat-icon {
-        font-size: 3rem;
-        height: 3rem;
-        width: 3rem;
-        margin-bottom: 1rem;
-      }
-
-      @media (max-width: 768px) {
-        .item-info {
-          flex: 1;
-        }
-
-        .menu-item {
-          flex-direction: column;
-          align-items: stretch;
-          gap: 0.5rem;
-        }
-
-        .drag-handle {
-          align-self: flex-start;
-          margin-right: 0;
-          margin-bottom: 0.25rem;
-        }
-
-        .children-container {
-          margin-left: 0.5rem;
-        }
-
-        .item-badges {
-          justify-content: flex-start;
-        }
-
-        .drop-indicator span {
-          display: none;
-        }
-
-        .drop-zone-parent.cdk-drop-list-receiving-drag {
-          height: 24px;
-          top: -12px;
-        }
-      }
-    `,
-  ],
+  styleUrls: ['./menu-items.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MenuItemsComponent {
@@ -588,6 +181,9 @@ export class MenuItemsComponent {
   @Input() domain!: Domain;
   @Input() structuralSubtype!: StructuralSubtype;
   @Input() state!: State;
+  @Input() nestingLevel: number = 0; // Track nesting depth for proper indentation
+  @Input() parentId?: string; // Parent ID for this items list (undefined for root)
+  @Input() ancestorListIds: string[] = [];
   @Output() reorderError = new EventEmitter<Error>();
 
   private readonly sortingService = inject(MenuItemsSortingService);
@@ -595,30 +191,52 @@ export class MenuItemsComponent {
   // Track drag-over state for visual feedback
   dragOverItemId: string | null = null;
   isDragActive = false;
+  currentDraggedItemId: string | null = null;
+  private static instanceSeq = 0;
+  private _dropListId?: string;
 
   /**
    * Generates a unique ID for this drop list instance
    */
   getDropListId(): string {
-    return `menu-items-${this.domain}-${this.structuralSubtype}-${
-      this.state
-    }-${Math.random().toString(36).substr(2, 9)}`;
+    if (!this._dropListId) {
+      const seq = ++MenuItemsComponent.instanceSeq;
+      this._dropListId = `menu-items-${this.domain}-${this.structuralSubtype}-${this.state}-lvl-${this.nestingLevel}-seq-${seq}`;
+    }
+    return this._dropListId;
   }
 
   /**
    * Gets connected drop list IDs for cross-level drag and drop
    */
   getConnectedDropLists(): string[] {
-    // For now, return empty array - we'll enhance this if needed
-    // In a complex scenario, you might want to connect to parent/sibling lists
-    return [];
+    const currentZones = this.items.map(
+      (i) => `parent-zone-${i._id}`
+    );
+    return [...currentZones, ...this.ancestorListIds];
+  }
+
+  /**
+   * Connected lists for a specific item's parent drop zone
+   * Ensure it's connected back to the main list and peers
+   */
+  getConnectedDropListsForParent(item: MenuItemDto): string[] {
+    const parentZones = this.getConnectedDropLists().filter(
+      (id) => id !== `parent-zone-${item._id}`
+    );
+    return [
+      this.getDropListId(),
+      ...parentZones,
+      ...this.ancestorListIds,
+    ];
   }
 
   /**
    * Handles drag start event
    */
-  onDragStarted(): void {
+  onDragStarted(item: MenuItemDto): void {
     this.isDragActive = true;
+    this.currentDraggedItemId = item._id;
   }
 
   /**
@@ -627,6 +245,7 @@ export class MenuItemsComponent {
   onDragEnded(): void {
     this.isDragActive = false;
     this.dragOverItemId = null;
+    this.currentDraggedItemId = null;
   }
 
   /**
@@ -734,36 +353,13 @@ export class MenuItemsComponent {
     childItem: MenuItemDto,
     parentItem: MenuItemDto
   ): void {
-    // Create updated hierarchy data
-    const updatedItems = this.updateItemParent(
-      this.items,
+    const rootItems = this.getRootStateItems();
+    const updatedItems = this.relocateItemAsChild(
+      rootItems,
       childItem._id,
       parentItem._id
     );
-
-    // Use the hierarchical reorder service to save the changes
-    this.sortingService
-      .handleHierarchicalReorder(
-        this.hierarchyData,
-        this.domain,
-        this.structuralSubtype,
-        this.state,
-        updatedItems
-      )
-      .subscribe({
-        next: () => {
-          console.log(
-            'Successfully created parent-child relationship'
-          );
-        },
-        error: (error) => {
-          console.error(
-            'Failed to create parent-child relationship:',
-            error
-          );
-          this.reorderError.emit(error);
-        },
-      });
+    this.persistHierarchical(updatedItems);
   }
 
   /**
@@ -792,26 +388,120 @@ export class MenuItemsComponent {
     });
   }
 
-  onDrop(event: CdkDragDrop<MenuItemDto[]>): void {
-    if (event.previousIndex === event.currentIndex) {
-      return; // No position change
+  /**
+   * Removes the item from its current location and nests under the new parent.
+   */
+  private relocateItemAsChild(
+    items: MenuItemDto[],
+    itemId: string,
+    newParentId: string
+  ): MenuItemDto[] {
+    // First, extract the target item and return a tree without it
+    const { treeWithoutItem, extracted } = this.extractItem(
+      items,
+      itemId
+    );
+    if (!extracted) {
+      return items;
     }
 
-    const reorderedItems = [...event.container.data];
-    moveItemInArray(
-      reorderedItems,
+    // Mark new parent
+    extracted.parentId = newParentId;
+
+    // Insert into the new parent's children
+    const insertIntoParent = (list: MenuItemDto[]): MenuItemDto[] => {
+      return list.map((node) => {
+        if (node._id === newParentId) {
+          const children = node.children ? [...node.children] : [];
+          children.push(extracted);
+          return { ...node, children };
+        }
+        if (node.children && node.children.length > 0) {
+          return {
+            ...node,
+            children: insertIntoParent(node.children),
+          };
+        }
+        return node;
+      });
+    };
+
+    return insertIntoParent(treeWithoutItem);
+  }
+
+  private extractItem(
+    items: MenuItemDto[],
+    itemId: string
+  ): { treeWithoutItem: MenuItemDto[]; extracted?: MenuItemDto } {
+    let found: MenuItemDto | undefined;
+
+    const walk = (list: MenuItemDto[]): MenuItemDto[] => {
+      const result: MenuItemDto[] = [];
+      for (const node of list) {
+        if (node._id === itemId) {
+          found = { ...node, children: node.children || [] };
+          // skip adding to result -> effectively removes it
+          continue;
+        }
+        if (node.children && node.children.length > 0) {
+          result.push({ ...node, children: walk(node.children) });
+        } else {
+          result.push(node);
+        }
+      }
+      return result;
+    };
+
+    const pruned = walk(items);
+    return { treeWithoutItem: pruned, extracted: found };
+  }
+
+  onDrop(event: CdkDragDrop<MenuItemDto[]>): void {
+    const rootItems = this.getRootStateItems();
+
+    // Moving between containers (e.g., un-nesting to root or another parent)
+    if (event.previousContainer !== event.container) {
+      const draggedItem = event.item.data as MenuItemDto;
+      const newParentId = this.parentId; // undefined means root list
+      const { treeWithoutItem, extracted } = this.extractItem(
+        rootItems,
+        draggedItem._id
+      );
+      if (!extracted) return;
+      extracted.parentId = newParentId;
+
+      const updated = this.insertIntoListAt(
+        treeWithoutItem,
+        newParentId,
+        extracted,
+        event.currentIndex
+      );
+      this.persistHierarchical(updated);
+      return;
+    }
+
+    if (event.previousIndex === event.currentIndex) return;
+
+    const updatedItems = this.applyReorderToParentList(
+      rootItems,
+      this.parentId,
       event.previousIndex,
       event.currentIndex
     );
+    this.persistHierarchical(updatedItems);
+  }
 
-    // Handle the reordering through the sorting service using smart reorder
+  /**
+   * Persist a full-state hierarchical update via sortingService
+   */
+  private persistHierarchical(items: MenuItemDto[]): void {
     this.sortingService
-      .handleSmartReorder(
+      .handleHierarchicalReorder(
         this.hierarchyData,
         this.domain,
         this.structuralSubtype,
         this.state,
-        reorderedItems
+        items
       )
       .subscribe({
         error: (error) => {
@@ -819,5 +509,80 @@ export class MenuItemsComponent {
           this.reorderError.emit(error);
         },
       });
+  }
+
+  /**
+   * Get the root items array for the current domain/subtype/state
+   */
+  private getRootStateItems(): MenuItemDto[] {
+    const domainNode = this.hierarchyData.find(
+      (n) => n.domain === this.domain
+    );
+    const list =
+      domainNode?.structuralSubtypes[this.structuralSubtype]?.states[
+        this.state
+      ];
+    return list ?? this.items;
+  }
+
+  /**
+   * Apply a reorder within a parent group and return updated root list
+   */
+  private applyReorderToParentList(
+    items: MenuItemDto[],
+    targetParentId: string | undefined,
+    from: number,
+    to: number
+  ): MenuItemDto[] {
+    if (!targetParentId) {
+      const root = [...items];
+      moveItemInArray(root, from, to);
+      return root;
+    }
+    const reorderInChildren = (list: MenuItemDto[]): MenuItemDto[] =>
+      list.map((n) => {
+        if (n._id === targetParentId) {
+          const children = n.children ? [...n.children] : [];
+          moveItemInArray(children, from, to);
+          return { ...n, children };
+        }
+        if (n.children && n.children.length) {
+          return { ...n, children: reorderInChildren(n.children) };
+        }
+        return n;
+      });
+    return reorderInChildren(items);
+  }
+
+  private insertIntoListAt(
+    items: MenuItemDto[],
+    targetParentId: string | undefined,
+    nodeToInsert: MenuItemDto,
+    index: number
+  ): MenuItemDto[] {
+    const insertInto = (list: MenuItemDto[]): MenuItemDto[] => {
+      if (!targetParentId) {
+        const root = [...list];
+        root.splice(index, 0, nodeToInsert);
+        return root;
+      }
+      return list.map((n) => {
+        if (n._id === targetParentId) {
+          const children = n.children ? [...n.children] : [];
+          children.splice(index, 0, nodeToInsert);
+          return { ...n, children };
+        }
+        if (n.children && n.children.length) {
+          return { ...n, children: insertInto(n.children) };
+        }
+        return n;
+      });
+    };
+    return insertInto(items);
+  }
+
+  // Provide ancestor container IDs to children so they can connect to root/outer lists
+  getChildAncestorListIds(): string[] {
+    return [this.getDropListId(), ...this.ancestorListIds];
   }
 }

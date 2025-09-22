@@ -1,0 +1,68 @@
+// Design tokens mapped to CSS variables and common scales
+
+// Colors (mapped to CSS custom properties)
+$primary: var(--mat-sys-primary);
+$on-primary: var(--mat-sys-on-primary);
+$primary-container: var(--mat-sys-primary-container);
+$on-primary-container: var(--mat-sys-on-primary-container);
+
+$secondary: var(--mat-sys-secondary);
+$on-secondary: var(--mat-sys-on-secondary);
+$secondary-container: var(--mat-sys-secondary-container);
+$on-secondary-container: var(--mat-sys-on-secondary-container);
+
+$tertiary: var(--mat-sys-tertiary);
+$on-tertiary: var(--mat-sys-on-tertiary);
+$tertiary-container: var(--mat-sys-tertiary-container);
+$on-tertiary-container: var(--mat-sys-on-tertiary-container);
+
+$outline: var(--mat-sys-outline);
+$outline-variant: var(--mat-sys-outline-variant);
+
+$surface: var(--mat-sys-surface);
+$surface-variant: var(--mat-sys-surface-variant);
+$surface-container-lowest: var(--mat-sys-surface-container-lowest);
+$surface-container-low: var(--mat-sys-surface-container-low);
+$surface-container: var(--mat-sys-surface-container);
+$surface-container-high: var(--mat-sys-surface-container-high);
+
+$on-surface-variant: var(--mat-sys-on-surface-variant);
+
+$error-container: var(--mat-sys-error-container);
+$on-error-container: var(--mat-sys-on-error-container);
+
+// Spacing scale
+$sp-025: 0.25rem;
+$sp-05: 0.5rem;
+$sp-075: 0.75rem;
+$sp-1: 1rem;
+$sp-15: 1.5rem;
+$sp-2: 2rem;
+$sp-3: 3rem;
+
+// Radius scale
+$radius-4: 4px;
+$radius-8: 8px;
+$radius-12: 12px;
+$radius-16: 16px;
+$radius-20: 20px;
+$radius-24: 24px;
+
+// Elevation / shadows
+$shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
+$shadow-md: 0 4px 12px rgba(0, 0, 0, 0.15);
+$shadow-inset: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+$shadow-lg: 0 8px 25px rgba(0, 0, 0, 0.15);
+
+// Durations and easing
+$dur-quick: 0.2s;
+$dur-med: 0.3s;
+$dur-slow: 0.5s;
+$easing-standard: cubic-bezier(0, 0, 0.2, 1);
+
+// Z-index
+$z-sticky: 100;
+$z-drag: 1000;
+
+// Breakpoints
+$bp-sm: 768px;

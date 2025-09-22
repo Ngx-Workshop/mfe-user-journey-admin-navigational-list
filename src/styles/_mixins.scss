@@ -1,0 +1,97 @@
+@use 'sass:map';
+@use 'sass:color';
+@use './tokens' as *;
+
+// Flex helpers
+@mixin flex-col($gap: $sp-05) {
+  display: flex;
+  flex-direction: column;
+  gap: $gap;
+}
+
+@mixin flex-row(
+  $gap: $sp-05,
+  $align: center,
+  $justify: space-between
+) {
+  display: flex;
+  flex-direction: row;
+  align-items: $align;
+  justify-content: $justify;
+  gap: $gap;
+}
+
+// Rounded container with border and bg
+@mixin surface($bg, $border: $outline-variant, $radius: $radius-4) {
+  background: $bg;
+  border: 1px solid $border;
+  border-radius: $radius;
+}
+
+// Elevation
+@mixin elevation($shadow) {
+  box-shadow: $shadow;
+}
+
+// Transition helper: supports one or many properties
+@mixin transition($props, $dur: $dur-quick, $ease: $easing-standard) {
+  $list: ();
+  @if type-of($props) == 'list' {
+    @each $p in $props {
+      $list: append($list, #{$p} #{$dur} #{$ease}, comma);
+    }
+    transition: $list;
+  } @else {
+    transition: #{$props} #{$dur} #{$ease};
+  }
+}
+
+// Badge style
+@mixin badge($bg, $color) {
+  padding: $sp-025 $sp-05;
+  border-radius: $radius-12;
+  font-size: 0.75rem;
+  font-weight: 200;
+  white-space: nowrap;
+  background: $bg;
+  color: $color;
+}
+
+// Drag state outline
+@mixin drag-outline($color) {
+  // border: 1px dashed $color;
+  border-radius: $radius-8;
+}
+
+// Responsive helper
+@mixin sm {
+  @media (max-width: $bp-sm) {
+    @content;
+  }
+}
+
+// Placeholder helpers
+%drag-handle {
+  display: flex;
+  align-items: center;
+  color: $on-surface-variant;
+  cursor: grab;
+  @include transition(color);
+
+  &:hover {
+    color: $primary;
+  }
+  &:active {
+    cursor: grabbing;
+  }
+}
+
+%item-container {
+  @include flex-row($sp-075);
+  padding: $sp-075;
+  border: 1px solid $outline-variant;
+  border-radius: $radius-4;
+  background: $surface-variant;
+  cursor: grab;
+  position: relative;
+}
