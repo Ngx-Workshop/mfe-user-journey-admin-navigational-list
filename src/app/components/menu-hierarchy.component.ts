@@ -98,25 +98,36 @@ interface HierarchyNode {
               </mat-expansion-panel-header>
 
               <div class="states-container">
-                @for (state of getStates(node, structuralSubtype);
-                track state) {
-                <div class="state-section">
-                  <h4>
-                    <mat-icon>{{ getStateIcon(state) }}</mat-icon>
-                    {{ getStateLabel(state) }}
-                  </h4>
-                  <ngx-menu-items
-                    [items]="
-                      getMenuItems(node, structuralSubtype, state)
-                    "
-                    [hierarchyData]="hierarchyData"
-                    [domain]="node.domain"
-                    [structuralSubtype]="structuralSubtype"
-                    [state]="state"
-                    (reorderError)="onReorderError($event)"
-                  ></ngx-menu-items>
-                </div>
-                }
+                <mat-accordion>
+                  @for (state of getStates(node, structuralSubtype);
+                  track state) {
+                  <mat-expansion-panel class="state-section">
+                    <mat-expansion-panel-header>
+                      <mat-panel-title>
+                        <mat-icon>{{ getStateIcon(state) }}</mat-icon>
+                        {{ getStateLabel(state) }}
+                      </mat-panel-title>
+                      <mat-panel-description>
+                        {{
+                          getMenuItems(node, structuralSubtype, state)
+                            .length
+                        }}
+                        items
+                      </mat-panel-description>
+                    </mat-expansion-panel-header>
+                    <ngx-menu-items
+                      [items]="
+                        getMenuItems(node, structuralSubtype, state)
+                      "
+                      [hierarchyData]="hierarchyData"
+                      [domain]="node.domain"
+                      [structuralSubtype]="structuralSubtype"
+                      [state]="state"
+                      (reorderError)="onReorderError($event)"
+                    ></ngx-menu-items>
+                  </mat-expansion-panel>
+                  }
+                </mat-accordion>
               </div>
             </mat-expansion-panel>
             }
@@ -164,11 +175,14 @@ interface HierarchyNode {
         padding: 1rem 0;
       }
 
-      .state-section h4 {
+      .state-section {
+        margin-bottom: 0.5rem;
+      }
+
+      .state-section mat-panel-title {
         display: flex;
         align-items: center;
         gap: 0.5rem;
-        margin: 0 0 0.5rem 0;
         color: var(--mat-sys-primary);
       }
 
