@@ -30,33 +30,28 @@ export interface MenuItemActionEvent {
   template: `
     <mat-card class="menu-item-card" [class.archived]="item.archived">
       <mat-card-header>
-        <mat-card-title>{{ item.menuItemText }}</mat-card-title>
-        <mat-card-subtitle>
-          <mat-chip-set>
-            <mat-chip>{{ item.domain }}</mat-chip>
-            <mat-chip>{{ item.structuralSubtype }}</mat-chip>
-            <mat-chip>{{ item.state }}</mat-chip>
-            @if (item.authRequired) {
-            <mat-chip color="warn">Auth Required</mat-chip>
-            } @if (item.archived) {
-            <mat-chip color="accent">Archived</mat-chip>
-            }
-          </mat-chip-set>
-        </mat-card-subtitle>
+        <mat-card-title class="menu-item-card-title">
+          {{ item.menuItemText }}
+          @if (item.authRequired) {
+          <mat-chip class="auth-chip">Auth Required</mat-chip>
+          }
+        </mat-card-title>
       </mat-card-header>
 
       <mat-card-content>
-        <p><strong>Route:</strong> {{ item.routePath }}</p>
-        @if (item.description) {
-        <p><strong>Description:</strong> {{ item.description }}</p>
-        } @if (item.tooltipText) {
-        <p><strong>Tooltip:</strong> {{ item.tooltipText }}</p>
-        }
-        <p><strong>Sort ID:</strong> {{ item.sortId }}</p>
-        <p>
-          <strong>Last Updated:</strong>
-          {{ item.lastUpdated | date : 'short' }}
-        </p>
+        <a href="{{ item.routePath }}" target="_blank">{{
+          item.routePath
+        }}</a>
+        <div class="copy-id-container">
+          <pre>{{ item._id }}</pre>
+          <mat-icon class="copy-id">content_copy</mat-icon>
+        </div>
+
+        <mat-chip-set>
+          <mat-chip>{{ item.domain }}</mat-chip>
+          <mat-chip>{{ item.structuralSubtype }}</mat-chip>
+          <mat-chip>{{ item.state }}</mat-chip>
+        </mat-chip-set>
       </mat-card-content>
 
       <mat-card-actions>
@@ -72,25 +67,57 @@ export interface MenuItemActionEvent {
           <mat-icon>archive</mat-icon> Archive
         </button>
         }
-        <button mat-button color="warn" (click)="onAction('delete')">
+        <!-- <button mat-button color="warn" (click)="onAction('delete')">
           <mat-icon>delete</mat-icon> Delete
-        </button>
+        </button> -->
       </mat-card-actions>
     </mat-card>
   `,
   styles: [
     `
-      .menu-item-card {
-        transition: all 0.2s ease;
+      @use '@angular/material' as mat;
+      .auth-chip {
+        @include mat.chips-overrides(
+          (
+            label-text-color: orange,
+            outline-color: orange,
+          )
+        );
       }
 
-      .menu-item-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      ::ng-deep .mat-mdc-card-header-text {
+        width: 100%;
       }
-
-      .menu-item-card.archived {
-        opacity: 0.7;
+      :host {
+        .mat-mdc-card-header .mat-mdc-card-header-text {
+          width: 100% !important;
+        }
+        .menu-item-card-title {
+          display: flex;
+          width: 100%;
+          justify-content: space-between;
+        }
+        .menu-item-card {
+          transition: all 0.2s ease;
+        }
+        .menu-item-card:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        .menu-item-card.archived {
+          opacity: 0.7;
+        }
+        .copy-id-container {
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 0.4rem;
+          .copy-id {
+            font-size: 0.9rem;
+            width: 0.9rem;
+            height: 0.9rem;
+          }
+        }
       }
     `,
   ],

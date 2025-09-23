@@ -1,5 +1,7 @@
 @use 'sass:map';
 @use 'sass:color';
+@use 'sass:list';
+@use 'sass:meta';
 @use './tokens' as *;
 
 // Flex helpers
@@ -36,9 +38,9 @@
 // Transition helper: supports one or many properties
 @mixin transition($props, $dur: $dur-quick, $ease: $easing-standard) {
   $list: ();
-  @if type-of($props) == 'list' {
+  @if meta.type-of($props) == 'list' {
     @each $p in $props {
-      $list: append($list, #{$p} #{$dur} #{$ease}, comma);
+      $list: list.append($list, #{$p} #{$dur} #{$ease}, comma);
     }
     transition: $list;
   } @else {
