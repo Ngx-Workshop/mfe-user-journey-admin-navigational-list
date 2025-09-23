@@ -150,6 +150,16 @@ interface HierarchyNode {
         margin: 0 auto;
       }
 
+      /* Make the tab header sticky at the top */
+      :host ::ng-deep .tabs .mat-mdc-tab-header {
+        position: sticky;
+        top: 56px;
+        z-index: 10;
+        background: var(--mat-sys-surface);
+        /* Optional: add subtle shadow when stuck */
+        box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08);
+      }
+
       .tab-content {
         padding: 2rem;
       }
