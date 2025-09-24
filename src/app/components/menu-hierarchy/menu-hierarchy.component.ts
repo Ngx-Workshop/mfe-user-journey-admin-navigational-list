@@ -15,23 +15,13 @@ import { MenuItemDto } from '@tmdjr/service-navigational-list-contracts';
 import {
   Domain,
   DOMAIN_OPTIONS,
+  MenuHierarchy,
   State,
   STATE_OPTIONS,
   STRUCTURAL_SUBTYPE_OPTIONS,
   StructuralSubtype,
 } from '../../types/menu.types';
 import { MenuItemsComponent } from './menu-items.component';
-
-interface HierarchyNode {
-  domain: Domain;
-  structuralSubtypes: {
-    [key in StructuralSubtype]?: {
-      states: {
-        [key in State]?: MenuItemDto[];
-      };
-    };
-  };
-}
 
 @Component({
   selector: 'ngx-menu-hierarchy',
@@ -214,7 +204,7 @@ interface HierarchyNode {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MenuHierarchyComponent {
-  @Input() hierarchyData: HierarchyNode[] = [];
+  @Input() hierarchyData: MenuHierarchy[] = [];
   @Input() loading = false;
   @Output() refreshClick = new EventEmitter<void>();
 
@@ -281,14 +271,14 @@ export class MenuHierarchyComponent {
     }
   }
 
-  getStructuralSubtypes(node: HierarchyNode): StructuralSubtype[] {
+  getStructuralSubtypes(node: MenuHierarchy): StructuralSubtype[] {
     return Object.keys(
       node.structuralSubtypes
     ) as StructuralSubtype[];
   }
 
   getStates(
-    node: HierarchyNode,
+    node: MenuHierarchy,
     subtype: StructuralSubtype
   ): State[] {
     return Object.keys(
@@ -297,7 +287,7 @@ export class MenuHierarchyComponent {
   }
 
   getMenuItems(
-    node: HierarchyNode,
+    node: MenuHierarchy,
     subtype: StructuralSubtype,
     state: State
   ): MenuItemDto[] {
@@ -305,7 +295,7 @@ export class MenuHierarchyComponent {
   }
 
   getStructuralSubtypeItemCount(
-    node: HierarchyNode,
+    node: MenuHierarchy,
     subtype: StructuralSubtype
   ): number {
     const subtypeData = node.structuralSubtypes[subtype];
