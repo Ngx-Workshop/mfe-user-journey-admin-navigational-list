@@ -20,14 +20,11 @@ import {
         display: block;
         width: 100%;
       }
-
       .header {
         position: relative;
-
         width: 100%;
         display: flex;
         align-items: center;
-        padding: 0 1.125rem;
         overflow: hidden;
         background: linear-gradient(
           135deg,
@@ -36,7 +33,6 @@ import {
         );
         color: var(--mat-sys-on-primary);
       }
-
       h1 {
         position: relative;
         z-index: 1;
@@ -44,7 +40,6 @@ import {
         margin: 1.7rem 1rem;
         font-size: 1.85rem;
       }
-
       .bg-canvas {
         position: absolute;
         inset: 0;

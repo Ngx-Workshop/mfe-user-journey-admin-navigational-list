@@ -39,7 +39,7 @@ import { MenuItemsComponent } from './menu-items.component';
     <div class="hierarchy-header">
       <h2>Menu Hierarchy</h2>
       <button
-        mat-raised-button
+        matButton="outlined"
         (click)="onRefreshClick()"
         [disabled]="loading"
       >

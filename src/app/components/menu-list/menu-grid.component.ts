@@ -28,7 +28,6 @@ import {
   template: `
     <div class="results">
       <div class="results-header">
-        <h4>Results ({{ items.length }})</h4>
         <button
           mat-icon-button
           (click)="refreshClick.emit()"
@@ -37,6 +36,7 @@ import {
         >
           <mat-icon>refresh</mat-icon>
         </button>
+        <h4>Results ({{ items.length }})</h4>
       </div>
 
       <div class="grid">
@@ -53,7 +53,7 @@ import {
     `
       .results-header {
         display: flex;
-        justify-content: space-between;
+        gap: 0.5rem;
         align-items: center;
         margin-bottom: 1rem;
       }

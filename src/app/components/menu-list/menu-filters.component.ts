@@ -50,10 +50,7 @@ export interface FilterChangeEvent {
     <div class="filters">
       <div class="filter-row header">
         <h3>Filters</h3>
-        <button
-          mat-raised-button
-          (click)="onFilterChange('clearAll')"
-        >
+        <button matButton (click)="onFilterChange('clearAll')">
           <mat-icon>clear_all</mat-icon> Clear All
         </button>
       </div>

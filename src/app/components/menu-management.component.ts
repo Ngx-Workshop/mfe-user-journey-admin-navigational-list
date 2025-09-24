@@ -15,7 +15,6 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MenuItemDto } from '@tmdjr/service-navigational-list-contracts';
 import { catchError, forkJoin, of, tap } from 'rxjs';
 import { MenuApiService } from '../services/menu-api.service';
-import { MenuDialogService } from '../services/menu-dialog.service';
 import { MenuItemsSortingService } from '../services/menu-items-sorting.service';
 import {
   Domain,
@@ -67,12 +66,6 @@ interface HierarchyNode {
         <mat-tab label="List View">
           <ng-template matTabContent>
             <div class="tab-content">
-              <div class="list-header">
-                <h2>Menu Management</h2>
-                <button mat-raised-button (click)="openCreate()">
-                  <mat-icon>add</mat-icon> New Menu Item
-                </button>
-              </div>
               <ngx-menu-list></ngx-menu-list>
             </div>
           </ng-template>
@@ -129,22 +122,9 @@ interface HierarchyNode {
         margin: 0 auto;
       }
 
-      .list-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 2rem;
-      }
-
       @media (max-width: 768px) {
         .tab-content {
           padding: 1rem;
-        }
-
-        .list-header {
-          flex-direction: column;
-          gap: 1rem;
-          align-items: stretch;
         }
       }
     `,
@@ -153,7 +133,6 @@ interface HierarchyNode {
 })
 export class MenuManagementComponent {
   private readonly menuApi = inject(MenuApiService);
-  private readonly menuDialog = inject(MenuDialogService);
   private readonly snackBar = inject(MatSnackBar);
   private readonly sortingService = inject(MenuItemsSortingService);
 
@@ -170,15 +149,6 @@ export class MenuManagementComponent {
     } else if (index === 2 && this.statistics().length === 0) {
       this.loadStatistics();
     }
-  }
-
-  openCreate(): void {
-    this.menuDialog.openCreateDialog().subscribe((result) => {
-      if (result) {
-        // If a reload method is needed in the future, it can be added here
-        // For now, we rely on the child components to handle their own state
-      }
-    });
   }
 
   loadHierarchy(): void {

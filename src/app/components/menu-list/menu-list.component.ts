@@ -5,6 +5,8 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import { MatButton } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import {
   MatSnackBar,
@@ -29,15 +31,21 @@ import { MenuItemActionEvent } from './menu-item-card.component';
   imports: [
     CommonModule,
     MatSnackBarModule,
+    MatButton,
     MatProgressBarModule,
     MenuFiltersComponent,
     MenuGridComponent,
     MenuEmptyStateComponent,
+    MatIconModule,
   ],
   template: `
-    @if (loading()) {
-    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
-    }
+    <div class="list-header"></div>
+    <div class="hierarchy-header">
+      <h2>Menu Management</h2>
+      <button matButton="outlined" (click)="openCreate()">
+        <mat-icon>add</mat-icon> New Menu Item
+      </button>
+    </div>
 
     <div class="list">
       <!-- Filters Section -->
@@ -50,6 +58,10 @@ import { MenuItemActionEvent } from './menu-item-card.component';
         [includeArchived]="includeArchived()"
         (filterChange)="onFilterChange($event)"
       />
+
+      @if (loading()) {
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      }
 
       <!-- Results Section -->
       @if (!loading() && filtered().length > 0) {
@@ -68,16 +80,31 @@ import { MenuItemActionEvent } from './menu-item-card.component';
   `,
   styles: [
     `
+      .hierarchy-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+      }
+
       .list {
         display: block;
         max-width: 1400px;
         margin: 0 auto;
-        padding: 2rem;
+        padding: 0 2rem 2rem;
       }
 
       @media (max-width: 768px) {
         .list {
           padding: 1rem;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .hierarchy-header {
+          flex-direction: column;
+          gap: 1rem;
+          align-items: stretch;
         }
       }
     `,
