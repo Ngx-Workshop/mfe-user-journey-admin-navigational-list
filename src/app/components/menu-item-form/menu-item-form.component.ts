@@ -13,22 +13,20 @@ import {
   MatDialogRef,
 } from '@angular/material/dialog';
 import { MenuItemDto } from '@tmdjr/service-navigational-list-contracts';
-import { MenuItemFormService } from '../services/menu-item-form.service';
+import { MenuItemFormService } from '../../services/menu-item-form.service';
 import {
   DOMAIN_OPTIONS,
   FormMode,
   STATE_OPTIONS,
   STRUCTURAL_SUBTYPE_OPTIONS,
-} from '../types/menu.types';
-import {
-  MenuItemBasicInfoComponent,
-  MenuItemClassificationComponent,
-  MenuItemConfigurationComponent,
-  MenuItemFormActionsComponent,
-  MenuItemFormHeaderComponent,
-  MenuItemParentSelectionComponent,
-  MenuItemSvgIconsComponent,
-} from './menu-item-form';
+} from '../../types/menu.types';
+import { MenuItemBasicInfoComponent } from './menu-item-basic-info.component';
+import { MenuItemClassificationComponent } from './menu-item-classification.component';
+import { MenuItemConfigurationComponent } from './menu-item-configuration.component';
+import { MenuItemFormActionsComponent } from './menu-item-form-actions.component';
+import { MenuItemFormHeaderComponent } from './menu-item-form-header.component';
+import { MenuItemParentSelectionComponent } from './menu-item-parent-selection.component';
+import { MenuItemSvgIconsComponent } from './menu-item-svg-icons.component';
 
 export interface MenuItemFormDialogData {
   mode: FormMode;

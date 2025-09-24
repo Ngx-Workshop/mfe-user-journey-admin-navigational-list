@@ -5,7 +5,7 @@ import { Observable } from 'rxjs';
 import {
   MenuItemFormComponent,
   MenuItemFormDialogData,
-} from '../components/menu-item-form.component';
+} from '../components/menu-item-form/menu-item-form.component';
 
 @Injectable({
   providedIn: 'root',

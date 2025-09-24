@@ -14,7 +14,6 @@ import {
 import { MatTabsModule } from '@angular/material/tabs';
 import { MenuItemDto } from '@tmdjr/service-navigational-list-contracts';
 import { catchError, forkJoin, of, tap } from 'rxjs';
-import { MOCK_MENU_ITEMS } from '../mocks/menu.mock-data';
 import { MenuApiService } from '../services/menu-api.service';
 import { MenuDialogService } from '../services/menu-dialog.service';
 import { MenuItemsSortingService } from '../services/menu-items-sorting.service';
@@ -23,8 +22,9 @@ import {
   State,
   StructuralSubtype,
 } from '../types/menu.types';
-import { MenuHierarchyComponent } from './menu-hierarchy.component';
-import { MenuListComponent } from './menu-list.component';
+import { HeaderComponent } from './header.component';
+import { MenuHierarchyComponent } from './menu-hierarchy/menu-hierarchy.component';
+import { MenuListComponent } from './menu-list/menu-list.component';
 import {
   MenuStatistic,
   MenuStatisticsComponent,
@@ -53,17 +53,12 @@ interface HierarchyNode {
     MenuListComponent,
     MenuHierarchyComponent,
     MenuStatisticsComponent,
+    HeaderComponent,
   ],
   template: `
     <div class="container">
-      <div class="header">
-        <h1>Navigational List</h1>
-        <!-- <p>
-            Manage navigational menus for different domains,
-            structural types, and states
-          </p> -->
-      </div>
-
+      <ngx-menu-management-header class="header">
+      </ngx-menu-management-header>
       <mat-tab-group
         class="tabs"
         (selectedTabChange)="onTabChange($event.index)"
@@ -113,41 +108,8 @@ interface HierarchyNode {
   `,
   styles: [
     `
-      :host {
-        h1 {
-          font-weight: 100;
-        }
-      }
       .container {
         min-height: 100vh;
-        background: var(--mat-sys-surface);
-      }
-
-      .header {
-        background: linear-gradient(
-          135deg,
-          var(--mat-sys-primary) 0%,
-          var(--mat-sys-secondary-fixed) 100%
-        );
-        color: var(--mat-sys-on-primary);
-        display: flex;
-        padding: 0 1.125rem;
-      }
-
-      .header-content {
-        max-width: 1400px;
-        margin: 0 auto;
-        padding: 0 2rem;
-      }
-
-      .header p {
-        margin: 0;
-        opacity: 0.9;
-      }
-
-      .tabs {
-        max-width: 1400px;
-        margin: 0 auto;
       }
 
       /* Make the tab header sticky at the top */
@@ -155,6 +117,7 @@ interface HierarchyNode {
         position: sticky;
         top: 56px;
         z-index: 10;
+        // width: 100vw;
         background: var(--mat-sys-surface);
         /* Optional: add subtle shadow when stuck */
         box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08);
@@ -162,6 +125,8 @@ interface HierarchyNode {
 
       .tab-content {
         padding: 2rem;
+        max-width: 1400px;
+        margin: 0 auto;
       }
 
       .list-header {
@@ -172,10 +137,6 @@ interface HierarchyNode {
       }
 
       @media (max-width: 768px) {
-        .header-content {
-          padding: 0 1rem;
-        }
-
         .tab-content {
           padding: 1rem;
         }
@@ -201,7 +162,6 @@ export class MenuManagementComponent {
   statsLoading = signal(false);
   hierarchyData = signal<HierarchyNode[]>([]);
   statistics = signal<MenuStatistic[]>([]);
-  private useMockData = false;
 
   onTabChange(index: number): void {
     // Load data when switching to hierarchy or stats tabs
@@ -223,13 +183,6 @@ export class MenuManagementComponent {
 
   loadHierarchy(): void {
     this.hierarchyLoading.set(true);
-    if (this.useMockData) {
-      const items = MOCK_MENU_ITEMS.filter((i) => !i.archived);
-      const hierarchy = this.buildHierarchy(items);
-      this.hierarchyData.set(hierarchy);
-      this.hierarchyLoading.set(false);
-      return;
-    }
 
     // Fetch hierarchy for both ADMIN and WORKSHOP domains
     const adminHierarchy$ = this.menuApi.getMenuHierarchy$(
@@ -286,73 +239,6 @@ export class MenuManagementComponent {
         const stats = this.calculateStatistics(items);
         this.statistics.set(stats);
       });
-  }
-
-  private buildHierarchy(items: MenuItemDto[]): HierarchyNode[] {
-    const hierarchy: HierarchyNode[] = [];
-
-    // Group by domain
-    const domainGroups = items.reduce((acc, item) => {
-      if (!acc[item.domain]) {
-        acc[item.domain] = [];
-      }
-      acc[item.domain].push(item);
-      return acc;
-    }, {} as Record<Domain, MenuItemDto[]>);
-
-    // Build hierarchy for each domain
-    Object.entries(domainGroups).forEach(([domain, domainItems]) => {
-      const node: HierarchyNode = {
-        domain: domain as Domain,
-        structuralSubtypes: {},
-      };
-
-      // Group by structural subtype
-      const subtypeGroups = domainItems.reduce((acc, item) => {
-        if (!acc[item.structuralSubtype]) {
-          acc[item.structuralSubtype] = [];
-        }
-        acc[item.structuralSubtype].push(item);
-        return acc;
-      }, {} as Record<StructuralSubtype, MenuItemDto[]>);
-
-      // Build states for each structural subtype
-      Object.entries(subtypeGroups).forEach(
-        ([subtype, subtypeItems]) => {
-          node.structuralSubtypes[subtype as StructuralSubtype] = {
-            states: {},
-          };
-
-          // Group by state
-          const stateGroups = subtypeItems.reduce((acc, item) => {
-            if (!acc[item.state]) {
-              acc[item.state] = [];
-            }
-            acc[item.state].push(item);
-            return acc;
-          }, {} as Record<State, MenuItemDto[]>);
-
-          // Sort items by sortId within each state
-          Object.entries(stateGroups).forEach(
-            ([state, stateItems]) => {
-              const sorted = stateItems.sort(
-                (a, b) => a.sortId - b.sortId
-              );
-              // Build nested children under parents for this state
-              const nested =
-                this.sortingService.buildHierarchy(sorted);
-              node.structuralSubtypes[
-                subtype as StructuralSubtype
-              ]!.states[state as State] = nested;
-            }
-          );
-        }
-      );
-
-      hierarchy.push(node);
-    });
-
-    return hierarchy;
   }
 
   private processHierarchyResponse(

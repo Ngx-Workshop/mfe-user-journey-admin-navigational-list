@@ -19,7 +19,7 @@ import {
   STATE_OPTIONS,
   STRUCTURAL_SUBTYPE_OPTIONS,
   StructuralSubtype,
-} from '../types/menu.types';
+} from '../../types/menu.types';
 import { MenuItemsComponent } from './menu-items.component';
 
 interface HierarchyNode {

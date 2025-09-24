@@ -12,16 +12,16 @@ import {
 } from '@angular/material/snack-bar';
 import { MenuItemDto } from '@tmdjr/service-navigational-list-contracts';
 import { catchError, of, switchMap, tap } from 'rxjs';
-import { MenuApiService } from '../services/menu-api.service';
-import { MenuDialogService } from '../services/menu-dialog.service';
-import { MenuSearchService } from '../services/menu-search.service';
-import { MenuEmptyStateComponent } from './menu-list/menu-empty-state.component';
+import { MenuApiService } from '../../services/menu-api.service';
+import { MenuDialogService } from '../../services/menu-dialog.service';
+import { MenuSearchService } from '../../services/menu-search.service';
+import { MenuEmptyStateComponent } from './menu-empty-state.component';
 import {
   FilterChangeEvent,
   MenuFiltersComponent,
-} from './menu-list/menu-filters.component';
-import { MenuGridComponent } from './menu-list/menu-grid.component';
-import { MenuItemActionEvent } from './menu-list/menu-item-card.component';
+} from './menu-filters.component';
+import { MenuGridComponent } from './menu-grid.component';
+import { MenuItemActionEvent } from './menu-item-card.component';
 
 @Component({
   selector: 'ngx-menu-list',

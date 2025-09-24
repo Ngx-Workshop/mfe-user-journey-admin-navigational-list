@@ -17,23 +17,13 @@ import {
 } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MenuItemDto } from '@tmdjr/service-navigational-list-contracts';
-import { MenuItemsSortingService } from '../services/menu-items-sorting.service';
+import { MenuItemsSortingService } from '../../services/menu-items-sorting.service';
 import {
   Domain,
+  MenuHierarchy,
   State,
   StructuralSubtype,
-} from '../types/menu.types';
-
-interface HierarchyNode {
-  domain: Domain;
-  structuralSubtypes: {
-    [key in StructuralSubtype]?: {
-      states: {
-        [key in State]?: MenuItemDto[];
-      };
-    };
-  };
-}
+} from '../../types/menu.types';
 
 @Component({
   selector: 'ngx-menu-items',
@@ -177,7 +167,7 @@ interface HierarchyNode {
 })
 export class MenuItemsComponent {
   @Input() items: MenuItemDto[] = [];
-  @Input() hierarchyData: HierarchyNode[] = [];
+  @Input() hierarchyData: MenuHierarchy[] = [];
   @Input() domain!: Domain;
   @Input() structuralSubtype!: StructuralSubtype;
   @Input() state!: State;
