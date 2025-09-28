@@ -1,17 +1,18 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable, inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import {
-  AuthTestDto,
   CreateMenuItemDto,
+  MenuHierarchyResponseDto,
   MenuItemDto,
-  ReorderDto,
+  SortMenuItemDto,
   UpdateMenuItemDto,
 } from '@tmdjr/service-navigational-list-contracts';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import type {
   Domain,
-  HierarchicalReorderDto,
   MenuFilter,
+  MenuHierarchyWithChildren,
+  MenuItemWithChildren,
   State,
   StructuralSubtype,
 } from '../types/menu.types';
@@ -19,19 +20,56 @@ import type {
 @Injectable({ providedIn: 'root' })
 export class MenuApiService {
   private readonly http = inject(HttpClient);
-  // If you have an env token, swap this for that. Keep the trailing slash off.
   private readonly baseUrl = '/api/navigational-list';
 
-  /**
-   * Test authentication
-   */
-  authTest$(): Observable<AuthTestDto> {
-    return this.http.get<AuthTestDto>(`${this.baseUrl}/auth-test`);
+  private buildNode(
+    item: MenuItemDto,
+    allItems: MenuItemDto[]
+  ): MenuItemWithChildren {
+    const children = allItems
+      .filter((child) => child.parentId === item._id)
+      .map((child) => this.buildNode(child, allItems));
+    return {
+      ...item,
+      children: children.length ? children : undefined,
+    };
   }
 
-  /**
-   * Get all menu items with optional filters
-   */
+  private buildTree(
+    menuItems: MenuItemDto[]
+  ): MenuItemWithChildren[] {
+    return menuItems
+      .filter((item) => !item.parentId)
+      .map((rootItem) => this.buildNode(rootItem, menuItems));
+  }
+
+  private marshalHierarchy(
+    hierarchy: MenuHierarchyResponseDto
+  ): MenuHierarchyWithChildren {
+    return {
+      ...hierarchy,
+      structuralSubtypes: {
+        ...Object.fromEntries(
+          Object.entries(hierarchy.structuralSubtypes).map(
+            ([subtype, { states }]) => [
+              subtype,
+              {
+                states: states
+                  ? Object.fromEntries(
+                      Object.entries(states).map(([state, items]) => [
+                        state,
+                        this.buildTree(items),
+                      ])
+                    )
+                  : undefined,
+              },
+            ]
+          )
+        ),
+      },
+    };
+  }
+
   findAll$(filters?: MenuFilter): Observable<MenuItemDto[]> {
     const params: Record<string, string | number | boolean> = {};
 
@@ -47,60 +85,25 @@ export class MenuApiService {
     return this.http.get<MenuItemDto[]>(this.baseUrl, { params });
   }
 
-  /**
-   * Get menu hierarchy for a domain
-   */
   getMenuHierarchy$(
     domain: Domain,
     includeArchived = false
-  ): Observable<any> {
+  ): Observable<MenuHierarchyWithChildren> {
     const params: Record<string, string | number | boolean> = {};
     if (includeArchived) {
       params['includeArchived'] = includeArchived;
     }
-    return this.http.get<any>(`${this.baseUrl}/hierarchy/${domain}`, {
-      params,
-    });
+    return this.http
+      .get<MenuHierarchyResponseDto>(
+        `${this.baseUrl}/hierarchy/${domain}`,
+        { params }
+      )
+      .pipe(
+        // Transform to MenuHierarchyWithChildren
+        map((hierarchy) => this.marshalHierarchy(hierarchy))
+      );
   }
 
-  /**
-   * Get menu items by domain
-   */
-  findByDomain$(
-    domain: Domain,
-    includeArchived = false
-  ): Observable<MenuItemDto[]> {
-    const params: Record<string, string | number | boolean> = {};
-    if (includeArchived) {
-      params['includeArchived'] = includeArchived;
-    }
-    return this.http.get<MenuItemDto[]>(
-      `${this.baseUrl}/domain/${domain}`,
-      { params }
-    );
-  }
-
-  /**
-   * Get menu items by domain and structural subtype
-   */
-  findByDomainAndStructuralSubtype$(
-    domain: Domain,
-    structuralSubtype: StructuralSubtype,
-    includeArchived = false
-  ): Observable<MenuItemDto[]> {
-    const params: Record<string, string | number | boolean> = {};
-    if (includeArchived) {
-      params['includeArchived'] = includeArchived;
-    }
-    return this.http.get<MenuItemDto[]>(
-      `${this.baseUrl}/domain/${domain}/structural-subtype/${structuralSubtype}`,
-      { params }
-    );
-  }
-
-  /**
-   * Get menu items by domain, structural subtype, and state
-   */
   findByDomainStructuralSubtypeAndState$(
     domain: Domain,
     structuralSubtype: StructuralSubtype,
@@ -117,54 +120,19 @@ export class MenuApiService {
     );
   }
 
-  /**
-   * Reorder menu items within a specific domain/structural subtype/state
-   */
   reorderMenuItems$(
-    domain: Domain,
-    structuralSubtype: StructuralSubtype,
-    state: State,
-    reorderDto: ReorderDto
-  ): Observable<MenuItemDto[]> {
-    return this.http.post<MenuItemDto[]>(
-      `${this.baseUrl}/domain/${domain}/structural-subtype/${structuralSubtype}/state/${state}/reorder`,
-      reorderDto
+    sortMenuItemDto: SortMenuItemDto
+  ): Observable<MenuItemDto> {
+    return this.http.post<MenuItemDto>(
+      `${this.baseUrl}/sort`,
+      sortMenuItemDto
     );
   }
 
-  /**
-   * Hierarchical reorder menu items within a specific domain/structural subtype/state
-   * Supports complex hierarchical operations including changing parent-child relationships
-   */
-  reorderMenuItemsHierarchical$(
-    domain: Domain,
-    structuralSubtype: StructuralSubtype,
-    state: State,
-    reorderDto: HierarchicalReorderDto
-  ): Observable<MenuItemDto[]> {
-    return this.http.post<MenuItemDto[]>(
-      `${this.baseUrl}/domain/${domain}/structural-subtype/${structuralSubtype}/state/${state}/reorder-hierarchical`,
-      reorderDto
-    );
-  }
-
-  /**
-   * Get a single menu item by ID
-   */
-  findOne$(id: string): Observable<MenuItemDto> {
-    return this.http.get<MenuItemDto>(`${this.baseUrl}/${id}`);
-  }
-
-  /**
-   * Create a new menu item
-   */
   create$(dto: CreateMenuItemDto): Observable<MenuItemDto> {
     return this.http.post<MenuItemDto>(this.baseUrl, dto);
   }
 
-  /**
-   * Update an existing menu item
-   */
   update$(
     id: string,
     dto: UpdateMenuItemDto
@@ -172,16 +140,10 @@ export class MenuApiService {
     return this.http.patch<MenuItemDto>(`${this.baseUrl}/${id}`, dto);
   }
 
-  /**
-   * Delete a menu item
-   */
   delete$(id: string): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${id}`);
   }
 
-  /**
-   * Archive a menu item
-   */
   archive$(id: string): Observable<MenuItemDto> {
     return this.http.patch<MenuItemDto>(
       `${this.baseUrl}/${id}/archive`,
@@ -189,9 +151,6 @@ export class MenuApiService {
     );
   }
 
-  /**
-   * Unarchive a menu item
-   */
   unarchive$(id: string): Observable<MenuItemDto> {
     return this.http.patch<MenuItemDto>(
       `${this.baseUrl}/${id}/unarchive`,

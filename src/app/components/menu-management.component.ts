@@ -15,14 +15,13 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MenuItemDto } from '@tmdjr/service-navigational-list-contracts';
 import { catchError, forkJoin, of, tap } from 'rxjs';
 import { MenuApiService } from '../services/menu-api.service';
-import { MenuItemsSortingService } from '../services/menu-items-sorting.service';
 import {
   Domain,
   State,
   StructuralSubtype,
 } from '../types/menu.types';
 import { HeaderComponent } from './header.component';
-import { MenuHierarchyComponent } from './menu-hierarchy/menu-hierarchy.component';
+import { MenuHierarchyManagerComponent } from './menu-hierarchy/menu-hierarchy-manager.component';
 import { MenuListComponent } from './menu-list/menu-list.component';
 import {
   MenuStatistic,
@@ -50,7 +49,7 @@ interface HierarchyNode {
     MatIconModule,
     MatSnackBarModule,
     MenuListComponent,
-    MenuHierarchyComponent,
+    MenuHierarchyManagerComponent,
     MenuStatisticsComponent,
     HeaderComponent,
   ],
@@ -74,12 +73,10 @@ interface HierarchyNode {
         <!-- Hierarchy View Tab -->
         <mat-tab label="Hierarchy View">
           <ng-template matTabContent>
-            <div class="tab-content">
-              <ngx-menu-hierarchy
-                [hierarchyData]="hierarchyData()"
-                [loading]="hierarchyLoading()"
-                (refreshClick)="loadHierarchy()"
-              ></ngx-menu-hierarchy>
+            <div class="tab-hierarchy">
+              <ngx-menu-hierarchy-manager
+                [menuHierarchy]="(hierarchyData | async) || []"
+              />
             </div>
           </ng-template>
         </mat-tab>
@@ -121,6 +118,11 @@ interface HierarchyNode {
         max-width: 1400px;
         margin: 0 auto;
       }
+      .tab-hierarchy {
+        padding: 2rem;
+        max-width: 900px;
+        margin: 0 auto;
+      }
 
       @media (max-width: 768px) {
         .tab-content {
@@ -134,59 +136,22 @@ interface HierarchyNode {
 export class MenuManagementComponent {
   private readonly menuApi = inject(MenuApiService);
   private readonly snackBar = inject(MatSnackBar);
-  private readonly sortingService = inject(MenuItemsSortingService);
 
   // State signals
   hierarchyLoading = signal(false);
   statsLoading = signal(false);
-  hierarchyData = signal<HierarchyNode[]>([]);
   statistics = signal<MenuStatistic[]>([]);
+
+  hierarchyData = forkJoin([
+    this.menuApi.getMenuHierarchy$('ADMIN', false),
+    this.menuApi.getMenuHierarchy$('WORKSHOP', false),
+  ]);
 
   onTabChange(index: number): void {
     // Load data when switching to hierarchy or stats tabs
-    if (index === 1 && this.hierarchyData().length === 0) {
-      this.loadHierarchy();
-    } else if (index === 2 && this.statistics().length === 0) {
+    if (index === 2 && this.statistics().length === 0) {
       this.loadStatistics();
     }
-  }
-
-  loadHierarchy(): void {
-    this.hierarchyLoading.set(true);
-
-    // Fetch hierarchy for both ADMIN and WORKSHOP domains
-    const adminHierarchy$ = this.menuApi.getMenuHierarchy$(
-      'ADMIN',
-      false
-    );
-    const workshopHierarchy$ = this.menuApi.getMenuHierarchy$(
-      'WORKSHOP',
-      false
-    );
-
-    // Combine both API calls
-    forkJoin({
-      admin: adminHierarchy$,
-      workshop: workshopHierarchy$,
-    })
-      .pipe(
-        tap(() => this.hierarchyLoading.set(false)),
-        catchError((error) => {
-          this.hierarchyLoading.set(false);
-          this.snackBar.open('Failed to load hierarchy', 'Close', {
-            duration: 3000,
-          });
-          console.error('Error loading hierarchy:', error);
-          return of({ admin: null, workshop: null });
-        })
-      )
-      .subscribe(({ admin, workshop }) => {
-        const hierarchy = this.processHierarchyResponse(
-          admin,
-          workshop
-        );
-        this.hierarchyData.set(hierarchy);
-      });
   }
 
   loadStatistics(): void {
@@ -209,94 +174,6 @@ export class MenuManagementComponent {
         const stats = this.calculateStatistics(items);
         this.statistics.set(stats);
       });
-  }
-
-  private processHierarchyResponse(
-    admin: any,
-    workshop: any
-  ): HierarchyNode[] {
-    const hierarchy: HierarchyNode[] = [];
-
-    // Process ADMIN domain if available
-    if (admin && admin.domain) {
-      const adminNode: HierarchyNode = {
-        domain: admin.domain as Domain,
-        structuralSubtypes: {},
-      };
-
-      // Process each structural subtype
-      Object.entries(admin.structuralSubtypes || {}).forEach(
-        ([subtype, subtypeData]: [string, any]) => {
-          adminNode.structuralSubtypes[subtype as StructuralSubtype] =
-            {
-              states: {},
-            };
-
-          // Process each state
-          Object.entries(subtypeData.states || {}).forEach(
-            ([state, stateItems]: [string, any]) => {
-              const items = Array.isArray(stateItems)
-                ? stateItems
-                : [];
-              // Sort items by sortId and build hierarchy
-              const sorted = items.sort(
-                (a: MenuItemDto, b: MenuItemDto) =>
-                  a.sortId - b.sortId
-              );
-              const nested =
-                this.sortingService.buildHierarchy(sorted);
-              adminNode.structuralSubtypes[
-                subtype as StructuralSubtype
-              ]!.states[state as State] = nested;
-            }
-          );
-        }
-      );
-
-      hierarchy.push(adminNode);
-    }
-
-    // Process WORKSHOP domain if available
-    if (workshop && workshop.domain) {
-      const workshopNode: HierarchyNode = {
-        domain: workshop.domain as Domain,
-        structuralSubtypes: {},
-      };
-
-      // Process each structural subtype
-      Object.entries(workshop.structuralSubtypes || {}).forEach(
-        ([subtype, subtypeData]: [string, any]) => {
-          workshopNode.structuralSubtypes[
-            subtype as StructuralSubtype
-          ] = {
-            states: {},
-          };
-
-          // Process each state
-          Object.entries(subtypeData.states || {}).forEach(
-            ([state, stateItems]: [string, any]) => {
-              const items = Array.isArray(stateItems)
-                ? stateItems
-                : [];
-              // Sort items by sortId and build hierarchy
-              const sorted = items.sort(
-                (a: MenuItemDto, b: MenuItemDto) =>
-                  a.sortId - b.sortId
-              );
-              const nested =
-                this.sortingService.buildHierarchy(sorted);
-              workshopNode.structuralSubtypes[
-                subtype as StructuralSubtype
-              ]!.states[state as State] = nested;
-            }
-          );
-        }
-      );
-
-      hierarchy.push(workshopNode);
-    }
-
-    return hierarchy;
   }
 
   private calculateStatistics(items: MenuItemDto[]): MenuStatistic[] {
