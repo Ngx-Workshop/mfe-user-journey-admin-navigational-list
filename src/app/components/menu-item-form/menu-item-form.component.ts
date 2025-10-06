@@ -17,6 +17,7 @@ import { MenuItemFormService } from '../../services/menu-item-form.service';
 import {
   DOMAIN_OPTIONS,
   FormMode,
+  ROLE_OPTIONS,
   STATE_OPTIONS,
   STRUCTURAL_SUBTYPE_OPTIONS,
 } from '../../types/menu.types';
@@ -74,7 +75,10 @@ export interface MenuItemFormDialogData {
         >
         </ngx-menu-item-parent-selection>
 
-        <ngx-menu-item-configuration [form]="form">
+        <ngx-menu-item-configuration
+          [form]="form"
+          [roleOptions]="roleOptions"
+        >
         </ngx-menu-item-configuration>
 
         <ngx-menu-item-svg-icons [form]="form">
@@ -120,6 +124,7 @@ export class MenuItemFormComponent {
   domainOptions = DOMAIN_OPTIONS;
   structuralSubtypeOptions = STRUCTURAL_SUBTYPE_OPTIONS;
   stateOptions = STATE_OPTIONS;
+  roleOptions = ROLE_OPTIONS;
 
   form: FormGroup;
 

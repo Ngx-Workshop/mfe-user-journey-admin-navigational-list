@@ -8,6 +8,8 @@ import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { RoleOption } from '../../types/menu.types';
 
 @Component({
   selector: 'ngx-menu-item-configuration',
@@ -18,6 +20,7 @@ import { MatInputModule } from '@angular/material/input';
     MatFormFieldModule,
     MatInputModule,
     MatCheckboxModule,
+    MatSelectModule,
   ],
   template: `
     <div class="form-section" [formGroup]="form">
@@ -41,10 +44,15 @@ import { MatInputModule } from '@angular/material/input';
       </div>
 
       <div class="form-row">
-        <mat-checkbox formControlName="authRequired">
-          Authentication Required
-        </mat-checkbox>
-
+        <mat-form-field appearance="outline">
+          <mat-select formControlName="role">
+            @for (option of roleOptions; track option.value) {
+            <mat-option [value]="option.value">{{
+              option.label
+            }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
         <mat-checkbox formControlName="archived">
           Archived
         </mat-checkbox>
@@ -97,4 +105,5 @@ import { MatInputModule } from '@angular/material/input';
 })
 export class MenuItemConfigurationComponent {
   @Input({ required: true }) form!: FormGroup;
+  @Input({ required: true }) roleOptions!: RoleOption[];
 }

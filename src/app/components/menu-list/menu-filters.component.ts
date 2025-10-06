@@ -15,6 +15,7 @@ import { MatSelectModule } from '@angular/material/select';
 import {
   Domain,
   DOMAIN_OPTIONS,
+  Role,
   State,
   STATE_OPTIONS,
   STRUCTURAL_SUBTYPE_OPTIONS,
@@ -27,7 +28,7 @@ export interface FilterChangeEvent {
     | 'domain'
     | 'structuralSubtype'
     | 'state'
-    | 'authRequired'
+    | 'role'
     | 'includeArchived'
     | 'clearAll'
     | 'create';
@@ -137,8 +138,8 @@ export interface FilterChangeEvent {
         <mat-form-field appearance="outline">
           <mat-label>Auth Required</mat-label>
           <mat-select
-            [value]="filterAuthRequired"
-            (valueChange)="onFilterChange('authRequired', $event)"
+            [value]="filterRole"
+            (valueChange)="onFilterChange('role', $event)"
           >
             <mat-option [value]="null">All</mat-option>
             <mat-option [value]="true">Required</mat-option>
@@ -206,7 +207,7 @@ export class MenuFiltersComponent {
   @Input() filterDomain: Domain | null = null;
   @Input() filterStructuralSubtype: StructuralSubtype | null = null;
   @Input() filterState: State | null = null;
-  @Input() filterAuthRequired: boolean | null = null;
+  @Input() filterRole: Role | null = null;
   @Input() includeArchived = false;
 
   @Output() filterChange = new EventEmitter<FilterChangeEvent>();

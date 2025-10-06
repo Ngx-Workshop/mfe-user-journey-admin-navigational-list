@@ -20,6 +20,16 @@ export type MenuHierarchyWithChildren = Omit<
 };
 
 // Domain enum
+export const ROLE: Record<string, MenuItemDto['role']> = {
+  ADMIN: 'admin',
+  PUBLISHER: 'publisher',
+  REGULAR: 'regular',
+  NONE: 'none',
+} as const;
+
+export type Role = (typeof ROLE)[keyof typeof ROLE];
+
+// Domain enum
 export const DOMAIN: Record<string, MenuItemDto['domain']> = {
   ADMIN: 'ADMIN',
   WORKSHOP: 'WORKSHOP',
@@ -55,11 +65,16 @@ export interface MenuFilter {
   structuralSubtype?: StructuralSubtype;
   state?: State;
   archived?: boolean;
-  authRequired?: boolean;
+  role?: Role;
   searchText?: string;
 }
 
 // Options for display purposes
+export interface RoleOption {
+  value: Role;
+  label: string;
+}
+
 export interface DomainOption {
   value: Domain;
   label: string;
@@ -81,6 +96,13 @@ export interface ParentOption {
   label: string;
   disabled?: boolean;
 }
+
+export const ROLE_OPTIONS: RoleOption[] = [
+  { value: ROLE['NONE'], label: 'None' },
+  { value: ROLE['ADMIN'], label: 'Admin' },
+  { value: ROLE['PUBLISHER'], label: 'Publisher' },
+  { value: ROLE['REGULAR'], label: 'Regular' },
+];
 
 // Constants for dropdown options
 export const DOMAIN_OPTIONS: DomainOption[] = [
@@ -111,11 +133,11 @@ export interface MenuItemFormData {
   navSvgPath?: string;
   headerSvgPath?: string;
   sortId: number;
-  authRequired: boolean;
   domain: Domain;
   structuralSubtype: StructuralSubtype;
   state: State;
   description?: string;
   archived: boolean;
   parentId?: string;
+  role: Role;
 }

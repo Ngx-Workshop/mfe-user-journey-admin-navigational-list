@@ -180,9 +180,6 @@ export class MenuManagementComponent {
     const total = items.length;
     const active = items.filter((item) => !item.archived).length;
     const archived = items.filter((item) => item.archived).length;
-    const authRequired = items.filter(
-      (item) => item.authRequired
-    ).length;
 
     const domainCounts = items.reduce((acc, item) => {
       acc[item.domain] = (acc[item.domain] || 0) + 1;
@@ -203,11 +200,6 @@ export class MenuManagementComponent {
         description: 'Non-archived items',
       },
       { title: 'Archived Items', value: archived },
-      {
-        title: 'Auth Required',
-        value: authRequired,
-        description: 'Items requiring authentication',
-      },
       { title: 'Admin Domain', value: domainCounts['ADMIN'] || 0 },
       {
         title: 'Workshop Domain',

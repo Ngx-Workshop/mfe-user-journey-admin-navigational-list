@@ -55,14 +55,6 @@ export class MenuReorderService {
     }
 
     const { _id, parentId, sortId }: SortMenuItemDto = menuItem;
-    console.log(
-      'Updating menu item:',
-      menuItem._id,
-      'to parent:',
-      menuItem.parentId,
-      'with sortId:',
-      menuItem.sortId
-    );
     lastValueFrom(
       this.menuApiService.reorderMenuItems$({ _id, parentId, sortId })
     );

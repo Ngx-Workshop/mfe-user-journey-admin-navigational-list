@@ -4,6 +4,7 @@ import {
   Domain,
   DOMAIN_OPTIONS,
   MenuFilter,
+  Role,
   State,
   STATE_OPTIONS,
   STRUCTURAL_SUBTYPE_OPTIONS,
@@ -15,7 +16,7 @@ export interface SearchFilters {
   domain: Domain | null;
   structuralSubtype: StructuralSubtype | null;
   state: State | null;
-  authRequired: boolean | null;
+  role: Role | null;
   includeArchived: boolean;
 }
 
@@ -29,7 +30,7 @@ export class MenuSearchService {
   private readonly _filterStructuralSubtype =
     signal<StructuralSubtype | null>(null);
   private readonly _filterState = signal<State | null>(null);
-  private readonly _filterAuthRequired = signal<boolean | null>(null);
+  private readonly _filterRole = signal<Role | null>(null);
   private readonly _includeArchived = signal(false);
 
   // Menu items signal
@@ -41,7 +42,7 @@ export class MenuSearchService {
   readonly filterStructuralSubtype =
     this._filterStructuralSubtype.asReadonly();
   readonly filterState = this._filterState.asReadonly();
-  readonly filterAuthRequired = this._filterAuthRequired.asReadonly();
+  readonly filterRole = this._filterRole.asReadonly();
   readonly includeArchived = this._includeArchived.asReadonly();
   readonly menuItems = this._menuItems.asReadonly();
 
@@ -57,7 +58,7 @@ export class MenuSearchService {
     const domain = this._filterDomain();
     const structuralSubtype = this._filterStructuralSubtype();
     const state = this._filterState();
-    const authRequired = this._filterAuthRequired();
+    const role = this._filterRole();
     const showArchived = this._includeArchived();
 
     return items.filter((item) => {
@@ -85,10 +86,7 @@ export class MenuSearchService {
       }
 
       // Auth required filter
-      if (
-        authRequired !== null &&
-        item.authRequired !== authRequired
-      ) {
+      if (role !== null && item.role !== role) {
         return false;
       }
 
@@ -115,7 +113,7 @@ export class MenuSearchService {
       domain: this._filterDomain(),
       structuralSubtype: this._filterStructuralSubtype(),
       state: this._filterState(),
-      authRequired: this._filterAuthRequired(),
+      role: this._filterRole(),
       includeArchived: this._includeArchived(),
     })
   );
@@ -160,8 +158,8 @@ export class MenuSearchService {
   /**
    * Update auth required filter
    */
-  setAuthRequiredFilter(authRequired: boolean | null): void {
-    this._filterAuthRequired.set(authRequired);
+  setRoleFilter(role: Role | null): void {
+    this._filterRole.set(role);
   }
 
   /**
@@ -179,7 +177,7 @@ export class MenuSearchService {
     this._filterDomain.set(null);
     this._filterStructuralSubtype.set(null);
     this._filterState.set(null);
-    this._filterAuthRequired.set(null);
+    this._filterRole.set(null);
     this._includeArchived.set(false);
   }
 
@@ -199,8 +197,8 @@ export class MenuSearchService {
     if (filters.state !== undefined) {
       this._filterState.set(filters.state);
     }
-    if (filters.authRequired !== undefined) {
-      this._filterAuthRequired.set(filters.authRequired);
+    if (filters.role !== undefined) {
+      this._filterRole.set(filters.role);
     }
     if (filters.includeArchived !== undefined) {
       this._includeArchived.set(filters.includeArchived);
@@ -231,7 +229,7 @@ export class MenuSearchService {
       this._filterDomain() !== null ||
       this._filterStructuralSubtype() !== null ||
       this._filterState() !== null ||
-      this._filterAuthRequired() !== null ||
+      this._filterRole() !== null ||
       this._includeArchived() !== false
     );
   }
@@ -245,7 +243,7 @@ export class MenuSearchService {
     if (this._filterDomain()) count++;
     if (this._filterStructuralSubtype()) count++;
     if (this._filterState()) count++;
-    if (this._filterAuthRequired() !== null) count++;
+    if (this._filterRole() !== null) count++;
     if (this._includeArchived()) count++;
     return count;
   }

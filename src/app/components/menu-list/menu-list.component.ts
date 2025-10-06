@@ -54,7 +54,7 @@ import { MenuItemActionEvent } from './menu-item-card.component';
         [filterDomain]="filterDomain()"
         [filterStructuralSubtype]="filterStructuralSubtype()"
         [filterState]="filterState()"
-        [filterAuthRequired]="filterAuthRequired()"
+        [filterRole]="filterRole()"
         [includeArchived]="includeArchived()"
         (filterChange)="onFilterChange($event)"
       />
@@ -126,7 +126,7 @@ export class MenuListComponent {
   readonly filterStructuralSubtype =
     this.searchService.filterStructuralSubtype;
   readonly filterState = this.searchService.filterState;
-  readonly filterAuthRequired = this.searchService.filterAuthRequired;
+  readonly filterRole = this.searchService.filterRole;
   readonly includeArchived = this.searchService.includeArchived;
   readonly filtered = this.searchService.filteredItems;
 
@@ -149,8 +149,8 @@ export class MenuListComponent {
       case 'state':
         this.searchService.setStateFilter(event.value);
         break;
-      case 'authRequired':
-        this.searchService.setAuthRequiredFilter(event.value);
+      case 'role':
+        this.searchService.setRoleFilter(event.value);
         break;
       case 'includeArchived':
         this.searchService.setIncludeArchived(event.value);

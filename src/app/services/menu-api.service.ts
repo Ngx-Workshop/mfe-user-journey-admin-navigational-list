@@ -79,8 +79,6 @@ export class MenuApiService {
     if (filters?.state) params['state'] = filters.state;
     if (filters?.archived !== undefined)
       params['archived'] = filters.archived;
-    if (filters?.authRequired !== undefined)
-      params['authRequired'] = filters.authRequired;
 
     return this.http.get<MenuItemDto[]>(this.baseUrl, { params });
   }

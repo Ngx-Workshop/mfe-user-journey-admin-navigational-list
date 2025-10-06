@@ -32,8 +32,8 @@ export interface MenuItemActionEvent {
       <mat-card-header>
         <mat-card-title class="menu-item-card-title">
           {{ item.menuItemText }}
-          @if (item.authRequired) {
-          <mat-chip class="auth-chip">Auth Required</mat-chip>
+          @if (item.role) {
+          <mat-chip class="auth-chip">{{ item.role }}</mat-chip>
           }
         </mat-card-title>
       </mat-card-header>
