@@ -5,7 +5,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { MatButton } from '@angular/material/button';
+import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import {
@@ -31,7 +31,7 @@ import { MenuItemActionEvent } from './menu-item-card.component';
   imports: [
     CommonModule,
     MatSnackBarModule,
-    MatButton,
+    MatButtonModule,
     MatProgressBarModule,
     MenuFiltersComponent,
     MenuGridComponent,
@@ -39,14 +39,6 @@ import { MenuItemActionEvent } from './menu-item-card.component';
     MatIconModule,
   ],
   template: `
-    <div class="list-header"></div>
-    <div class="hierarchy-header">
-      <h2>Menu Management</h2>
-      <button matButton="outlined" (click)="openCreate()">
-        <mat-icon>add</mat-icon> New Menu Item
-      </button>
-    </div>
-
     <div class="list">
       <!-- Filters Section -->
       <ngx-menu-filters
@@ -77,6 +69,10 @@ import { MenuItemActionEvent } from './menu-item-card.component';
       <ngx-menu-empty-state (createClick)="openCreate()" />
       }
     </div>
+
+    <button matFab class="add-fab" (click)="openCreate()">
+      <mat-icon>add</mat-icon>
+    </button>
   `,
   styles: [
     `
@@ -94,10 +90,11 @@ import { MenuItemActionEvent } from './menu-item-card.component';
         padding: 0 2rem 2rem;
       }
 
-      @media (max-width: 768px) {
-        .list {
-          padding: 1rem;
-        }
+      button[matFab] {
+        position: fixed;
+        bottom: 48px;
+        right: 20px;
+        z-index: 1000;
       }
 
       @media (max-width: 768px) {
@@ -105,6 +102,10 @@ import { MenuItemActionEvent } from './menu-item-card.component';
           flex-direction: column;
           gap: 1rem;
           align-items: stretch;
+        }
+
+        .list {
+          padding: 1rem;
         }
       }
     `,

@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgClass } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -26,6 +26,7 @@ export interface MenuItemActionEvent {
     MatCardModule,
     MatChipsModule,
     MatIconModule,
+    NgClass,
   ],
   template: `
     <mat-card class="menu-item-card" [class.archived]="item.archived">
@@ -33,7 +34,15 @@ export interface MenuItemActionEvent {
         <mat-card-title class="menu-item-card-title">
           {{ item.menuItemText }}
           @if (item.role) {
-          <mat-chip class="auth-chip">{{ item.role }}</mat-chip>
+          <mat-chip
+            [ngClass]="{
+              'auth-chip-admin': item.role === 'admin',
+              'auth-chip-publisher': item.role === 'publisher',
+              'auth-chip-regular': item.role === 'regular',
+              'auth-chip-none': item.role === 'none'
+            }"
+            >{{ item.role }}</mat-chip
+          >
           }
         </mat-card-title>
       </mat-card-header>
@@ -76,11 +85,35 @@ export interface MenuItemActionEvent {
   styles: [
     `
       @use '@angular/material' as mat;
-      .auth-chip {
+      .auth-chip-admin {
+        @include mat.chips-overrides(
+          (
+            label-text-color: red,
+            outline-color: red,
+          )
+        );
+      }
+      .auth-chip-publisher {
         @include mat.chips-overrides(
           (
             label-text-color: orange,
             outline-color: orange,
+          )
+        );
+      }
+      .auth-chip-regular {
+        @include mat.chips-overrides(
+          (
+            label-text-color: purple,
+            outline-color: purple,
+          )
+        );
+      }
+      .auth-chip-none {
+        @include mat.chips-overrides(
+          (
+            label-text-color: green,
+            outline-color: green,
           )
         );
       }
