@@ -76,37 +76,11 @@ import { MenuItemActionEvent } from './menu-item-card.component';
   `,
   styles: [
     `
-      .hierarchy-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 2rem;
-      }
-
-      .list {
-        display: block;
-        max-width: 1400px;
-        margin: 0 auto;
-        padding: 0 2rem 2rem;
-      }
-
       button[matFab] {
         position: fixed;
         bottom: 48px;
         right: 20px;
         z-index: 1000;
-      }
-
-      @media (max-width: 768px) {
-        .hierarchy-header {
-          flex-direction: column;
-          gap: 1rem;
-          align-items: stretch;
-        }
-
-        .list {
-          padding: 1rem;
-        }
       }
     `,
   ],

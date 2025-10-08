@@ -41,7 +41,6 @@ interface HierarchyNode {
 
 @Component({
   selector: 'ngx-menu-management',
-  standalone: true,
   imports: [
     CommonModule,
     MatTabsModule,
@@ -73,7 +72,7 @@ interface HierarchyNode {
         <!-- Hierarchy View Tab -->
         <mat-tab label="Hierarchy View">
           <ng-template matTabContent>
-            <div class="tab-hierarchy">
+            <div class="tab-content">
               <ngx-menu-hierarchy-manager
                 [menuHierarchy]="(hierarchyData | async) || []"
               />
@@ -98,36 +97,23 @@ interface HierarchyNode {
   `,
   styles: [
     `
-      .container {
-        min-height: 100vh;
+      .tab-content {
+        display: flex;
+        justify-content: center;
+      }
+      ngx-menu-list,
+      ngx-menu-hierarchy-manager,
+      ngx-menu-statistics {
+        padding: 1rem;
+        flex: 0 1 clamp(480px, 70vw, 1400px);
+        max-width: 100%;
       }
 
-      /* Make the tab header sticky at the top */
       :host ::ng-deep .tabs .mat-mdc-tab-header {
         position: sticky;
         top: 56px;
         z-index: 10;
-        // width: 100vw;
         background: var(--mat-sys-surface);
-        /* Optional: add subtle shadow when stuck */
-        box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08);
-      }
-
-      .tab-content {
-        padding: 2rem;
-        max-width: 1400px;
-        margin: 0 auto;
-      }
-      .tab-hierarchy {
-        padding: 2rem;
-        max-width: 900px;
-        margin: 0 auto;
-      }
-
-      @media (max-width: 768px) {
-        .tab-content {
-          padding: 1rem;
-        }
       }
     `,
   ],

@@ -140,21 +140,19 @@ type ViewModel = {
   styles: [
     `
       @use '@angular/material' as mat;
-      :host {
-        mat-card {
-          margin-bottom: 32px;
-        }
-        mat-card-subtitle {
-          font-weight: 100;
-          margin-bottom: 1.125rem;
-        }
-        mat-panel-title {
-          font-weight: 100;
-        }
-        mat-panel-title mat-icon {
-          vertical-align: middle;
-          margin-right: 1rem;
-        }
+      mat-card {
+        margin-bottom: 32px;
+      }
+      mat-card-subtitle {
+        font-weight: 100;
+        margin-bottom: 1.125rem;
+      }
+      mat-panel-title {
+        font-weight: 100;
+      }
+      mat-panel-title mat-icon {
+        vertical-align: middle;
+        margin-right: 1rem;
       }
 
       .state-expansion-panel {
