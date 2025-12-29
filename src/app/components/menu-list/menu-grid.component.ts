@@ -51,6 +51,15 @@ import {
   `,
   styles: [
     `
+      .results {
+        background: var(--mat-sys-surface-container-low);
+        padding: 1.5rem;
+        border-radius: var(
+          --mat-card-elevated-container-shape,
+          var(--mat-sys-corner-medium)
+        );
+      }
+
       .results-header {
         display: flex;
         gap: 0.5rem;

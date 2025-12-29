@@ -131,6 +131,7 @@ export interface MenuItemActionEvent {
           justify-content: space-between;
         }
         .menu-item-card {
+          background-color: var(--mat-sys-surface-container-high);
           transition: all 0.2s ease;
         }
         .menu-item-card:hover {

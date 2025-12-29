@@ -152,20 +152,22 @@ export interface FilterChangeEvent {
   styles: [
     `
       .filters {
-        background: var(--mat-sys-surface-variant);
+        background: var(--mat-sys-surface-container-low);
         padding: 1.5rem;
-        border-radius: 8px;
+        border-radius: var(
+          --mat-card-elevated-container-shape,
+          var(--mat-sys-corner-medium)
+        );
         margin-bottom: 2rem;
+        h3 {
+          margin-top: 0;
+          margin-bottom: 1rem;
+        }
       }
 
       .search-bar {
         width: 100%;
         max-width: 600px;
-      }
-
-      .filters h3 {
-        margin-top: 0;
-        margin-bottom: 1rem;
       }
 
       .filter-row {
