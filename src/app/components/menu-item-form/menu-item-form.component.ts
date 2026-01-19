@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {
   ChangeDetectionStrategy,
   Component,
@@ -38,7 +38,6 @@ export interface MenuItemFormDialogData {
   selector: 'ngx-menu-item-form',
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     MatDialogModule,
     MenuItemFormHeaderComponent,
@@ -47,8 +46,8 @@ export interface MenuItemFormDialogData {
     MenuItemParentSelectionComponent,
     MenuItemConfigurationComponent,
     MenuItemSvgIconsComponent,
-    MenuItemFormActionsComponent,
-  ],
+    MenuItemFormActionsComponent
+],
   template: `
     <ngx-menu-item-form-header
       [mode]="data.mode"

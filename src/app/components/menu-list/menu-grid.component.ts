@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {
   ChangeDetectionStrategy,
   Component,
@@ -19,12 +19,11 @@ import {
   selector: 'ngx-menu-grid',
   standalone: true,
   imports: [
-    CommonModule,
     MatButtonModule,
     MatIconModule,
     MatTooltipModule,
-    MenuItemCardComponent,
-  ],
+    MenuItemCardComponent
+],
   template: `
     <div class="results">
       <div class="results-header">

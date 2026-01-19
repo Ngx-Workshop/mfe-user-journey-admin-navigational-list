@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {
   ChangeDetectionStrategy,
   Component,
@@ -29,15 +29,14 @@ import { MenuItemActionEvent } from './menu-item-card.component';
   selector: 'ngx-menu-list',
   standalone: true,
   imports: [
-    CommonModule,
     MatSnackBarModule,
     MatButtonModule,
     MatProgressBarModule,
     MenuFiltersComponent,
     MenuGridComponent,
     MenuEmptyStateComponent,
-    MatIconModule,
-  ],
+    MatIconModule
+],
   template: `
     <div class="list">
       <!-- Filters Section -->

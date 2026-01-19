@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {
   ChangeDetectionStrategy,
   Component,
@@ -39,14 +39,13 @@ export interface FilterChangeEvent {
   selector: 'ngx-menu-filters',
   standalone: true,
   imports: [
-    CommonModule,
     MatButtonModule,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
     MatCheckboxModule,
-    MatIconModule,
-  ],
+    MatIconModule
+],
   template: `
     <div class="filters">
       <div class="filter-row header">

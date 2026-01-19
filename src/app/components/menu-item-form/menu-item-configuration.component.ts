@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {
   ChangeDetectionStrategy,
   Component,
@@ -15,13 +15,12 @@ import { RoleOption } from '../../types/menu.types';
   selector: 'ngx-menu-item-configuration',
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     MatFormFieldModule,
     MatInputModule,
     MatCheckboxModule,
-    MatSelectModule,
-  ],
+    MatSelectModule
+],
   template: `
     <div class="form-section" [formGroup]="form">
       <h3>Configuration</h3>

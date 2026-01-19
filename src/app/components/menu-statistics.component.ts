@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {
   ChangeDetectionStrategy,
   Component,
@@ -21,12 +21,11 @@ export interface MenuStatistic {
   selector: 'ngx-menu-statistics',
   standalone: true,
   imports: [
-    CommonModule,
     MatButtonModule,
     MatIconModule,
     MatCardModule,
-    MatProgressBarModule,
-  ],
+    MatProgressBarModule
+],
   template: `
     <div class="stats-header">
       <h2>Menu Statistics</h2>

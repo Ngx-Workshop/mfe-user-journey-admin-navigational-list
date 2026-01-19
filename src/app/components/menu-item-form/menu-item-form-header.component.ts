@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {
   ChangeDetectionStrategy,
   Component,
@@ -11,7 +11,7 @@ import { FormMode } from '../../types/menu.types';
 @Component({
   selector: 'ngx-menu-item-form-header',
   standalone: true,
-  imports: [CommonModule, MatIconModule, MatProgressBarModule],
+  imports: [MatIconModule, MatProgressBarModule],
   template: `
     <div class="dialog-header">
       <h2 mat-dialog-title>

@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {
   ChangeDetectionStrategy,
   Component,
@@ -13,7 +13,7 @@ import { FormMode } from '../../types/menu.types';
 @Component({
   selector: 'ngx-menu-item-form-actions',
   standalone: true,
-  imports: [CommonModule, MatButtonModule, MatIconModule],
+  imports: [MatButtonModule, MatIconModule],
   template: `
     <div class="dialog-actions">
       <button mat-button type="button" (click)="onCancel()">

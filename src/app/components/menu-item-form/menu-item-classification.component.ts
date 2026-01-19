@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {
   ChangeDetectionStrategy,
   Component,
@@ -17,11 +17,10 @@ import {
   selector: 'ngx-menu-item-classification',
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     MatFormFieldModule,
-    MatSelectModule,
-  ],
+    MatSelectModule
+],
   template: `
     <div class="form-section" [formGroup]="form">
       <h3>Classification</h3>

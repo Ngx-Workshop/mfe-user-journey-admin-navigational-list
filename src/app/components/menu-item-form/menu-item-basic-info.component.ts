@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {
   ChangeDetectionStrategy,
   Component,
@@ -12,11 +12,10 @@ import { MatInputModule } from '@angular/material/input';
   selector: 'ngx-menu-item-basic-info',
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     MatFormFieldModule,
-    MatInputModule,
-  ],
+    MatInputModule
+],
   template: `
     <div class="form-section" [formGroup]="form">
       <h3>Basic Information</h3>
