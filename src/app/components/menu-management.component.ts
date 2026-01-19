@@ -12,6 +12,7 @@ import {
   MatSnackBarModule,
 } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
+import { NgxParticleHeader } from '@tmdjr/ngx-shared-headers';
 import { MenuItemDto } from '@tmdjr/service-navigational-list-contracts';
 import { catchError, forkJoin, of, tap } from 'rxjs';
 import { MenuApiService } from '../services/menu-api.service';
@@ -20,7 +21,6 @@ import {
   State,
   StructuralSubtype,
 } from '../types/menu.types';
-import { HeaderComponent } from './header.component';
 import { MenuHierarchyManagerComponent } from './menu-hierarchy/menu-hierarchy-manager.component';
 import { MenuListComponent } from './menu-list/menu-list.component';
 import {
@@ -50,12 +50,13 @@ interface HierarchyNode {
     MenuListComponent,
     MenuHierarchyManagerComponent,
     MenuStatisticsComponent,
-    HeaderComponent,
+    NgxParticleHeader,
   ],
   template: `
     <div class="container">
-      <ngx-menu-management-header class="header">
-      </ngx-menu-management-header>
+      <ngx-particle-header class="header">
+        <h1>Navigational List</h1>
+      </ngx-particle-header>
       <mat-tab-group
         class="tabs"
         (selectedTabChange)="onTabChange($event.index)"
@@ -97,18 +98,24 @@ interface HierarchyNode {
   `,
   styles: [
     `
-      .tab-content {
-        display: flex;
-        justify-content: center;
+      :host {
+        .header h1 {
+          font-size: 1.85rem;
+          font-weight: 100;
+          margin: 1.7rem 1rem;
+        }
+        .tab-content {
+          display: flex;
+          justify-content: center;
+        }
+        ngx-menu-list,
+        ngx-menu-hierarchy-manager,
+        ngx-menu-statistics {
+          padding: 1rem;
+          flex: 0 1 clamp(480px, 70vw, 1400px);
+          max-width: 100%;
+        }
       }
-      ngx-menu-list,
-      ngx-menu-hierarchy-manager,
-      ngx-menu-statistics {
-        padding: 1rem;
-        flex: 0 1 clamp(480px, 70vw, 1400px);
-        max-width: 100%;
-      }
-
       :host ::ng-deep .tabs .mat-mdc-tab-header {
         position: sticky;
         top: 56px;
