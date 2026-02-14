@@ -4,6 +4,7 @@ import {
   Component,
   inject,
   signal,
+  viewChild,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -16,6 +17,7 @@ import { NgxParticleHeader } from '@tmdjr/ngx-shared-headers';
 import { MenuItemDto } from '@tmdjr/service-navigational-list-contracts';
 import { catchError, forkJoin, of, tap } from 'rxjs';
 import { MenuApiService } from '../services/menu-api.service';
+import { MenuDialogService } from '../services/menu-dialog.service';
 import {
   Domain,
   State,
@@ -57,6 +59,13 @@ interface HierarchyNode {
       <ngx-particle-header class="header">
         <h1>Navigational List</h1>
       </ngx-particle-header>
+      <div class="action-bar">
+        <div class="flex-spacer"></div>
+        <button matButton="filled" (click)="openCreate()">
+          <mat-icon>note_add</mat-icon>Create Menu Item
+        </button>
+      </div>
+
       <mat-tab-group
         class="tabs"
         (selectedTabChange)="onTabChange($event.index)"
@@ -65,7 +74,7 @@ interface HierarchyNode {
         <mat-tab label="List View">
           <ng-template matTabContent>
             <div class="tab-content">
-              <ngx-menu-list></ngx-menu-list>
+              <ngx-menu-list #menuList></ngx-menu-list>
             </div>
           </ng-template>
         </mat-tab>
@@ -115,10 +124,27 @@ interface HierarchyNode {
           flex: 0 1 clamp(480px, 70vw, 1400px);
           max-width: 100%;
         }
+        .action-bar {
+          position: sticky;
+          top: 56px;
+          height: 56px;
+          z-index: 5;
+          display: flex;
+          flex-direction: row;
+          width: 100%;
+          background: var(--mat-sys-primary);
+          align-items: center;
+          a,
+          button {
+            color: var(--mat-sys-on-primary);
+            background: var(--mat-sys-primary);
+            margin: 0 12px;
+          }
+        }
       }
       :host ::ng-deep .tabs .mat-mdc-tab-header {
         position: sticky;
-        top: 56px;
+        top: 112px;
         z-index: 10;
         background: var(--mat-sys-surface);
       }
@@ -127,8 +153,11 @@ interface HierarchyNode {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MenuManagementComponent {
+  menuList = viewChild<MenuListComponent>('menuList');
+
   private readonly menuApi = inject(MenuApiService);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly menuDialog = inject(MenuDialogService);
 
   // State signals
   hierarchyLoading = signal(false);
@@ -202,5 +231,13 @@ export class MenuManagementComponent {
       { title: 'Navigation Items', value: subtypeCounts['NAV'] || 0 },
       { title: 'Footer Items', value: subtypeCounts['FOOTER'] || 0 },
     ];
+  }
+
+  openCreate(): void {
+    this.menuDialog.openCreateDialog().subscribe((result) => {
+      if (result) {
+        this.menuList()?.reload();
+      }
+    });
   }
 }

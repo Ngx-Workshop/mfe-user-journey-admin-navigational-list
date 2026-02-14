@@ -1,4 +1,3 @@
-
 import {
   ChangeDetectionStrategy,
   Component,
@@ -35,8 +34,8 @@ import { MenuItemActionEvent } from './menu-item-card.component';
     MenuFiltersComponent,
     MenuGridComponent,
     MenuEmptyStateComponent,
-    MatIconModule
-],
+    MatIconModule,
+  ],
   template: `
     <div class="list">
       <!-- Filters Section -->
@@ -68,21 +67,7 @@ import { MenuItemActionEvent } from './menu-item-card.component';
       <ngx-menu-empty-state (createClick)="openCreate()" />
       }
     </div>
-
-    <button matFab class="add-fab" (click)="openCreate()">
-      <mat-icon>add</mat-icon>
-    </button>
   `,
-  styles: [
-    `
-      button[matFab] {
-        position: fixed;
-        bottom: 48px;
-        right: 20px;
-        z-index: 1000;
-      }
-    `,
-  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MenuListComponent {
