@@ -28,12 +28,14 @@
                 "output": "."
               }
             ],
-            "styles": ["src/styles.scss"],
+            "styles": [
+              "src/styles.scss"
+            ],
             "main": "src/main.ts",
             "outputPath": "dist/mfe-user-journey-admin-navigational-list",
             "index": "src/index.html",
             "extraWebpackConfig": "webpack.config.js",
-            "commonChunk": false
+            "commonChunk": true
           },
           "configurations": {
             "production": {
@@ -92,7 +94,12 @@
                 "input": "public"
               }
             ],
-            "styles": ["src/styles.scss"]
+            "styles": [
+              "src/styles.scss"
+            ],
+            "include": [
+              "../testing/**/*.spec.ts"
+            ]
           }
         }
       }
