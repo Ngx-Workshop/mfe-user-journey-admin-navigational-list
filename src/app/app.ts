@@ -1,18 +1,19 @@
-import { Component, ViewEncapsulation } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
+import { Component, inject, ViewEncapsulation } from '@angular/core';
+import { ActivatedRoute, RouterOutlet } from '@angular/router';
 import { MenuManagementComponent } from './features/navigation/components/menu-management.component';
 import { MenuManagenmentHeader } from './features/navigation/components/menu-managenment-header.component';
 
 @Component({
   selector: 'ngx-seed-mfe',
   imports: [
-    MatButtonModule,
+    RouterOutlet,
     MenuManagementComponent,
     MenuManagenmentHeader,
   ],
   template: `
     <ngx-menu-managenment-header></ngx-menu-managenment-header>
-    <ngx-menu-management></ngx-menu-management>
+    @if (routed) { <router-outlet /> }
+    @else { <ngx-menu-management /> }
   `,
   encapsulation: ViewEncapsulation.None,
   styles: [
@@ -30,7 +31,10 @@ import { MenuManagenmentHeader } from './features/navigation/components/menu-man
     `,
   ],
 })
-export class App {}
+export class App {
+  // Retain direct Component rendering for existing federation consumers.
+  readonly routed = !!inject(ActivatedRoute).routeConfig?.children?.length;
+}
 
 // 👇 **IMPORTANT FOR DYMANIC LOADING**
 export default App;

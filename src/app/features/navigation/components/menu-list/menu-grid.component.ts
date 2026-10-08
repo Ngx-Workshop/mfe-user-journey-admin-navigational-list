@@ -12,7 +12,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MenuItemDto } from '@tmdjr/service-navigational-list-contracts';
 import { MenuResultsViewModel } from '../../view-models/menu-results.view-model';
 import {
   MenuItemActionEvent,
@@ -21,15 +20,14 @@ import {
 
 @Component({
   selector: 'ngx-menu-grid',
-  providers: [MenuResultsViewModel],
   imports: [
     MatButtonModule,
     MatIconModule,
     MatTooltipModule,
     MenuItemCardComponent,
-    MatPaginatorModule,
     MatFormFieldModule,
     MatSelectModule,
+    MatPaginatorModule,
   ],
   template: `
     <section
@@ -49,7 +47,7 @@ import {
             your filters
           </p>
         </div>
-        <div class="flex-spacer"></div>
+        <div class="menu-grid__spacer"></div>
         <div class="menu-grid__controls">
           <mat-form-field
             appearance="outline"
@@ -67,6 +65,17 @@ import {
               >
             </mat-select>
           </mat-form-field>
+          <mat-paginator
+            class="menu-grid__pagination"
+            aria-label="Menu item pages"
+            [length]="vm.total()"
+            [pageIndex]="vm.pageIndex()"
+            [pageSize]="vm.pageSize()"
+            [pageSizeOptions]="[12, 24, 48]"
+            [showFirstLastButtons]="true"
+            [disabled]="busy"
+            (page)="vm.page($event)"
+          />
         </div>
 
         <!-- <button
@@ -88,17 +97,6 @@ import {
         />
         }
       </div>
-      <mat-paginator
-        class="menu-grid__pagination"
-        aria-label="Menu item pages"
-        [length]="vm.total()"
-        [pageIndex]="vm.pageIndex()"
-        [pageSize]="vm.pageSize()"
-        [pageSizeOptions]="[12, 24, 48]"
-        [showFirstLastButtons]="true"
-        [disabled]="busy"
-        (page)="vm.page($event)"
-      />
     </section>
   `,
   styles: [
@@ -107,6 +105,11 @@ import {
         display: block;
       }
       .menu-grid__toolbar {
+        position: sticky;
+        top: 120px;
+        z-index: 5;
+        background: var(--mat-sys-surface);
+        padding: 12px 0;
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -135,22 +138,26 @@ import {
       }
       .menu-grid__controls {
         display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
         align-items: center;
         gap: 8px;
       }
       .menu-grid__controls mat-form-field {
         width: 190px;
       }
+      .menu-grid__pagination {
+        background: transparent;
+        min-width: 0;
+        max-width: 100%;
+      }
       .menu-grid__cards {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 20px;
       }
-      .menu-grid__pagination {
-        margin-top: 20px;
-        border-top: 1px solid var(--mat-sys-outline-variant);
-        background: transparent;
-        padding-top: 8px;
+      .menu-grid__spacer {
+        flex: 1;
       }
       @media (max-width: 1000px) {
         .menu-grid__cards {
@@ -178,9 +185,6 @@ import {
 })
 export class MenuGridComponent {
   readonly vm = inject(MenuResultsViewModel);
-  @Input({ required: true }) set items(value: MenuItemDto[]) {
-    this.vm.setItems(value);
-  }
   @Input() busy = false;
   @Output() itemAction = new EventEmitter<MenuItemActionEvent>();
   @Output() refreshClick = new EventEmitter<void>();

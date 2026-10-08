@@ -2,7 +2,7 @@ import { Clipboard } from '@angular/cdk/clipboard';
 import { TestBed } from '@angular/core/testing';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MenuStore } from '../../../../../src/app/features/navigation/state/menu.store';
-import { MenuDialogService } from '../../../../../src/app/features/navigation/view-models/menu-dialog.service';
+import { provideRouter } from '@angular/router';
 import { MenuListViewModel } from '../../../../../src/app/features/navigation/view-models/menu-list.view-model';
 import { menuItem } from '../menu.fixture';
 
@@ -19,7 +19,7 @@ describe('MenuListViewModel copy feedback', () => {
           provide: MenuStore,
           useValue: { pending: () => true, loading: () => false },
         },
-        { provide: MenuDialogService, useValue: {} },
+        provideRouter([]),
       ],
     });
     const vm = TestBed.inject(MenuListViewModel);

@@ -55,7 +55,7 @@ export interface MenuItemFormDialogData {
     >
     </ngx-menu-item-form-header>
 
-    <mat-dialog-content class="menu-item-form__dialog-content">
+    <div class="menu-item-form__content">
       @if (vm.store.error()) {
         <div class="menu-item-form__error" role="alert">
           <mat-icon>error_outline</mat-icon
@@ -105,7 +105,7 @@ export interface MenuItemFormDialogData {
           <ngx-menu-item-svg-icons [form]="form" />
         </details>
       </form>
-    </mat-dialog-content>
+    </div>
 
     <ngx-menu-item-form-actions
       [mode]="data.mode"
@@ -124,10 +124,8 @@ export interface MenuItemFormDialogData {
   `,
   styles: [
     `
-      .menu-item-form__dialog-content {
+      .menu-item-form__content {
         padding: 1rem 1.5rem;
-        max-height: 65dvh;
-        overflow-y: auto;
       }
 
       .menu-item-form__error {
@@ -152,7 +150,7 @@ export interface MenuItemFormDialogData {
         color: var(--mat-sys-primary);
       }
       @media (max-width: 480px) {
-        .menu-item-form__dialog-content {
+        .menu-item-form__content {
           padding: 12px 16px;
         }
       }

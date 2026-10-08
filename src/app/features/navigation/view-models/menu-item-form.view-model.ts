@@ -14,6 +14,7 @@ import {
   MAT_DIALOG_DATA,
   MatDialogRef,
 } from '@angular/material/dialog';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { finalize, startWith } from 'rxjs';
 import { MenuItemFormDialogData } from '../components/menu-item-form/menu-item-form.component';
@@ -23,12 +24,18 @@ import { MenuItemFormService } from '../utils/menu-item-form.service';
 @Injectable()
 export class MenuItemFormViewModel {
   readonly store = inject(MenuStore);
-  readonly data = inject<MenuItemFormDialogData>(MAT_DIALOG_DATA);
   private readonly forms = inject(MenuItemFormService);
-  private readonly dialog = inject(MatDialogRef);
+  private readonly dialog = inject(MatDialogRef, { optional: true });
+  private readonly router = inject(Router, { optional: true });
+  private readonly route = inject(ActivatedRoute, { optional: true });
+  readonly data: MenuItemFormDialogData = inject<MenuItemFormDialogData>(MAT_DIALOG_DATA, { optional: true }) ?? {
+    mode: this.route!.snapshot.data['mode'],
+    item: this.store.items().find(item => item._id === this.route!.snapshot.paramMap.get('id')),
+  };
+
   private readonly snackBar = inject(MatSnackBar);
   private readonly destroyRef = inject(DestroyRef);
-  readonly formId = `${this.dialog.id}-menu-form`;
+  readonly formId = `${this.dialog?.id ?? 'route'}-menu-form`;
   readonly form = this.forms.createMenuItemForm();
   readonly saving = signal(false);
   private readonly values = toSignal(
@@ -65,7 +72,15 @@ export class MenuItemFormViewModel {
   }
 
   cancel(): void {
-    if (!this.saving()) this.dialog.close();
+    if (!this.saving()) this.close();
+  }
+
+  private close(saved?: boolean): void {
+    if (this.dialog) this.dialog.close(saved);
+    // Let the store finish clearing pending before the route guard runs.
+    else if (this.route) queueMicrotask(() => {
+      void this.router?.navigate(['.'], { relativeTo: this.route!.parent });
+    });
   }
 
   save(): void {
@@ -95,7 +110,7 @@ export class MenuItemFormViewModel {
     const id = this.data.item?._id;
     if (this.data.mode === 'edit' && !id) return;
     this.saving.set(true);
-    this.dialog.disableClose = true;
+    if (this.dialog) this.dialog.disableClose = true;
     const request =
       this.data.mode === 'edit'
         ? this.store.update$(id!, dto)
@@ -104,12 +119,12 @@ export class MenuItemFormViewModel {
       .pipe(
         finalize(() => {
           this.saving.set(false);
-          this.dialog.disableClose = false;
+          if (this.dialog) this.dialog.disableClose = false;
         }),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
-        next: () => this.dialog.close(true),
+        next: () => this.close(true),
         error: () =>
           this.snackBar.open(
             'Failed to save menu item. Your edits are retained.',

@@ -2,46 +2,43 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  DestroyRef,
   inject,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatTabsModule } from '@angular/material/tabs';
+import { RouterLink } from '@angular/router';
 import { MenuStore } from '../state/menu.store';
-import { MenuDialogService } from '../view-models/menu-dialog.service';
-import { MenuHierarchyManagerComponent } from './menu-hierarchy/menu-hierarchy-manager.component';
+import { MenuResultsViewModel } from '../view-models/menu-results.view-model';
+import { MenuSearchService } from '../view-models/menu-search.service';
 import { MenuListComponent } from './menu-list/menu-list.component';
 import { MenuManagenmentActions } from './menu-managenment-actions';
 import { MenuStatisticsComponent } from './menu-statistics.component';
 
 @Component({
   selector: 'ngx-menu-management',
+  providers: [MenuSearchService, MenuResultsViewModel],
   imports: [
-    MatTabsModule,
+    RouterLink,
     MatButtonModule,
     MatIconModule,
     MatSnackBarModule,
     MenuListComponent,
-    MenuHierarchyManagerComponent,
     MenuStatisticsComponent,
     MenuManagenmentActions,
   ],
   template: `
     <ngx-menu-managenment-actions>
-      <div class="flex-spacer"></div>
-      <button
-        mat-flat-button
-        (click)="openCreate()"
-        [disabled]="store.pending()"
-      >
+      <div class="menu-management__spacer"></div>
+      <a mat-flat-button routerLink="hierarchy">
+        <mat-icon>account_tree</mat-icon>Manage Hierarchy
+      </a>
+      <a mat-flat-button routerLink="create">
         <mat-icon>add</mat-icon>Create Menu Item
-      </button>
+      </a>
     </ngx-menu-managenment-actions>
     <main class="menu-management">
-      <div class="menu-management__toolbar">
+      <!-- <div class="menu-management__toolbar">
         <div>
           <h2>Navigation workspace</h2>
           <p>
@@ -51,7 +48,7 @@ import { MenuStatisticsComponent } from './menu-statistics.component';
             @else { Manage menu items, placement and access. }
           </p>
         </div>
-      </div>
+      </div> -->
       @if (store.error()) {
       <div class="menu-management__error" role="alert">
         <mat-icon>error_outline</mat-icon
@@ -65,35 +62,14 @@ import { MenuStatisticsComponent } from './menu-statistics.component';
         </button>
       </div>
       }
-      <mat-tab-group
-        class="menu-management__tabs"
-        aria-label="Navigation workspace views"
-      >
-        <mat-tab label="List View"
-          ><ng-template matTabContent>
-            <div class="menu-management__content">
-              <ngx-menu-list />
-            </div> </ng-template
-        ></mat-tab>
-        <mat-tab label="Hierarchy View"
-          ><ng-template matTabContent>
-            <div class="menu-management__content">
-              <ngx-menu-hierarchy-manager
-                [menuHierarchy]="store.hierarchy()"
-              />
-            </div> </ng-template
-        ></mat-tab>
-        <mat-tab label="Statistics"
-          ><ng-template matTabContent>
-            <div class="menu-management__content">
-              <ngx-menu-statistics
-                [statistics]="store.ready() ? store.statistics() : []"
-                [loading]="store.loading()"
-                (refreshClick)="store.refresh()"
-              />
-            </div> </ng-template
-        ></mat-tab>
-      </mat-tab-group>
+      <ngx-menu-statistics
+        [statistics]="store.ready() ? store.statistics() : []"
+        [loading]="store.loading()"
+        (refreshClick)="store.refresh()"
+      />
+      <div class="menu-management__content">
+        <ngx-menu-list />
+      </div>
     </main>
   `,
   styles: [
@@ -101,6 +77,9 @@ import { MenuStatisticsComponent } from './menu-statistics.component';
       :host {
         display: block;
         color: var(--mat-sys-on-surface);
+      }
+      .menu-management__spacer {
+        flex: 1;
       }
       .menu-management {
         max-width: 1440px;
@@ -188,15 +167,7 @@ export class MenuManagementComponent {
   readonly activeCount = computed(
     () => this.store.items().filter((item) => !item.archived).length
   );
-  private readonly menuDialog = inject(MenuDialogService);
-  private readonly destroyRef = inject(DestroyRef);
   constructor() {
     this.store.ensureLoaded();
-  }
-  openCreate(): void {
-    this.menuDialog
-      .openCreateDialog()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe();
   }
 }

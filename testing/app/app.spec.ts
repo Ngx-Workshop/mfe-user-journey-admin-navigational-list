@@ -4,9 +4,8 @@ import {
   provideHttpClientTesting,
 } from '@angular/common/http/testing';
 import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
-import { MAT_TABS_CONFIG } from '@angular/material/tabs';
+import { provideRouter } from '@angular/router';
 import { MatSelectHarness } from '@angular/material/select/testing';
-import { MatTabGroupHarness } from '@angular/material/tabs/testing';
 import { TestBed } from '@angular/core/testing';
 import App from '../../src/app/app';
 import { MatDialog, MatDialogState } from '@angular/material/dialog';
@@ -21,10 +20,7 @@ describe('App navigation journey', () => {
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
-        {
-          provide: MAT_TABS_CONFIG,
-          useValue: { animationDuration: '0ms' },
-        },
+        provideRouter([]),
       ],
     });
     const fixture = TestBed.createComponent(App);
@@ -67,10 +63,7 @@ describe('App navigation journey', () => {
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
-        {
-          provide: MAT_TABS_CONFIG,
-          useValue: { animationDuration: '0ms' },
-        },
+        provideRouter([]),
       ],
     });
     const fixture = TestBed.createComponent(App);
@@ -90,7 +83,7 @@ describe('App navigation journey', () => {
     fixture.detectChanges();
     await fixture.whenStable();
     const loader = TestbedHarnessEnvironment.loader(fixture);
-    const selects = await loader.getAllHarnesses(MatSelectHarness);
+    const selects = await loader.getAllHarnesses(MatSelectHarness.with({ ancestor: 'ngx-menu-filters' }));
     const role = selects[3];
     await role.open();
     await role.clickOptions({ text: 'Admin' });
@@ -134,10 +127,7 @@ describe('App navigation journey', () => {
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
-        {
-          provide: MAT_TABS_CONFIG,
-          useValue: { animationDuration: '0ms' },
-        },
+        provideRouter([]),
       ],
     });
     const fixture = TestBed.createComponent(App);
@@ -189,10 +179,7 @@ describe('App navigation journey', () => {
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
-        {
-          provide: MAT_TABS_CONFIG,
-          useValue: { animationDuration: '0ms' },
-        },
+        provideRouter([]),
       ],
     });
     const fixture = TestBed.createComponent(App);
@@ -229,16 +216,13 @@ describe('App navigation journey', () => {
     http.verify();
   });
 
-  it('renders shared statistics and hierarchy without separate API requests', async () => {
+  it('renders statistics above the list and shares refreshed data', async () => {
     TestBed.configureTestingModule({
       imports: [App],
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
-        {
-          provide: MAT_TABS_CONFIG,
-          useValue: { animationDuration: '0ms' },
-        },
+        provideRouter([]),
       ],
     });
     const fixture = TestBed.createComponent(App);
@@ -248,13 +232,6 @@ describe('App navigation journey', () => {
     http.expectOne('/api/navigational-list').flush([menuItem()]);
     fixture.detectChanges();
     await fixture.whenStable();
-    const group = await TestbedHarnessEnvironment.loader(
-      fixture
-    ).getHarness(MatTabGroupHarness);
-    await group.selectTab({ label: 'Statistics' });
-    fixture.detectChanges();
-    await fixture.whenStable();
-    fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain(
       'Total Menu Items'
     );
@@ -266,18 +243,6 @@ describe('App navigation journey', () => {
     fixture.detectChanges();
     await fixture.whenStable();
     expect(store.statistics()[2].value).toBe(1);
-    await group.selectTab({ label: 'Hierarchy View' });
-    fixture.detectChanges();
-    await fixture.whenStable();
-    fixture.detectChanges();
-    expect(
-      fixture.nativeElement.querySelector(
-        'ngx-menu-hierarchy-manager'
-      )
-    ).not.toBeNull();
-    expect(
-      fixture.nativeElement.querySelector('ngx-menu-tree')
-    ).toBeNull();
     http.verify();
   });
 });

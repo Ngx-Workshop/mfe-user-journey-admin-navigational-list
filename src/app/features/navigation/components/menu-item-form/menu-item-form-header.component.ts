@@ -14,7 +14,7 @@ import { FormMode } from '../../models/menu.types';
   imports: [MatIconModule, MatProgressBarModule, MatDialogModule],
   template: `
     <div class="menu-item-form-header__dialog-header">
-      <h2 mat-dialog-title>
+      <h2>
         {{
           mode === 'create' ? 'Create Menu Item' : 'Edit Menu Item'
         }}

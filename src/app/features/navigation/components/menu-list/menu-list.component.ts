@@ -3,6 +3,7 @@ import {
   Component,
   inject,
   computed,
+  effect,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -10,6 +11,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MenuListViewModel } from '../../view-models/menu-list.view-model';
 
+import { MenuResultsViewModel } from '../../view-models/menu-results.view-model';
 import { MenuSearchService } from '../../view-models/menu-search.service';
 import { MenuEmptyStateComponent } from './menu-empty-state.component';
 import {
@@ -21,7 +23,7 @@ import { MenuItemActionEvent } from './menu-item-card.component';
 
 @Component({
   selector: 'ngx-menu-list',
-  providers: [MenuSearchService, MenuListViewModel],
+  providers: [MenuListViewModel],
   standalone: true,
   imports: [
     MatSnackBarModule,
@@ -64,7 +66,6 @@ import { MenuItemActionEvent } from './menu-item-card.component';
       <!-- Results Section -->
       @if (filtered().length > 0) {
         <ngx-menu-grid
-          [items]="filtered()"
           [busy]="loading() || vm.store.pending()"
           (itemAction)="onItemAction($event)"
           (refreshClick)="reload()"
@@ -124,7 +125,10 @@ export class MenuListComponent {
       )
   );
 
+  readonly results = inject(MenuResultsViewModel);
+
   constructor() {
+    effect(() => this.results.setItems(this.filtered()));
     this.vm.store.ensureLoaded();
   }
 

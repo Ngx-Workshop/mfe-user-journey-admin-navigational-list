@@ -26,7 +26,7 @@ export interface MenuStatistic {
     MatProgressBarModule,
   ],
   template: `
-    <div class="menu-statistics__stats-header">
+    <!-- <div class="menu-statistics__stats-header">
       <h2>Menu Statistics</h2>
       <button
         mat-stroked-button
@@ -35,35 +35,35 @@ export interface MenuStatistic {
       >
         <mat-icon>analytics</mat-icon> Refresh Stats
       </button>
-    </div>
+    </div> -->
 
     @if (loading) {
-      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
     }
 
     <div class="menu-statistics__stats-grid">
       @for (stat of statistics; track stat.title) {
-        <mat-card class="menu-statistics__stat-card">
-          <mat-card-content>
-            <div class="menu-statistics__stat-value">
-              {{ stat.value }}
-            </div>
-            <div class="menu-statistics__stat-title">
-              {{ stat.title }}
-            </div>
-            @if (stat.description) {
-              <div class="menu-statistics__stat-description">
-                {{ stat.description }}
-              </div>
-            }
-          </mat-card-content>
-        </mat-card>
+      <mat-card class="menu-statistics__stat-card">
+        <mat-card-content>
+          <div class="menu-statistics__stat-value">
+            {{ stat.value }}
+          </div>
+          <div class="menu-statistics__stat-title">
+            {{ stat.title }}
+          </div>
+          @if (stat.description) {
+          <div class="menu-statistics__stat-description">
+            {{ stat.description }}
+          </div>
+          }
+        </mat-card-content>
+      </mat-card>
       } @empty {
-        <div class="menu-statistics__empty-stats">
-          <mat-icon>analytics</mat-icon>
-          <h3>No statistics available</h3>
-          <p>Click "Refresh Stats" to load menu statistics</p>
-        </div>
+      <div class="menu-statistics__empty-stats">
+        <mat-icon>analytics</mat-icon>
+        <h3>No statistics available</h3>
+        <p>Click "Refresh Stats" to load menu statistics</p>
+      </div>
       }
     </div>
   `,

@@ -5,21 +5,19 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Observable } from 'rxjs';
 import { MenuItemActionEvent } from '../components/menu-list/menu-item-card.component';
 import { MenuStore } from '../state/menu.store';
-import { MenuDialogService } from './menu-dialog.service';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Injectable()
 export class MenuListViewModel {
   private readonly clipboard = inject(Clipboard);
   readonly store = inject(MenuStore);
-  private readonly dialogs = inject(MenuDialogService);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
   private readonly snackBar = inject(MatSnackBar);
 
   openCreate(): void {
-    this.dialogs
-      .openCreateDialog()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe();
+    void this.router.navigate(['create'], { relativeTo: this.route });
   }
 
   act({ type, item }: MenuItemActionEvent): void {
@@ -36,10 +34,7 @@ export class MenuListViewModel {
     }
     if (this.store.pending() || this.store.loading()) return;
     if (type === 'edit') {
-      this.dialogs
-        .openEditDialog(item)
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe();
+      void this.router.navigate(['edit', item._id], { relativeTo: this.route });
       return;
     }
     if (

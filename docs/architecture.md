@@ -1,6 +1,6 @@
 # Navigational list architecture
 
-This Angular 21.1 zoneless, standalone remote manages administrator navigation records for ADMIN and WORKSHOP domains, HEADER/NAV/FOOTER structures and FULL/RELAXED/COMPACT states. It owns list/filtering, create/edit dialogs, hierarchy ordering, archive/unarchive/delete commands and statistics. The shell owns authentication, outer navigation and remote composition; server authorization remains authoritative.
+This Angular 21.1 zoneless, standalone remote manages administrator navigation records for ADMIN and WORKSHOP domains, HEADER/NAV/FOOTER structures and FULL/RELAXED/COMPACT states. It owns list/filtering, create/edit pages, hierarchy ordering, archive/unarchive/delete commands and statistics. The shell owns authentication, outer navigation and remote composition; server authorization remains authoritative.
 
 ## MVVM boundaries
 
@@ -13,11 +13,11 @@ This Angular 21.1 zoneless, standalone remote manages administrator navigation r
 | `view-models` | Scoped MenuSearchService, MenuListViewModel, MenuResultsViewModel and MenuItemFormViewModel; scoped reorder orchestration; dialog launcher |
 | `models` | Published DTO-derived types and classification constants |
 | `utils` | Form construction/payload mapping, cycle-safe ancestry, sorted tree/statistic projections, hierarchy labels/connectivity |
-| `components` | Inline views; management/list/form/hierarchy orchestrate; grid owns a scoped results view model; card/filter/statistics/tree/form sections present inputs and emit intent |
+| `components` | Inline views; management/list/form/hierarchy orchestrate; management scopes search/results view models shared by the list, grid and results-toolbar paginator; card/filter/statistics/tree/form sections present inputs and emit intent |
 
-`app.ts` composes management. `app.routes.ts` exports named Routes, preserving the legacy empty → hello-world route. The host mounts this remote at `/navigational-list` (the earlier `/user-management/user-metadata` link belongs to another remote).
+`app.ts` composes the shared header and routed outlet. `app.routes.ts` exports named Routes with list, `hierarchy`, `create`, and `edit/:id` child pages; legacy `hello-world` redirects to the list. Standalone bootstrap provides routing; the admin host must use the `./Routes` exposure (`useRoutes: true`). Direct `./Component` consumers retain list rendering. The host mounts this remote at `/navigational-list` (the earlier `/user-management/user-metadata` link belongs to another remote).
 
-HTTP → store signals → computed hierarchy/statistics and scoped view models → views. UI intent → view model/store command → HTTP → refresh canonical records. No components inject the HTTP service. Parent selection is presentational and receives reactive options from the dialog view model. Filters remain list-local while domain data is shared. Returning to a destroyed list resets filters.
+HTTP → store signals → computed hierarchy/statistics and scoped view models → views. UI intent → view model/store command → HTTP → refresh canonical records. No components inject the HTTP service. Parent selection is presentational and receives reactive options from the form view model. Filters remain workspace-local while domain data is shared. Returning to a destroyed list resets filters.
 
 ## State and lifecycle
 
@@ -37,6 +37,6 @@ Tests under `testing/app` mirror source. `npm run check:layout` checks source bo
 
 ## Navigation workspace UX
 
-The list combines labeled classification filters with real role values and immediate local search. A scoped results view model sorts clones of canonical records and paginates 12/24/48 items. Filtering and sort/page-size changes reset the page; equivalent refresh records preserve the page. Refresh retains visible cards, while mutation controls stay disabled during pending work. Empty search offers reset; an empty catalog offers creation.
+Statistics appear above the list; hierarchy and create/edit have dedicated routes. The sticky action bar links to hierarchy/create. Pagination sits beside sorting in the results toolbar, sticky at `top: 128px`. The list combines labeled classification filters with real role values and immediate local search. A scoped results view model sorts clones of canonical records and paginates 12/24/48 items. Filtering and sort/page-size changes reset the page; equivalent refresh records preserve the page. Refresh retains visible cards, while mutation controls stay disabled during pending work. Empty search offers reset; an empty catalog offers creation.
 
-Cards expose readable status/classification/access metadata and labeled edit/archive/restore/copy actions. Clipboard success/failure is reported by the list view model. Route links resolve against the record's domain in both list and hierarchy. Dialog footers submit their associated native form, supporting Enter, and retain edits after errors. Optional icon configuration is collapsed initially. All styles consume host Material tokens; preview-only themes/fixtures are excluded from shipped source.
+Cards expose readable status/classification/access metadata and labeled edit/archive/restore/copy actions. Clipboard success/failure is reported by the list view model. Route links resolve against the record's domain in both list and hierarchy. Form footers submit their associated native form, supporting Enter, and retain edits after errors. Optional icon configuration is collapsed initially. All styles consume host Material tokens; preview-only themes/fixtures are excluded from shipped source.
