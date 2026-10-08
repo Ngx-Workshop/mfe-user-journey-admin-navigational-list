@@ -10,11 +10,11 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
-import { NgxParticleHeader } from '@tmdjr/ngx-shared-headers';
 import { MenuStore } from '../state/menu.store';
 import { MenuDialogService } from '../view-models/menu-dialog.service';
 import { MenuHierarchyManagerComponent } from './menu-hierarchy/menu-hierarchy-manager.component';
 import { MenuListComponent } from './menu-list/menu-list.component';
+import { MenuManagenmentActions } from './menu-managenment-actions';
 import { MenuStatisticsComponent } from './menu-statistics.component';
 
 @Component({
@@ -27,48 +27,43 @@ import { MenuStatisticsComponent } from './menu-statistics.component';
     MenuListComponent,
     MenuHierarchyManagerComponent,
     MenuStatisticsComponent,
-    NgxParticleHeader,
+    MenuManagenmentActions,
   ],
   template: `
-    <ngx-particle-header class="menu-management__hero">
-      <div class="menu-management__hero-content">
-        <h1>Navigational List</h1>
-        <p>Shape how people move through your platform.</p>
-      </div>
-    </ngx-particle-header>
+    <ngx-menu-managenment-actions>
+      <div class="flex-spacer"></div>
+      <button
+        mat-flat-button
+        (click)="openCreate()"
+        [disabled]="store.pending()"
+      >
+        <mat-icon>add</mat-icon>Create Menu Item
+      </button>
+    </ngx-menu-managenment-actions>
     <main class="menu-management">
       <div class="menu-management__toolbar">
         <div>
           <h2>Navigation workspace</h2>
           <p>
             @if (store.ready()) {
-              {{ activeCount() }} active ·
-              {{ store.items().length - activeCount() }} archived
-            } @else {
-              Manage menu items, placement and access.
-            }
+            {{ activeCount() }} active ·
+            {{ store.items().length - activeCount() }} archived }
+            @else { Manage menu items, placement and access. }
           </p>
         </div>
-        <button
-          mat-flat-button
-          (click)="openCreate()"
-          [disabled]="store.pending()"
-        >
-          <mat-icon>add</mat-icon>Create Menu Item
-        </button>
       </div>
       @if (store.error()) {
-        <div class="menu-management__error" role="alert">
-          <mat-icon>error_outline</mat-icon
-          ><span>{{ store.error() }}</span>
-          <button
-            mat-button
-            (click)="store.refresh()"
-            [disabled]="store.loading()"
-          >
-            Retry
-          </button>
-        </div>
+      <div class="menu-management__error" role="alert">
+        <mat-icon>error_outline</mat-icon
+        ><span>{{ store.error() }}</span>
+        <button
+          mat-button
+          (click)="store.refresh()"
+          [disabled]="store.loading()"
+        >
+          Retry
+        </button>
+      </div>
       }
       <mat-tab-group
         class="menu-management__tabs"
@@ -107,6 +102,11 @@ import { MenuStatisticsComponent } from './menu-statistics.component';
         display: block;
         color: var(--mat-sys-on-surface);
       }
+      .menu-management {
+        max-width: 1440px;
+        margin: auto;
+        padding: 2.5rem 2rem;
+      }
       .menu-management__hero-content {
         max-width: 1200px;
         padding: 28px 32px;
@@ -121,11 +121,6 @@ import { MenuStatisticsComponent } from './menu-statistics.component';
       .menu-management__hero-content p {
         margin: 8px 0 0;
         font-size: 0.95rem;
-      }
-      .menu-management {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 0 32px 48px;
       }
       .menu-management__toolbar {
         display: flex;

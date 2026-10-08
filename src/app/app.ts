@@ -1,11 +1,19 @@
 import { Component, ViewEncapsulation } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MenuManagementComponent } from './features/navigation/components/menu-management.component';
+import { MenuManagenmentHeader } from './features/navigation/components/menu-managenment-header.component';
 
 @Component({
   selector: 'ngx-seed-mfe',
-  imports: [MatButtonModule, MenuManagementComponent],
-  template: ` <ngx-menu-management></ngx-menu-management> `,
+  imports: [
+    MatButtonModule,
+    MenuManagementComponent,
+    MenuManagenmentHeader,
+  ],
+  template: `
+    <ngx-menu-managenment-header></ngx-menu-managenment-header>
+    <ngx-menu-management></ngx-menu-management>
+  `,
   encapsulation: ViewEncapsulation.None,
   styles: [
     `

@@ -45,12 +45,11 @@ import {
           </h2>
           <p role="status" aria-live="polite">
             {{ vm.total() }}
-            {{
-              vm.total() === 1 ? 'item matches' : 'items match'
-            }}
+            {{ vm.total() === 1 ? 'item matches' : 'items match' }}
             your filters
           </p>
         </div>
+        <div class="flex-spacer"></div>
         <div class="menu-grid__controls">
           <mat-form-field
             appearance="outline"
@@ -68,24 +67,25 @@ import {
               >
             </mat-select>
           </mat-form-field>
-          <button
-            mat-icon-button
-            (click)="refreshClick.emit()"
-            [disabled]="busy"
-            matTooltip="Refresh menu items"
-            aria-label="Refresh"
-          >
-            <mat-icon>refresh</mat-icon>
-          </button>
         </div>
+
+        <!-- <button
+          mat-icon-button
+          (click)="refreshClick.emit()"
+          [disabled]="busy"
+          matTooltip="Refresh menu items"
+          aria-label="Refresh"
+        >
+          <mat-icon>refresh</mat-icon>
+        </button> -->
       </div>
       <div class="menu-grid__cards">
         @for (item of vm.visible(); track item._id) {
-          <ngx-menu-item-card
-            [item]="item"
-            [disabled]="busy"
-            (action)="itemAction.emit($event)"
-          />
+        <ngx-menu-item-card
+          [item]="item"
+          [disabled]="busy"
+          (action)="itemAction.emit($event)"
+        />
         }
       </div>
       <mat-paginator
