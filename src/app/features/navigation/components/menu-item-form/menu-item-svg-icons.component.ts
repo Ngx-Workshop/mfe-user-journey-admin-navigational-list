@@ -12,16 +12,15 @@ import { MatInputModule } from '@angular/material/input';
 @Component({
   selector: 'ngx-menu-item-svg-icons',
   standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    MatFormFieldModule,
-    MatInputModule
-  ],
+  imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule],
   template: `
     <div class="menu-item-svg-icons__form-section" [formGroup]="form">
       <h3>SVG Icons (Optional)</h3>
 
-      <mat-form-field appearance="outline" class="menu-item-svg-icons__full-width">
+      <mat-form-field
+        appearance="outline"
+        class="menu-item-svg-icons__full-width"
+      >
         <mat-label>Navigation SVG Path</mat-label>
         <textarea
           matInput
@@ -31,7 +30,10 @@ import { MatInputModule } from '@angular/material/input';
         ></textarea>
       </mat-form-field>
 
-      <mat-form-field appearance="outline" class="menu-item-svg-icons__full-width">
+      <mat-form-field
+        appearance="outline"
+        class="menu-item-svg-icons__full-width"
+      >
         <mat-label>Header SVG Path</mat-label>
         <textarea
           matInput

@@ -3,14 +3,12 @@ import { MenuItemFormViewModel } from '../../view-models/menu-item-form.view-mod
 import {
   ChangeDetectionStrategy,
   Component,
-  inject
+  inject,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { ReactiveFormsModule } from '@angular/forms';
-import {
-  MatDialogModule
-} from '@angular/material/dialog';
+import { MatDialogModule } from '@angular/material/dialog';
 import { MenuItemDto } from '@tmdjr/service-navigational-list-contracts';
 import {
   DOMAIN_OPTIONS,
@@ -38,7 +36,9 @@ export interface MenuItemFormDialogData {
   providers: [MenuItemFormService, MenuItemFormViewModel],
   standalone: true,
   imports: [
-    ReactiveFormsModule, MatButtonModule, MatIconModule,
+    ReactiveFormsModule,
+    MatButtonModule,
+    MatIconModule,
     MatDialogModule,
     MenuItemFormHeaderComponent,
     MenuItemBasicInfoComponent,
@@ -46,7 +46,7 @@ export interface MenuItemFormDialogData {
     MenuItemParentSelectionComponent,
     MenuItemConfigurationComponent,
     MenuItemSvgIconsComponent,
-    MenuItemFormActionsComponent
+    MenuItemFormActionsComponent,
   ],
   template: `
     <ngx-menu-item-form-header
@@ -57,9 +57,25 @@ export interface MenuItemFormDialogData {
 
     <mat-dialog-content class="menu-item-form__dialog-content">
       @if (vm.store.error()) {
-        <div class="menu-item-form__error" role="alert"><mat-icon>error_outline</mat-icon><span>{{ vm.store.error() }}</span> <button mat-button type="button" [disabled]="vm.store.loading()" (click)="vm.store.refresh()">Reload data</button></div>
+        <div class="menu-item-form__error" role="alert">
+          <mat-icon>error_outline</mat-icon
+          ><span>{{ vm.store.error() }}</span>
+          <button
+            mat-button
+            type="button"
+            [disabled]="vm.store.loading()"
+            (click)="vm.store.refresh()"
+          >
+            Reload data
+          </button>
+        </div>
       }
-      <form [id]="vm.formId" (ngSubmit)="onSave()" [formGroup]="form" class="menu-item-form__form">
+      <form
+        [id]="vm.formId"
+        (ngSubmit)="onSave()"
+        [formGroup]="form"
+        class="menu-item-form__form"
+      >
         <ngx-menu-item-basic-info [form]="form">
         </ngx-menu-item-basic-info>
 
@@ -84,7 +100,8 @@ export interface MenuItemFormDialogData {
         >
         </ngx-menu-item-configuration>
 
-        <details class="menu-item-form__advanced"><summary>Optional SVG icons</summary>
+        <details class="menu-item-form__advanced">
+          <summary>Optional SVG icons</summary>
           <ngx-menu-item-svg-icons [form]="form" />
         </details>
       </form>
@@ -95,7 +112,12 @@ export interface MenuItemFormDialogData {
       [formId]="vm.formId"
       [saving]="loading()"
       [isFormInvalid]="form.invalid"
-      [loading]="loading() || vm.store.pending() || vm.store.loading() || !vm.store.ready()"
+      [loading]="
+        loading() ||
+        vm.store.pending() ||
+        vm.store.loading() ||
+        !vm.store.ready()
+      "
       (cancel)="onCancel()"
     >
     </ngx-menu-item-form-actions>
@@ -108,10 +130,32 @@ export interface MenuItemFormDialogData {
         overflow-y: auto;
       }
 
-      .menu-item-form__error { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 12px; margin-bottom: 16px; border-radius: 12px; color: var(--mat-sys-on-error-container); background: var(--mat-sys-error-container); }
-      .menu-item-form__error span { flex: 1; font-size: .875rem; }
-      .menu-item-form__advanced summary { cursor: pointer; padding: 12px 0; font-weight: 500; color: var(--mat-sys-primary); }
-      @media (max-width: 480px) { .menu-item-form__dialog-content { padding: 12px 16px; } }
+      .menu-item-form__error {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 12px;
+        margin-bottom: 16px;
+        border-radius: 12px;
+        color: var(--mat-sys-on-error-container);
+        background: var(--mat-sys-error-container);
+      }
+      .menu-item-form__error span {
+        flex: 1;
+        font-size: 0.875rem;
+      }
+      .menu-item-form__advanced summary {
+        cursor: pointer;
+        padding: 12px 0;
+        font-weight: 500;
+        color: var(--mat-sys-primary);
+      }
+      @media (max-width: 480px) {
+        .menu-item-form__dialog-content {
+          padding: 12px 16px;
+        }
+      }
       .menu-item-form__form {
         display: flex;
         flex-direction: column;
@@ -131,6 +175,10 @@ export class MenuItemFormComponent {
   readonly stateOptions = STATE_OPTIONS;
   readonly roleOptions = ROLE_OPTIONS;
 
-  onCancel(): void { this.vm.cancel(); }
-  onSave(): void { this.vm.save(); }
+  onCancel(): void {
+    this.vm.cancel();
+  }
+  onSave(): void {
+    this.vm.save();
+  }
 }

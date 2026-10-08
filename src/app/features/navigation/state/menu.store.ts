@@ -1,9 +1,33 @@
-import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core';
+import {
+  computed,
+  DestroyRef,
+  inject,
+  Injectable,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { CreateMenuItemDto, MenuItemDto, SortMenuItemDto, UpdateMenuItemDto } from '@tmdjr/service-navigational-list-contracts';
-import { catchError, defer, EMPTY, finalize, Observable, shareReplay, Subject, switchMap, tap } from 'rxjs';
+import {
+  CreateMenuItemDto,
+  MenuItemDto,
+  SortMenuItemDto,
+  UpdateMenuItemDto,
+} from '@tmdjr/service-navigational-list-contracts';
+import {
+  catchError,
+  defer,
+  EMPTY,
+  finalize,
+  Observable,
+  shareReplay,
+  Subject,
+  switchMap,
+  tap,
+} from 'rxjs';
 import { MenuApiService } from '../api/menu-api.service';
-import { menuHierarchy, menuStatistics } from '../utils/menu-projections';
+import {
+  menuHierarchy,
+  menuStatistics,
+} from '../utils/menu-projections';
 
 @Injectable({ providedIn: 'root' })
 export class MenuStore {
@@ -25,44 +49,75 @@ export class MenuStore {
   readonly statistics = computed(() => menuStatistics(this.items()));
 
   constructor() {
-    this.reload$.pipe(
-      switchMap(() => defer(() => {
-        this.isLoading.set(true);
-        this.failure.set(null);
-        return this.api.findAll$().pipe(
-          tap(items => { this.data.set(items); this.initialized.set(true); }),
-          catchError(() => {
-            this.failure.set('Failed to load menu items. Please retry.');
-            return EMPTY;
-          }),
-          finalize(() => this.isLoading.set(false)),
-        );
-      })),
-      takeUntilDestroyed(),
-    ).subscribe();
+    this.reload$
+      .pipe(
+        switchMap(() =>
+          defer(() => {
+            this.isLoading.set(true);
+            this.failure.set(null);
+            return this.api.findAll$().pipe(
+              tap((items) => {
+                this.data.set(items);
+                this.initialized.set(true);
+              }),
+              catchError(() => {
+                this.failure.set(
+                  'Failed to load menu items. Please retry.'
+                );
+                return EMPTY;
+              }),
+              finalize(() => this.isLoading.set(false))
+            );
+          })
+        ),
+        takeUntilDestroyed()
+      )
+      .subscribe();
   }
 
   ensureLoaded(): void {
     if (!this.initialized() && !this.loading()) this.refresh();
   }
 
-  refresh(): void { this.reload$.next(); }
+  refresh(): void {
+    this.reload$.next();
+  }
 
-  create$(dto: CreateMenuItemDto) { return this.command(() => this.api.create$(dto)); }
+  create$(dto: CreateMenuItemDto) {
+    return this.command(() => this.api.create$(dto));
+  }
   update$(id: string, dto: UpdateMenuItemDto) {
     return this.command(() => {
-      const clearParent = Object.hasOwn(dto, 'parentId') && !!this.items().find(item => item._id === id)?.parentId && !dto.parentId;
-      return this.api.update$(id, dto).pipe(
-        switchMap(item => clearParent
-          ? this.api.reorderMenuItems$({ _id: id, sortId: dto.sortId ?? item.sortId })
-          : [item]),
-      );
+      const clearParent =
+        Object.hasOwn(dto, 'parentId') &&
+        !!this.items().find((item) => item._id === id)?.parentId &&
+        !dto.parentId;
+      return this.api
+        .update$(id, dto)
+        .pipe(
+          switchMap((item) =>
+            clearParent
+              ? this.api.reorderMenuItems$({
+                  _id: id,
+                  sortId: dto.sortId ?? item.sortId,
+                })
+              : [item]
+          )
+        );
     });
   }
-  archive$(id: string) { return this.command(() => this.api.archive$(id)); }
-  unarchive$(id: string) { return this.command(() => this.api.unarchive$(id)); }
-  delete$(id: string) { return this.command(() => this.api.delete$(id)); }
-  reorder$(dto: SortMenuItemDto) { return this.command(() => this.api.reorderMenuItems$(dto)); }
+  archive$(id: string) {
+    return this.command(() => this.api.archive$(id));
+  }
+  unarchive$(id: string) {
+    return this.command(() => this.api.unarchive$(id));
+  }
+  delete$(id: string) {
+    return this.command(() => this.api.delete$(id));
+  }
+  reorder$(dto: SortMenuItemDto) {
+    return this.command(() => this.api.reorderMenuItems$(dto));
+  }
 
   private command<T>(request: () => Observable<T>): Observable<T> {
     return defer(() => {
@@ -71,12 +126,14 @@ export class MenuStore {
       this.failure.set(null);
       return request().pipe(
         tap(() => this.refresh()),
-        catchError(error => {
-          this.failure.set('Unable to save menu changes. Please retry.');
+        catchError((error) => {
+          this.failure.set(
+            'Unable to save menu changes. Please retry.'
+          );
           throw error;
         }),
         finalize(() => this.isPending.set(false)),
-        takeUntilDestroyed(this.destroyRef),
+        takeUntilDestroyed(this.destroyRef)
       );
     }).pipe(shareReplay({ bufferSize: 1, refCount: false }));
   }

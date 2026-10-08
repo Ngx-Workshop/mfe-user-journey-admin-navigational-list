@@ -12,16 +12,18 @@ import { MatInputModule } from '@angular/material/input';
 @Component({
   selector: 'ngx-menu-item-basic-info',
   standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    MatFormFieldModule,
-    MatInputModule
-  ],
+  imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule],
   template: `
-    <div class="menu-item-basic-info__form-section" [formGroup]="form">
+    <div
+      class="menu-item-basic-info__form-section"
+      [formGroup]="form"
+    >
       <h3>Basic Information</h3>
 
-      <mat-form-field appearance="outline" class="menu-item-basic-info__full-width">
+      <mat-form-field
+        appearance="outline"
+        class="menu-item-basic-info__full-width"
+      >
         <mat-label>Menu Item Text</mat-label>
         <input
           matInput
@@ -29,11 +31,14 @@ import { MatInputModule } from '@angular/material/input';
           placeholder="Display text for the menu item"
         />
         @if (form.get('menuItemText')?.hasError('required')) {
-        <mat-error>Menu item text is required</mat-error>
+          <mat-error>Menu item text is required</mat-error>
         }
       </mat-form-field>
 
-      <mat-form-field appearance="outline" class="menu-item-basic-info__full-width">
+      <mat-form-field
+        appearance="outline"
+        class="menu-item-basic-info__full-width"
+      >
         <mat-label>Route Path</mat-label>
         <input
           matInput
@@ -41,11 +46,14 @@ import { MatInputModule } from '@angular/material/input';
           placeholder="/example-route"
         />
         @if (form.get('routePath')?.hasError('required')) {
-        <mat-error>Route path is required</mat-error>
+          <mat-error>Route path is required</mat-error>
         }
       </mat-form-field>
 
-      <mat-form-field appearance="outline" class="menu-item-basic-info__full-width">
+      <mat-form-field
+        appearance="outline"
+        class="menu-item-basic-info__full-width"
+      >
         <mat-label>Description</mat-label>
         <textarea
           matInput
@@ -55,7 +63,10 @@ import { MatInputModule } from '@angular/material/input';
         ></textarea>
       </mat-form-field>
 
-      <mat-form-field appearance="outline" class="menu-item-basic-info__full-width">
+      <mat-form-field
+        appearance="outline"
+        class="menu-item-basic-info__full-width"
+      >
         <mat-label>Tooltip Text</mat-label>
         <input
           matInput

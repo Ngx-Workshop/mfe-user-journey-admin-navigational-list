@@ -13,15 +13,32 @@ export class MenuReorderService {
   private readonly dragging = new BehaviorSubject(false);
   readonly isDragging$ = this.dragging.asObservable();
 
-  onDragStarted(): void { this.dragging.next(true); }
-  onDragEnded(): void { this.dragging.next(false); }
+  onDragStarted(): void {
+    this.dragging.next(true);
+  }
+  onDragEnded(): void {
+    this.dragging.next(false);
+  }
 
   drop(event: CdkDragDrop<MenuItemDto[]>): void {
     const item: MenuItemDto = event.item.data;
-    const match = /^list-(ADMIN|WORKSHOP)-(HEADER|NAV|FOOTER)-(FULL|RELAXED|COMPACT)(?:-(.+))?$/.exec(event.container.id);
-    if (!match || match[1] !== item.domain || match[2] !== item.structuralSubtype || match[3] !== item.state) return;
+    const match =
+      /^list-(ADMIN|WORKSHOP)-(HEADER|NAV|FOOTER)-(FULL|RELAXED|COMPACT)(?:-(.+))?$/.exec(
+        event.container.id
+      );
+    if (
+      !match ||
+      match[1] !== item.domain ||
+      match[2] !== item.structuralSubtype ||
+      match[3] !== item.state
+    )
+      return;
     const parentId = match[4]?.split('-').at(-1);
-    if (parentId && descendantIds(this.store.items(), item._id).has(parentId)) return;
+    if (
+      parentId &&
+      descendantIds(this.store.items(), item._id).has(parentId)
+    )
+      return;
     this.persist(item, event.currentIndex + 1, parentId);
   }
 
@@ -30,11 +47,22 @@ export class MenuReorderService {
     this.persist(item, sortId, item.parentId);
   }
 
-  private persist(item: MenuItemDto, sortId: number, parentId?: string): void {
+  private persist(
+    item: MenuItemDto,
+    sortId: number,
+    parentId?: string
+  ): void {
     if (this.store.pending() || this.store.loading()) return;
     // The server resequences siblings. Keep rendered arrays intact until refresh.
-    this.store.reorder$({ _id: item._id, sortId, parentId }).subscribe({
-      error: () => this.snackBar.open('Failed to reorder menu items. Please retry.', 'Close', { duration: 4000 }),
-    });
+    this.store
+      .reorder$({ _id: item._id, sortId, parentId })
+      .subscribe({
+        error: () =>
+          this.snackBar.open(
+            'Failed to reorder menu items. Please retry.',
+            'Close',
+            { duration: 4000 }
+          ),
+      });
   }
 }

@@ -16,26 +16,62 @@ export class MenuListViewModel {
   private readonly snackBar = inject(MatSnackBar);
 
   openCreate(): void {
-    this.dialogs.openCreateDialog().pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
+    this.dialogs
+      .openCreateDialog()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe();
   }
 
   act({ type, item }: MenuItemActionEvent): void {
     if (type === 'copy') {
       const copied = this.clipboard.copy(item._id);
-      this.snackBar.open(copied ? 'Menu item ID copied' : 'Could not copy the ID. Please try again.', 'Close', { duration: 3000 });
+      this.snackBar.open(
+        copied
+          ? 'Menu item ID copied'
+          : 'Could not copy the ID. Please try again.',
+        'Close',
+        { duration: 3000 }
+      );
       return;
     }
     if (this.store.pending() || this.store.loading()) return;
     if (type === 'edit') {
-      this.dialogs.openEditDialog(item).pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
+      this.dialogs
+        .openEditDialog(item)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe();
       return;
     }
-    if (type === 'delete' && !confirm('Are you sure you want to delete this menu item? This action cannot be undone.')) return;
-    const request: Observable<unknown> = type === 'archive' ? this.store.archive$(item._id)
-      : type === 'unarchive' ? this.store.unarchive$(item._id) : this.store.delete$(item._id);
+    if (
+      type === 'delete' &&
+      !confirm(
+        'Are you sure you want to delete this menu item? This action cannot be undone.'
+      )
+    )
+      return;
+    const request: Observable<unknown> =
+      type === 'archive'
+        ? this.store.archive$(item._id)
+        : type === 'unarchive'
+          ? this.store.unarchive$(item._id)
+          : this.store.delete$(item._id);
     request.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: () => this.snackBar.open(type === 'archive' ? 'Menu item archived' : type === 'unarchive' ? 'Menu item restored' : 'Menu item deleted', 'Close', { duration: 3000 }),
-      error: () => this.snackBar.open('Unable to update menu item. Please retry.', 'Close', { duration: 4000 }),
+      next: () =>
+        this.snackBar.open(
+          type === 'archive'
+            ? 'Menu item archived'
+            : type === 'unarchive'
+              ? 'Menu item restored'
+              : 'Menu item deleted',
+          'Close',
+          { duration: 3000 }
+        ),
+      error: () =>
+        this.snackBar.open(
+          'Unable to update menu item. Please retry.',
+          'Close',
+          { duration: 4000 }
+        ),
     });
   }
 }

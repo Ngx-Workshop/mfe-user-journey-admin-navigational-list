@@ -12,7 +12,7 @@ import type {
   Domain,
   MenuFilter,
   State,
-  StructuralSubtype
+  StructuralSubtype,
 } from '../models/menu.types';
 
 @Injectable({ providedIn: 'root' })
@@ -41,11 +41,10 @@ export class MenuApiService {
     if (includeArchived) {
       params['includeArchived'] = includeArchived;
     }
-    return this.http
-      .get<MenuHierarchyResponseDto>(
-        `${this.baseUrl}/hierarchy/${domain}`,
-        { params }
-      );
+    return this.http.get<MenuHierarchyResponseDto>(
+      `${this.baseUrl}/hierarchy/${domain}`,
+      { params }
+    );
   }
 
   findByDomainStructuralSubtypeAndState$(

@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { FormBuilder, FormControl, Validators } from '@angular/forms';
 import {
   CreateMenuItemDto,
-  MenuItemDto
+  MenuItemDto,
 } from '@tmdjr/service-navigational-list-contracts';
 import {
   Domain,
@@ -26,11 +26,22 @@ export class MenuItemFormService {
       routePath: ['', Validators.required],
       description: [''],
       tooltipText: [''],
-      domain: new FormControl<Domain | ''>('', { nonNullable: true, validators: [Validators.required] }),
-      structuralSubtype: new FormControl<StructuralSubtype | ''>('', { nonNullable: true, validators: [Validators.required] }),
-      state: new FormControl<State | ''>('', { nonNullable: true, validators: [Validators.required] }),
+      domain: new FormControl<Domain | ''>('', {
+        nonNullable: true,
+        validators: [Validators.required],
+      }),
+      structuralSubtype: new FormControl<StructuralSubtype | ''>('', {
+        nonNullable: true,
+        validators: [Validators.required],
+      }),
+      state: new FormControl<State | ''>('', {
+        nonNullable: true,
+        validators: [Validators.required],
+      }),
       sortId: [0, [Validators.required, Validators.min(0)]],
-      role: new FormControl<MenuItemDto['role']>('none', { nonNullable: true }),
+      role: new FormControl<MenuItemDto['role']>('none', {
+        nonNullable: true,
+      }),
       archived: [false],
       navSvgPath: [''],
       headerSvgPath: [''],
@@ -95,14 +106,28 @@ export class MenuItemFormService {
     allItems: MenuItemDto[],
     currentItemId?: string
   ): ParentOption[] {
-    const excluded = currentItemId ? descendantIds(allItems, currentItemId) : new Set<string>();
+    const excluded = currentItemId
+      ? descendantIds(allItems, currentItemId)
+      : new Set<string>();
     return [
       { value: '', label: 'None (Root Level)' },
-      ...allItems.filter(item => item.domain === domain && item.structuralSubtype === structuralSubtype
-        && item.state === state && !item.archived && !excluded.has(item._id))
-        .map(item => ({ value: item._id, label: `${item.menuItemText} (${item.routePath})` })),
+      ...allItems
+        .filter(
+          (item) =>
+            item.domain === domain &&
+            item.structuralSubtype === structuralSubtype &&
+            item.state === state &&
+            !item.archived &&
+            !excluded.has(item._id)
+        )
+        .map((item) => ({
+          value: item._id,
+          label: `${item.menuItemText} (${item.routePath})`,
+        })),
     ];
   }
 }
 
-export type MenuItemForm = ReturnType<MenuItemFormService['createMenuItemForm']>;
+export type MenuItemForm = ReturnType<
+  MenuItemFormService['createMenuItemForm']
+>;

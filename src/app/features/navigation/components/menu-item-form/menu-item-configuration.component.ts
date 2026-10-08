@@ -20,10 +20,13 @@ import { RoleOption } from '../../models/menu.types';
     MatFormFieldModule,
     MatInputModule,
     MatCheckboxModule,
-    MatSelectModule
+    MatSelectModule,
   ],
   template: `
-    <div class="menu-item-configuration__form-section" [formGroup]="form">
+    <div
+      class="menu-item-configuration__form-section"
+      [formGroup]="form"
+    >
       <h3>Configuration</h3>
 
       <div class="menu-item-configuration__form-row">
@@ -36,9 +39,10 @@ import { RoleOption } from '../../models/menu.types';
             placeholder="Numeric sort order"
           />
           @if (form.get('sortId')?.hasError('required')) {
-          <mat-error>Sort ID is required</mat-error>
-          } @if (form.get('sortId')?.hasError('min')) {
-          <mat-error>Sort ID must be 0 or greater</mat-error>
+            <mat-error>Sort ID is required</mat-error>
+          }
+          @if (form.get('sortId')?.hasError('min')) {
+            <mat-error>Sort ID must be 0 or greater</mat-error>
           }
         </mat-form-field>
       </div>
@@ -48,9 +52,9 @@ import { RoleOption } from '../../models/menu.types';
           <mat-label>Role required</mat-label>
           <mat-select formControlName="role">
             @for (option of roleOptions; track option.value) {
-            <mat-option [value]="option.value">{{
-              option.label
-            }}</mat-option>
+              <mat-option [value]="option.value">{{
+                option.label
+              }}</mat-option>
             }
           </mat-select>
         </mat-form-field>

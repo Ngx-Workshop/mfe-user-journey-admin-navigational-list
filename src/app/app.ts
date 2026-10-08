@@ -22,7 +22,7 @@ import { MenuManagementComponent } from './features/navigation/components/menu-m
     `,
   ],
 })
-export class App { }
+export class App {}
 
 // 👇 **IMPORTANT FOR DYMANIC LOADING**
 export default App;

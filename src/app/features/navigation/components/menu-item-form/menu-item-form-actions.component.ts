@@ -1,4 +1,3 @@
-
 import {
   ChangeDetectionStrategy,
   Component,
@@ -16,7 +15,12 @@ import { FormMode } from '../../models/menu.types';
   imports: [MatButtonModule, MatIconModule],
   template: `
     <div class="menu-item-form-actions__dialog-actions">
-      <button mat-button [disabled]="saving" type="button" (click)="onCancel()">
+      <button
+        mat-button
+        [disabled]="saving"
+        type="button"
+        (click)="onCancel()"
+      >
         Cancel
       </button>
       <button
@@ -29,7 +33,13 @@ import { FormMode } from '../../models/menu.types';
         <mat-icon>
           {{ mode === 'create' ? 'save' : 'edit' }}
         </mat-icon>
-        {{ saving ? 'Saving…' : mode === 'create' ? 'Create Menu Item' : 'Save changes' }}
+        {{
+          saving
+            ? 'Saving…'
+            : mode === 'create'
+              ? 'Create Menu Item'
+              : 'Save changes'
+        }}
       </button>
     </div>
   `,
@@ -58,5 +68,4 @@ export class MenuItemFormActionsComponent {
   onCancel(): void {
     this.cancel.emit();
   }
-
 }

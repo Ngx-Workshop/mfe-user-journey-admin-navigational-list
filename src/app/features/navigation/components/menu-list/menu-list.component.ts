@@ -7,9 +7,7 @@ import {
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import {
-  MatSnackBarModule
-} from '@angular/material/snack-bar';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MenuListViewModel } from '../../view-models/menu-list.view-model';
 
 import { MenuSearchService } from '../../view-models/menu-search.service';
@@ -48,32 +46,56 @@ import { MenuItemActionEvent } from './menu-item-card.component';
       />
 
       @if (loading() || vm.store.pending()) {
-      <div class="menu-list__progress" role="status">
-        <span>{{ vm.store.pending() ? 'Saving your changes…' : vm.store.ready() ? 'Refreshing menu items…' : 'Loading your navigation…' }}</span>
-        <mat-progress-bar mode="indeterminate" aria-label="Menu items loading"></mat-progress-bar>
-      </div>
+        <div class="menu-list__progress" role="status">
+          <span>{{
+            vm.store.pending()
+              ? 'Saving your changes…'
+              : vm.store.ready()
+                ? 'Refreshing menu items…'
+                : 'Loading your navigation…'
+          }}</span>
+          <mat-progress-bar
+            mode="indeterminate"
+            aria-label="Menu items loading"
+          ></mat-progress-bar>
+        </div>
       }
 
       <!-- Results Section -->
       @if (filtered().length > 0) {
-      <ngx-menu-grid
-        [items]="filtered()"
-        [busy]="loading() || vm.store.pending()"
-        (itemAction)="onItemAction($event)"
-        (refreshClick)="reload()"
-      />
+        <ngx-menu-grid
+          [items]="filtered()"
+          [busy]="loading() || vm.store.pending()"
+          (itemAction)="onItemAction($event)"
+          (refreshClick)="reload()"
+        />
       }
 
       <!-- Empty State -->
-      @if (!loading() && !vm.store.error() && filtered().length === 0) {
-      <ngx-menu-empty-state [filtered]="hasFilters()" (resetClick)="clearAllFilters()" (createClick)="openCreate()" />
+      @if (
+        !loading() && !vm.store.error() && filtered().length === 0
+      ) {
+        <ngx-menu-empty-state
+          [filtered]="hasFilters()"
+          (resetClick)="clearAllFilters()"
+          (createClick)="openCreate()"
+        />
       }
     </div>
   `,
-  styles: [`
-    .menu-list__progress { margin-top: 20px; color: var(--mat-sys-on-surface-variant); font-size: .85rem; }
-    .menu-list__progress span { display: block; margin-bottom: 10px; }
-  `],
+  styles: [
+    `
+      .menu-list__progress {
+        margin-top: 20px;
+        color: var(--mat-sys-on-surface-variant);
+        font-size: 0.85rem;
+      }
+      .menu-list__progress span {
+        display: block;
+        margin-bottom: 10px;
+      }
+    `,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MenuListComponent {
@@ -90,8 +112,17 @@ export class MenuListComponent {
   readonly filterRole = this.searchService.filterRole;
   readonly includeArchived = this.searchService.includeArchived;
   readonly filtered = this.searchService.filteredItems;
-  readonly hasFilters = computed(() => !!(this.searchText().trim() || this.filterDomain()
-    || this.filterStructuralSubtype() || this.filterState() || this.filterRole() || this.includeArchived()));
+  readonly hasFilters = computed(
+    () =>
+      !!(
+        this.searchText().trim() ||
+        this.filterDomain() ||
+        this.filterStructuralSubtype() ||
+        this.filterState() ||
+        this.filterRole() ||
+        this.includeArchived()
+      )
+  );
 
   constructor() {
     this.vm.store.ensureLoaded();
@@ -124,8 +155,16 @@ export class MenuListComponent {
     }
   }
 
-  onItemAction(event: MenuItemActionEvent): void { this.vm.act(event); }
-  clearAllFilters(): void { this.searchService.clearAllFilters(); }
-  reload(): void { this.vm.store.refresh(); }
-  openCreate(): void { this.vm.openCreate(); }
+  onItemAction(event: MenuItemActionEvent): void {
+    this.vm.act(event);
+  }
+  clearAllFilters(): void {
+    this.searchService.clearAllFilters();
+  }
+  reload(): void {
+    this.vm.store.refresh();
+  }
+  openCreate(): void {
+    this.vm.openCreate();
+  }
 }

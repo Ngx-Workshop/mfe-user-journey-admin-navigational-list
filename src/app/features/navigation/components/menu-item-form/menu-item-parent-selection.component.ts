@@ -9,9 +9,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
-import {
-  ParentOption
-} from '../../models/menu.types';
+import { ParentOption } from '../../models/menu.types';
 
 @Component({
   selector: 'ngx-menu-item-parent-selection',
@@ -20,26 +18,26 @@ import {
     ReactiveFormsModule,
     MatFormFieldModule,
     MatSelectModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
   ],
   template: `
-    <div class="menu-item-parent-selection__form-section" [formGroup]="form">
+    <div
+      class="menu-item-parent-selection__form-section"
+      [formGroup]="form"
+    >
       <h3>Hierarchy</h3>
 
       <div class="menu-item-parent-selection__form-row">
         <mat-form-field appearance="outline">
           <mat-label>Parent Item</mat-label>
-          <mat-select
-            formControlName="parentId"
-            [disabled]="loading"
-          >
+          <mat-select formControlName="parentId" [disabled]="loading">
             @for (option of parentOptions; track option.value) {
-            <mat-option
-              [value]="option.value"
-              [disabled]="option.disabled"
-            >
-              {{ option.label }}
-            </mat-option>
+              <mat-option
+                [value]="option.value"
+                [disabled]="option.disabled"
+              >
+                {{ option.label }}
+              </mat-option>
             }
           </mat-select>
           <mat-hint>
@@ -47,7 +45,7 @@ import {
             relationship, or choose "None" for a root-level item.
           </mat-hint>
           @if (loading) {
-          <mat-spinner matSuffix diameter="20"></mat-spinner>
+            <mat-spinner matSuffix diameter="20"></mat-spinner>
           }
         </mat-form-field>
       </div>

@@ -1,4 +1,3 @@
-
 import {
   ChangeDetectionStrategy,
   Component,
@@ -24,7 +23,7 @@ export interface MenuStatistic {
     MatButtonModule,
     MatIconModule,
     MatCardModule,
-    MatProgressBarModule
+    MatProgressBarModule,
   ],
   template: `
     <div class="menu-statistics__stats-header">
@@ -39,28 +38,32 @@ export interface MenuStatistic {
     </div>
 
     @if (loading) {
-    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
     }
 
     <div class="menu-statistics__stats-grid">
       @for (stat of statistics; track stat.title) {
-      <mat-card class="menu-statistics__stat-card">
-        <mat-card-content>
-          <div class="menu-statistics__stat-value">{{ stat.value }}</div>
-          <div class="menu-statistics__stat-title">{{ stat.title }}</div>
-          @if (stat.description) {
-          <div class="menu-statistics__stat-description">
-            {{ stat.description }}
-          </div>
-          }
-        </mat-card-content>
-      </mat-card>
+        <mat-card class="menu-statistics__stat-card">
+          <mat-card-content>
+            <div class="menu-statistics__stat-value">
+              {{ stat.value }}
+            </div>
+            <div class="menu-statistics__stat-title">
+              {{ stat.title }}
+            </div>
+            @if (stat.description) {
+              <div class="menu-statistics__stat-description">
+                {{ stat.description }}
+              </div>
+            }
+          </mat-card-content>
+        </mat-card>
       } @empty {
-      <div class="menu-statistics__empty-stats">
-        <mat-icon>analytics</mat-icon>
-        <h3>No statistics available</h3>
-        <p>Click "Refresh Stats" to load menu statistics</p>
-      </div>
+        <div class="menu-statistics__empty-stats">
+          <mat-icon>analytics</mat-icon>
+          <h3>No statistics available</h3>
+          <p>Click "Refresh Stats" to load menu statistics</p>
+        </div>
       }
     </div>
   `,
@@ -135,7 +138,11 @@ export interface MenuStatistic {
           grid-template-columns: repeat(2, minmax(0, 1fr));
         }
       }
-      @media (max-width: 380px) { .menu-statistics__stats-grid { grid-template-columns: 1fr; } }
+      @media (max-width: 380px) {
+        .menu-statistics__stats-grid {
+          grid-template-columns: 1fr;
+        }
+      }
     `,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
