@@ -28,22 +28,24 @@ import { MenuStore } from '../state/menu.store';
     <main class="menu-hierarchy-page">
       <h2>Menu hierarchy</h2>
       @if (store.error()) {
-      <p role="alert">
-        {{ store.error() }}
-        <button
-          mat-button
-          (click)="store.refresh()"
-          [disabled]="store.loading()"
-        >
-          Retry
-        </button>
-      </p>
-      } @if (store.loading()) {
-      <p role="status">Loading hierarchy…</p>
-      } @if (store.ready()) {
-      <ngx-menu-hierarchy-manager
-        [menuHierarchy]="store.hierarchy()"
-      />
+        <p role="alert">
+          {{ store.error() }}
+          <button
+            mat-button
+            (click)="store.refresh()"
+            [disabled]="store.loading()"
+          >
+            Retry
+          </button>
+        </p>
+      }
+      @if (store.loading()) {
+        <p role="status">Loading hierarchy…</p>
+      }
+      @if (store.ready()) {
+        <ngx-menu-hierarchy-manager
+          [menuHierarchy]="store.hierarchy()"
+        />
       }
     </main>
   `,

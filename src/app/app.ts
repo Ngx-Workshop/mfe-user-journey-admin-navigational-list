@@ -12,8 +12,11 @@ import { MenuManagenmentHeader } from './features/navigation/components/menu-man
   ],
   template: `
     <ngx-menu-managenment-header></ngx-menu-managenment-header>
-    @if (routed) { <router-outlet /> }
-    @else { <ngx-menu-management /> }
+    @if (routed) {
+      <router-outlet />
+    } @else {
+      <ngx-menu-management />
+    }
   `,
   encapsulation: ViewEncapsulation.None,
   styles: [
@@ -33,7 +36,8 @@ import { MenuManagenmentHeader } from './features/navigation/components/menu-man
 })
 export class App {
   // Retain direct Component rendering for existing federation consumers.
-  readonly routed = !!inject(ActivatedRoute).routeConfig?.children?.length;
+  readonly routed =
+    !!inject(ActivatedRoute).routeConfig?.children?.length;
 }
 
 // 👇 **IMPORTANT FOR DYMANIC LOADING**

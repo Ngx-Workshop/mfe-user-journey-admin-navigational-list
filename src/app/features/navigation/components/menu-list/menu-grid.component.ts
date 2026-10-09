@@ -90,11 +90,11 @@ import {
       </div>
       <div class="menu-grid__cards">
         @for (item of vm.visible(); track item._id) {
-        <ngx-menu-item-card
-          [item]="item"
-          [disabled]="busy"
-          (action)="itemAction.emit($event)"
-        />
+          <ngx-menu-item-card
+            [item]="item"
+            [disabled]="busy"
+            (action)="itemAction.emit($event)"
+          />
         }
       </div>
     </section>

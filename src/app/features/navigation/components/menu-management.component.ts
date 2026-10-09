@@ -50,17 +50,17 @@ import { MenuStatisticsComponent } from './menu-statistics.component';
         </div>
       </div> -->
       @if (store.error()) {
-      <div class="menu-management__error" role="alert">
-        <mat-icon>error_outline</mat-icon
-        ><span>{{ store.error() }}</span>
-        <button
-          mat-button
-          (click)="store.refresh()"
-          [disabled]="store.loading()"
-        >
-          Retry
-        </button>
-      </div>
+        <div class="menu-management__error" role="alert">
+          <mat-icon>error_outline</mat-icon
+          ><span>{{ store.error() }}</span>
+          <button
+            mat-button
+            (click)="store.refresh()"
+            [disabled]="store.loading()"
+          >
+            Retry
+          </button>
+        </div>
       }
       <ngx-menu-statistics
         [statistics]="store.ready() ? store.statistics() : []"

@@ -27,16 +27,14 @@ describe('App navigation journey', () => {
     const http = TestBed.inject(HttpTestingController);
     fixture.detectChanges();
     await fixture.whenStable();
-    http
-      .expectOne('/api/navigational-list')
-      .flush([
-        menuItem(),
-        menuItem({
-          _id: 'archived',
-          menuItemText: 'Archived link',
-          archived: true,
-        }),
-      ]);
+    http.expectOne('/api/navigational-list').flush([
+      menuItem(),
+      menuItem({
+        _id: 'archived',
+        menuItemText: 'Archived link',
+        archived: true,
+      }),
+    ]);
     fixture.detectChanges();
     await fixture.whenStable();
     expect(
@@ -70,20 +68,20 @@ describe('App navigation journey', () => {
     const http = TestBed.inject(HttpTestingController);
     fixture.detectChanges();
     await fixture.whenStable();
-    http
-      .expectOne('/api/navigational-list')
-      .flush([
-        menuItem(),
-        menuItem({
-          _id: 'admin',
-          menuItemText: 'Administration',
-          role: 'admin',
-        }),
-      ]);
+    http.expectOne('/api/navigational-list').flush([
+      menuItem(),
+      menuItem({
+        _id: 'admin',
+        menuItemText: 'Administration',
+        role: 'admin',
+      }),
+    ]);
     fixture.detectChanges();
     await fixture.whenStable();
     const loader = TestbedHarnessEnvironment.loader(fixture);
-    const selects = await loader.getAllHarnesses(MatSelectHarness.with({ ancestor: 'ngx-menu-filters' }));
+    const selects = await loader.getAllHarnesses(
+      MatSelectHarness.with({ ancestor: 'ngx-menu-filters' })
+    );
     const role = selects[3];
     await role.open();
     await role.clickOptions({ text: 'Admin' });

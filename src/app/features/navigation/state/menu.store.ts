@@ -92,18 +92,16 @@ export class MenuStore {
         Object.hasOwn(dto, 'parentId') &&
         !!this.items().find((item) => item._id === id)?.parentId &&
         !dto.parentId;
-      return this.api
-        .update$(id, dto)
-        .pipe(
-          switchMap((item) =>
-            clearParent
-              ? this.api.reorderMenuItems$({
-                  _id: id,
-                  sortId: dto.sortId ?? item.sortId,
-                })
-              : [item]
-          )
-        );
+      return this.api.update$(id, dto).pipe(
+        switchMap((item) =>
+          clearParent
+            ? this.api.reorderMenuItems$({
+                _id: id,
+                sortId: dto.sortId ?? item.sortId,
+              })
+            : [item]
+        )
+      );
     });
   }
   archive$(id: string) {

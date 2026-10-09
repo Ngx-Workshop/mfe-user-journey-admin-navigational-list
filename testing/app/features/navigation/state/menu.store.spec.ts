@@ -46,12 +46,10 @@ describe('MenuStore', () => {
     const old = http.expectOne(url);
     store.refresh();
     expect(old.cancelled).toBeTrue();
-    http
-      .expectOne(url)
-      .flush('unavailable', {
-        status: 503,
-        statusText: 'Unavailable',
-      });
+    http.expectOne(url).flush('unavailable', {
+      status: 503,
+      statusText: 'Unavailable',
+    });
     expect(store.items().length).toBe(1);
     expect(store.loading()).toBeFalse();
     expect(store.error()).toContain('retry');
@@ -111,15 +109,13 @@ describe('MenuStore', () => {
         parentId: undefined,
       })
     );
-    http
-      .expectOne(url)
-      .flush([
-        menuItem({
-          menuItemText: 'Edited',
-          sortId: 2,
-          parentId: undefined,
-        }),
-      ]);
+    http.expectOne(url).flush([
+      menuItem({
+        menuItemText: 'Edited',
+        sortId: 2,
+        parentId: undefined,
+      }),
+    ]);
     expect(store.items()[0].parentId).toBeUndefined();
   });
   it('keeps a started write alive when its originating view unsubscribes', () => {

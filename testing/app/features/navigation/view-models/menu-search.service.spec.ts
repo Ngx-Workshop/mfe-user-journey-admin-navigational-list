@@ -21,17 +21,15 @@ describe('MenuSearchService', () => {
     const vm = TestBed.inject(MenuSearchService);
     const http = TestBed.inject(HttpTestingController);
     store.refresh();
-    http
-      .expectOne('/api/navigational-list')
-      .flush([
-        menuItem(),
-        menuItem({
-          _id: 'other',
-          archived: true,
-          role: 'admin',
-          menuItemText: 'Settings',
-        }),
-      ]);
+    http.expectOne('/api/navigational-list').flush([
+      menuItem(),
+      menuItem({
+        _id: 'other',
+        archived: true,
+        role: 'admin',
+        menuItemText: 'Settings',
+      }),
+    ]);
     expect(vm.filteredItems().length).toBe(1);
     vm.setIncludeArchived(true);
     expect(vm.filteredItems().length).toBe(2);

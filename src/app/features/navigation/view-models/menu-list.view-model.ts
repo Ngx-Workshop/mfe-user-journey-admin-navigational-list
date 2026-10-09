@@ -34,7 +34,9 @@ export class MenuListViewModel {
     }
     if (this.store.pending() || this.store.loading()) return;
     if (type === 'edit') {
-      void this.router.navigate(['edit', item._id], { relativeTo: this.route });
+      void this.router.navigate(['edit', item._id], {
+        relativeTo: this.route,
+      });
       return;
     }
     if (

@@ -28,10 +28,18 @@ export class MenuItemFormViewModel {
   private readonly dialog = inject(MatDialogRef, { optional: true });
   private readonly router = inject(Router, { optional: true });
   private readonly route = inject(ActivatedRoute, { optional: true });
-  readonly data: MenuItemFormDialogData = inject<MenuItemFormDialogData>(MAT_DIALOG_DATA, { optional: true }) ?? {
-    mode: this.route!.snapshot.data['mode'],
-    item: this.store.items().find(item => item._id === this.route!.snapshot.paramMap.get('id')),
-  };
+  readonly data: MenuItemFormDialogData =
+    inject<MenuItemFormDialogData>(MAT_DIALOG_DATA, {
+      optional: true,
+    }) ?? {
+      mode: this.route!.snapshot.data['mode'],
+      item: this.store
+        .items()
+        .find(
+          (item) =>
+            item._id === this.route!.snapshot.paramMap.get('id')
+        ),
+    };
 
   private readonly snackBar = inject(MatSnackBar);
   private readonly destroyRef = inject(DestroyRef);
@@ -78,9 +86,12 @@ export class MenuItemFormViewModel {
   private close(saved?: boolean): void {
     if (this.dialog) this.dialog.close(saved);
     // Let the store finish clearing pending before the route guard runs.
-    else if (this.route) queueMicrotask(() => {
-      void this.router?.navigate(['.'], { relativeTo: this.route!.parent });
-    });
+    else if (this.route)
+      queueMicrotask(() => {
+        void this.router?.navigate(['.'], {
+          relativeTo: this.route!.parent,
+        });
+      });
   }
 
   save(): void {

@@ -39,18 +39,20 @@ import { MenuStore } from '../state/menu.store';
     </ngx-menu-managenment-actions>
     <main class="menu-item-page">
       @if (store.loading() && !store.ready()) {
-      <p role="status">Loading menu item…</p>
+        <p role="status">Loading menu item…</p>
       } @else if (!store.ready() && store.error()) {
-      <p role="alert">{{ store.error() }}</p>
-      <button mat-button (click)="store.refresh()">Retry</button>
-      <a mat-button routerLink="..">Back to Menu Items asdfasdf</a>
+        <p role="alert">{{ store.error() }}</p>
+        <button mat-button (click)="store.refresh()">Retry</button>
+        <a mat-button routerLink="..">Back to Menu Items asdfasdf</a>
       } @else if (data().mode === 'edit' && !data().item) {
-      <h2>Menu item not found</h2>
-      <p>This menu item is no longer available.</p>
-      <a mat-button routerLink="..">Back to Menu Items</a>
-      } @else { @for (key of [params().get('id')]; track key) {
-      <ngx-menu-item-form />
-      } }
+        <h2>Menu item not found</h2>
+        <p>This menu item is no longer available.</p>
+        <a mat-button routerLink="..">Back to Menu Items</a>
+      } @else {
+        @for (key of [params().get('id')]; track key) {
+          <ngx-menu-item-form />
+        }
+      }
     </main>
   `,
   styles: [
