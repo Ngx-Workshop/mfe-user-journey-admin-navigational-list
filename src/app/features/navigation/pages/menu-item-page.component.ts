@@ -16,7 +16,7 @@ import {
   MenuItemFormComponent,
   MenuItemFormDialogData,
 } from '../components/menu-item-form/menu-item-form.component';
-import { MenuManagenmentActions } from '../components/menu-managenment-actions';
+import { MenuManagenmentActions } from '../components/menu-managenment-actions.component';
 import { MenuStore } from '../state/menu.store';
 
 @Component({
@@ -30,7 +30,10 @@ import { MenuStore } from '../state/menu.store';
   ],
   template: `
     <ngx-menu-managenment-actions>
-      <a mat-flat-button routerLink=".."
+      <!-- Need  -->
+      <a
+        mat-flat-button
+        [routerLink]="[data().mode === 'edit' ? '../../' : '../']"
         ><mat-icon>arrow_back</mat-icon>Back to Menu Items</a
       >
     </ngx-menu-managenment-actions>

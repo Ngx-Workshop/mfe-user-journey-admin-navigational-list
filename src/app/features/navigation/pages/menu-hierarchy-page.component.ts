@@ -7,7 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
 import { MenuHierarchyManagerComponent } from '../components/menu-hierarchy/menu-hierarchy-manager.component';
-import { MenuManagenmentActions } from '../components/menu-managenment-actions';
+import { MenuManagenmentActions } from '../components/menu-managenment-actions.component';
 import { MenuStore } from '../state/menu.store';
 
 @Component({

@@ -12,7 +12,7 @@ import { MenuStore } from '../state/menu.store';
 import { MenuResultsViewModel } from '../view-models/menu-results.view-model';
 import { MenuSearchService } from '../view-models/menu-search.service';
 import { MenuListComponent } from './menu-list/menu-list.component';
-import { MenuManagenmentActions } from './menu-managenment-actions';
+import { MenuManagenmentActions } from './menu-managenment-actions.component';
 import { MenuStatisticsComponent } from './menu-statistics.component';
 
 @Component({
