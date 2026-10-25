@@ -8,6 +8,8 @@ identifiers break `license-webpack-plugin@4.0.2` with an undefined `trim` error.
 Both pins keep one compatible webpack runtime. Keep license extraction enabled;
 validate a normal production build and non-empty `3rdpartylicenses.txt` before
 removing these pins after an upstream fix.
+Regenerate the lockfile with CI's Node 22/npm 10, then verify with `npm ci`;
+npm 11 can omit optional peer entries required by npm 10.
 
 Use the committed package lock and `npm ci` when dependencies are absent. Start with `npm start` or the existing `npm run dev:bundle` watch/static-host workflow on port 4201. Avoid starting another server when that port already hosts the remote. The standalone app has no API proxy or Material theme; full visual/auth integration belongs to the admin shell.
 
