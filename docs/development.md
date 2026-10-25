@@ -1,5 +1,14 @@
 # Development and verification
 
+## Build toolchain compatibility
+
+Keep `@angular-devkit/build-angular` pinned to `21.2.26` and the npm webpack
+override at `5.105.2`. Builder `21.2.28` uses webpack `5.112.0`, whose federation
+identifiers break `license-webpack-plugin@4.0.2` with an undefined `trim` error.
+Both pins keep one compatible webpack runtime. Keep license extraction enabled;
+validate a normal production build and non-empty `3rdpartylicenses.txt` before
+removing these pins after an upstream fix.
+
 Use the committed package lock and `npm ci` when dependencies are absent. Start with `npm start` or the existing `npm run dev:bundle` watch/static-host workflow on port 4201. Avoid starting another server when that port already hosts the remote. The standalone app has no API proxy or Material theme; full visual/auth integration belongs to the admin shell.
 
 Checks:
