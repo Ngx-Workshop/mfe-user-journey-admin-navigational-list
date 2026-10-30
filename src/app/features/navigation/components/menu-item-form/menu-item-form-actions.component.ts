@@ -7,16 +7,19 @@ import {
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { NgxButton } from '@tmdjr/ngx-workshop-design-system';
 import { FormMode } from '../../models/menu.types';
 
 @Component({
   selector: 'ngx-menu-item-form-actions',
   standalone: true,
-  imports: [MatButtonModule, MatIconModule],
+  imports: [NgxButton, MatButtonModule, MatIconModule],
   template: `
     <div class="menu-item-form-actions__dialog-actions">
       <button
-        mat-button
+        mat-flat-button
+        ngxButton
+        surface="outline"
         [disabled]="saving"
         type="button"
         (click)="onCancel()"
@@ -25,8 +28,10 @@ import { FormMode } from '../../models/menu.types';
       </button>
       <button
         mat-flat-button
+        ngxButton
         color="primary"
         type="submit"
+        surface="outline"
         [attr.form]="formId"
         [disabled]="isFormInvalid || loading"
       >
@@ -37,8 +42,8 @@ import { FormMode } from '../../models/menu.types';
           saving
             ? 'Saving…'
             : mode === 'create'
-              ? 'Create Menu Item'
-              : 'Save changes'
+            ? 'Create Menu Item'
+            : 'Save changes'
         }}
       </button>
     </div>
@@ -47,7 +52,7 @@ import { FormMode } from '../../models/menu.types';
     `
       .menu-item-form-actions__dialog-actions {
         padding: 16px 24px;
-        border-top: 1px solid var(--mat-sys-outline-variant);
+        border-top: 1px solid var(--ngx-color-border);
         justify-content: flex-end;
         gap: 0.5rem;
         display: flex;

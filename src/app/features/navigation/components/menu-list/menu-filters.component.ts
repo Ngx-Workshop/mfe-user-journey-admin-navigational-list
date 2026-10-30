@@ -1,66 +1,52 @@
+import { NgxButton } from '@tmdjr/ngx-workshop-design-system';
 import {
   ChangeDetectionStrategy,
   Component,
   EventEmitter,
   Input,
   Output,
+  signal,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
+import {
+  MenuFilterFieldsComponent,
+  ClassificationFilterChange,
+} from './menu-filter-fields.component';
 import {
   Domain,
-  DOMAIN_OPTIONS,
   Role,
-  ROLE_OPTIONS,
   State,
-  STATE_OPTIONS,
-  STRUCTURAL_SUBTYPE_OPTIONS,
   StructuralSubtype,
 } from '../../models/menu.types';
 
 export type FilterChangeEvent =
   | { type: 'searchText'; value: string }
-  | { type: 'domain'; value: Domain | null }
-  | { type: 'structuralSubtype'; value: StructuralSubtype | null }
-  | { type: 'state'; value: State | null }
-  | { type: 'role'; value: Role | null }
+  | ClassificationFilterChange
   | { type: 'includeArchived'; value: boolean }
   | { type: 'clearAll' };
 
 @Component({
   selector: 'ngx-menu-filters',
   imports: [
+    NgxButton,
     MatButtonModule,
     MatFormFieldModule,
     MatInputModule,
-    MatSelectModule,
+    MenuFilterFieldsComponent,
     MatCheckboxModule,
     MatIconModule,
   ],
   template: `
     <section class="menu-filters" aria-label="Filter menu items">
       <div class="menu-filters__heading">
-        <div>
-          <h2>Find menu items</h2>
-          <p>
-            {{
-              activeCount
-                ? activeCount + ' filters active'
-                : 'Search across your navigation or narrow by placement.'
-            }}
-          </p>
-        </div>
-        <button
-          mat-button
-          [disabled]="!activeCount"
-          (click)="onFilterChange('clearAll')"
+        <h2><mat-icon>tune</mat-icon>Filter console</h2>
+        <span class="menu-filters__count"
+          >{{ activeCount }} active</span
         >
-          <mat-icon>filter_alt_off</mat-icon>Reset filters
-        </button>
       </div>
       <div class="menu-filters__search-row">
         <mat-form-field
@@ -93,151 +79,152 @@ export type FilterChangeEvent =
           >Include archived</mat-checkbox
         >
       </div>
-      <div class="menu-filters__fields">
-        <mat-form-field
-          appearance="outline"
-          subscriptSizing="dynamic"
-        >
-          <mat-label>Domain</mat-label>
-          <mat-select
-            [value]="filterDomain"
-            [canSelectNullableOptions]="true"
-            (valueChange)="onFilterChange('domain', $event)"
-          >
-            <mat-option [value]="null">All domains</mat-option>
-            @for (option of domainOptions; track option.value) {
-              <mat-option [value]="option.value">{{
-                option.label
-              }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
-        <mat-form-field
-          appearance="outline"
-          subscriptSizing="dynamic"
-        >
-          <mat-label>Placement</mat-label>
-          <mat-select
-            [value]="filterStructuralSubtype"
-            [canSelectNullableOptions]="true"
-            (valueChange)="
-              onFilterChange('structuralSubtype', $event)
-            "
-          >
-            <mat-option [value]="null">All placements</mat-option>
-            @for (
-              option of structuralSubtypeOptions;
-              track option.value
-            ) {
-              <mat-option [value]="option.value">{{
-                option.label
-              }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
-        <mat-form-field
-          appearance="outline"
-          subscriptSizing="dynamic"
-        >
-          <mat-label>Display state</mat-label>
-          <mat-select
-            [value]="filterState"
-            [canSelectNullableOptions]="true"
-            (valueChange)="onFilterChange('state', $event)"
-          >
-            <mat-option [value]="null">All states</mat-option>
-            @for (option of stateOptions; track option.value) {
-              <mat-option [value]="option.value">{{
-                option.label
-              }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
-        <mat-form-field
-          appearance="outline"
-          subscriptSizing="dynamic"
-        >
-          <mat-label>Role required</mat-label>
-          <mat-select
-            [value]="filterRole"
-            [canSelectNullableOptions]="true"
-            (valueChange)="onFilterChange('role', $event)"
-          >
-            <mat-option [value]="null">All roles</mat-option>
-            @for (option of roleOptions; track option.value) {
-              <mat-option [value]="option.value">{{
-                option.label
-              }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
+      <button
+        class="menu-filters__toggle"
+        mat-button
+        type="button"
+        [attr.aria-expanded]="expanded()"
+        aria-controls="menu-filter-fields"
+        (click)="expanded.set(!expanded())"
+      >
+        <mat-icon>{{ expanded() ? 'expand_less' : 'tune' }}</mat-icon
+        >{{ expanded() ? 'Hide filters' : 'Filters' }} ·
+        {{ activeCount }} active
+      </button>
+      <div
+        id="menu-filter-fields"
+        class="menu-filters__fields"
+        [class.menu-filters__fields--expanded]="expanded()"
+      >
+        <ngx-menu-filter-fields
+          [filterDomain]="filterDomain"
+          [filterStructuralSubtype]="filterStructuralSubtype"
+          [filterState]="filterState"
+          [filterRole]="filterRole"
+          (filterChange)="filterChange.emit($event)"
+        />
       </div>
+      <button
+        class="menu-filters__reset"
+        mat-flat-button
+        ngxButton
+        surface="outline"
+        type="button"
+        [disabled]="!activeCount"
+        (click)="onFilterChange('clearAll')"
+      >
+        <mat-icon>filter_alt_off</mat-icon>Reset filters
+      </button>
     </section>
   `,
   styles: [
     `
+      @use '@angular/material' as mat;
       :host {
         display: block;
+        min-width: 0;
+        @include mat.form-field-overrides(
+          (
+            container-height: 44px,
+            container-vertical-padding: 10px,
+          )
+        );
       }
       .menu-filters {
-        padding: 24px;
-        border: 1px solid var(--mat-sys-outline-variant);
-        border-radius: 16px;
-        background: var(--mat-sys-surface-container-low);
+        border: 1px solid var(--ngx-color-border);
+        border-top: 2px solid var(--ngx-color-primary);
+        background: var(--ngx-color-surface);
+        padding: 16px 12px;
       }
       .menu-filters__heading {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 16px;
-        margin-bottom: 20px;
+        gap: 8px;
+        margin-bottom: 16px;
       }
-      .menu-filters__heading h2 {
-        font-size: 1rem;
-        font-weight: 600;
-        margin: 0 0 4px;
-      }
-      .menu-filters__heading p {
+      h2 {
+        display: flex;
+        align-items: center;
+        gap: 8px;
         margin: 0;
-        font-size: 0.85rem;
-        color: var(--mat-sys-on-surface-variant);
+        font: 600 0.8rem/1.5 var(--ngx-font-heading);
+      }
+      h2 mat-icon {
+        width: 18px;
+        height: 18px;
+        font-size: 18px;
+        color: var(--ngx-color-primary);
+      }
+      .menu-filters__count {
+        color: var(--ngx-color-muted);
+        font: var(--ngx-font-label);
+        font-size: 0.6rem;
+        white-space: nowrap;
       }
       .menu-filters__search-row {
         display: grid;
-        grid-template-columns: minmax(0, 1fr) auto;
-        align-items: center;
-        gap: 20px;
+        gap: 8px;
         margin-bottom: 16px;
       }
       .menu-filters__fields {
         display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
         gap: 16px;
       }
       mat-form-field {
         width: 100%;
         min-width: 0;
+        font-size: 0.8rem;
       }
-      @media (max-width: 800px) {
+      .menu-filters__reset {
+        width: 100%;
+        margin-top: 16px;
+      }
+      .menu-filters__toggle {
+        display: none;
+      }
+      @media (max-width: 900px) {
+        .menu-filters {
+          padding: 12px;
+        }
+        .menu-filters__heading {
+          display: none;
+        }
+        .menu-filters__search-row {
+          grid-template-columns: minmax(0, 1fr) auto;
+          align-items: center;
+          margin-bottom: 0;
+          gap: 8px;
+        }
+        .menu-filters__toggle {
+          display: inline-flex;
+          margin-top: 8px;
+        }
         .menu-filters__fields {
-          grid-template-columns: repeat(2, minmax(0, 1fr));
+          display: none;
+          margin-top: 16px;
+          --menu-filter-columns: 2;
+        }
+        .menu-filters__fields--expanded {
+          display: grid;
+        }
+        .menu-filters__reset {
+          width: auto;
+          float: right;
+          margin-top: 8px;
+        }
+        .menu-filters__reset:disabled {
+          display: none;
+        }
+        .menu-filters::after {
+          content: '';
+          display: block;
+          clear: both;
         }
       }
       @media (max-width: 480px) {
-        .menu-filters {
-          padding: 16px;
-        }
-        .menu-filters__heading {
-          align-items: flex-start;
-          flex-direction: column;
-          gap: 8px;
-        }
         .menu-filters__search-row {
           grid-template-columns: 1fr;
-          gap: 8px;
-        }
-        .menu-filters__fields {
-          gap: 12px;
         }
       }
     `,
@@ -245,6 +232,7 @@ export type FilterChangeEvent =
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MenuFiltersComponent {
+  readonly expanded = signal(false);
   @Input() searchText = '';
   @Input() filterDomain: Domain | null = null;
   @Input() filterStructuralSubtype: StructuralSubtype | null = null;
@@ -252,10 +240,6 @@ export class MenuFiltersComponent {
   @Input() filterRole: Role | null = null;
   @Input() includeArchived = false;
   @Output() filterChange = new EventEmitter<FilterChangeEvent>();
-  readonly domainOptions = DOMAIN_OPTIONS;
-  readonly structuralSubtypeOptions = STRUCTURAL_SUBTYPE_OPTIONS;
-  readonly stateOptions = STATE_OPTIONS;
-  readonly roleOptions = ROLE_OPTIONS;
   get activeCount(): number {
     return [
       this.searchText.trim(),

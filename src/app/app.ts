@@ -1,17 +1,12 @@
 import { Component, inject, ViewEncapsulation } from '@angular/core';
 import { ActivatedRoute, RouterOutlet } from '@angular/router';
 import { MenuManagementComponent } from './features/navigation/components/menu-management.component';
-import { MenuManagenmentHeader } from './features/navigation/components/menu-managenment-header.component';
 
 @Component({
   selector: 'ngx-seed-mfe',
-  imports: [
-    RouterOutlet,
-    MenuManagementComponent,
-    MenuManagenmentHeader,
-  ],
+  host: { class: 'menu-app ngx-design-system' },
+  imports: [RouterOutlet, MenuManagementComponent],
   template: `
-    <ngx-menu-managenment-header></ngx-menu-managenment-header>
     @if (routed) {
       <router-outlet />
     } @else {
@@ -21,10 +16,15 @@ import { MenuManagenmentHeader } from './features/navigation/components/menu-man
   encapsulation: ViewEncapsulation.None,
   styles: [
     `
-      :root {
+      .menu-app {
+        display: block;
+        min-width: 0;
+        min-height: 100dvh;
+        color: var(--ngx-color-text);
+        background: var(--ngx-color-canvas);
         .cdk-drop-list.cdk-drop-list-dragging
           .menu-tree__tree-item.cdk-drag-placeholder {
-          outline: 2px dashed var(--mat-sys-primary);
+          outline: 2px dashed var(--ngx-color-primary);
         }
         .cdk-drop-list.cdk-drop-list-dragging
           .menu-tree__tree-item:not(.cdk-drag-placeholder) {

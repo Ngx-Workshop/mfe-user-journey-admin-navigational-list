@@ -1,7 +1,6 @@
 import { Route } from '@angular/router';
 import App from './app';
 import { MenuManagementComponent } from './features/navigation/components/menu-management.component';
-import { MenuHierarchyPageComponent } from './features/navigation/pages/menu-hierarchy-page.component';
 import {
   MenuItemPageComponent,
   menuItemSavingGuard,
@@ -13,7 +12,7 @@ export const Routes: Route[] = [
     component: App,
     children: [
       { path: '', component: MenuManagementComponent },
-      { path: 'hierarchy', component: MenuHierarchyPageComponent },
+      { path: 'hierarchy', redirectTo: '', pathMatch: 'full' },
       {
         path: 'create',
         component: MenuItemPageComponent,

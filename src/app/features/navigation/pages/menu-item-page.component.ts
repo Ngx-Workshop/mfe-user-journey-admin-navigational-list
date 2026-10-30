@@ -1,3 +1,4 @@
+import { NgxButton } from '@tmdjr/ngx-workshop-design-system';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -22,6 +23,7 @@ import { MenuStore } from '../state/menu.store';
 @Component({
   selector: 'ngx-menu-item-page',
   imports: [
+    NgxButton,
     RouterLink,
     MatButtonModule,
     MatIconModule,
@@ -30,9 +32,9 @@ import { MenuStore } from '../state/menu.store';
   ],
   template: `
     <ngx-menu-managenment-actions>
-      <!-- Need  -->
       <a
         mat-flat-button
+        ngxButton
         [routerLink]="[data().mode === 'edit' ? '../../' : '../']"
         ><mat-icon>arrow_back</mat-icon>Back to Menu Items</a
       >
@@ -42,12 +44,23 @@ import { MenuStore } from '../state/menu.store';
         <p role="status">Loading menu item…</p>
       } @else if (!store.ready() && store.error()) {
         <p role="alert">{{ store.error() }}</p>
-        <button mat-button (click)="store.refresh()">Retry</button>
-        <a mat-button routerLink="..">Back to Menu Items asdfasdf</a>
+        <button
+          mat-flat-button
+          ngxButton
+          surface="outline"
+          (click)="store.refresh()"
+        >
+          Retry
+        </button>
+        <a mat-flat-button ngxButton surface="outline" routerLink=".."
+          >Back to Menu Items</a
+        >
       } @else if (data().mode === 'edit' && !data().item) {
         <h2>Menu item not found</h2>
         <p>This menu item is no longer available.</p>
-        <a mat-button routerLink="..">Back to Menu Items</a>
+        <a mat-flat-button ngxButton surface="outline" routerLink=".."
+          >Back to Menu Items</a
+        >
       } @else {
         @for (key of [params().get('id')]; track key) {
           <ngx-menu-item-form />

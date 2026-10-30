@@ -1,3 +1,4 @@
+import { NgxPanel } from '@tmdjr/ngx-workshop-design-system';
 import type { MenuItemForm } from '../../utils/menu-item-form.service';
 
 import {
@@ -15,54 +16,66 @@ import { ParentOption } from '../../models/menu.types';
   selector: 'ngx-menu-item-parent-selection',
   standalone: true,
   imports: [
+    NgxPanel,
     ReactiveFormsModule,
     MatFormFieldModule,
     MatSelectModule,
     MatProgressSpinnerModule,
   ],
   template: `
-    <div
-      class="menu-item-parent-selection__form-section"
-      [formGroup]="form"
+    <ngx-panel
+      heading="Hierarchy"
+      eyebrow="CONFIGURATION"
+      shape="chamfered"
+      background="solid"
     >
-      <h3>Hierarchy</h3>
-
-      <div class="menu-item-parent-selection__form-row">
-        <mat-form-field appearance="outline">
-          <mat-label>Parent Item</mat-label>
-          <mat-select formControlName="parentId" [disabled]="loading">
-            @for (option of parentOptions; track option.value) {
-              <mat-option
-                [value]="option.value"
-                [disabled]="option.disabled"
-              >
-                {{ option.label }}
-              </mat-option>
+      <div
+        class="menu-item-parent-selection__form-section"
+        [formGroup]="form"
+      >
+        <div class="menu-item-parent-selection__form-row">
+          <mat-form-field
+            subscriptSizing="dynamic"
+            appearance="outline"
+          >
+            <mat-label>Parent Item</mat-label>
+            <mat-select
+              panelClass="ngx-design-system-overlay"
+              formControlName="parentId"
+              [disabled]="loading"
+            >
+              @for (option of parentOptions; track option.value) {
+                <mat-option
+                  [value]="option.value"
+                  [disabled]="option.disabled"
+                >
+                  {{ option.label }}
+                </mat-option>
+              }
+            </mat-select>
+            <mat-hint>
+              Select a parent item to create a hierarchical
+              relationship, or choose "None" for a root-level item.
+            </mat-hint>
+            @if (loading) {
+              <mat-spinner matSuffix diameter="20"></mat-spinner>
             }
-          </mat-select>
-          <mat-hint>
-            Select a parent item to create a hierarchical
-            relationship, or choose "None" for a root-level item.
-          </mat-hint>
-          @if (loading) {
-            <mat-spinner matSuffix diameter="20"></mat-spinner>
-          }
-        </mat-form-field>
+          </mat-form-field>
+        </div>
       </div>
-    </div>
+    </ngx-panel>
   `,
   styles: [
     `
       .menu-item-parent-selection__form-section {
-        border: 1px solid var(--mat-sys-outline-variant);
-        border-radius: 12px;
-        padding: 1rem;
+        display: grid;
+        gap: var(--ngx-space-4);
       }
 
       .menu-item-parent-selection__form-section h3 {
         margin-top: 0;
         margin-bottom: 1rem;
-        color: var(--mat-sys-primary);
+        color: var(--ngx-color-primary);
       }
 
       .menu-item-parent-selection__form-row {

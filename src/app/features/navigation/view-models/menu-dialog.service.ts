@@ -25,6 +25,8 @@ export class MenuDialogService {
     const dialogRef = this.dialog.open(MenuItemFormComponent, {
       width: '800px',
       maxWidth: 'calc(100vw - 32px)',
+      panelClass: 'ngx-design-system-overlay',
+      backdropClass: 'ngx-design-system-backdrop',
       maxHeight: 'calc(100dvh - 32px)',
       data: dialogData,
     });
@@ -46,6 +48,8 @@ export class MenuDialogService {
     const dialogRef = this.dialog.open(MenuItemFormComponent, {
       width: '800px',
       maxWidth: 'calc(100vw - 32px)',
+      panelClass: 'ngx-design-system-overlay',
+      backdropClass: 'ngx-design-system-backdrop',
       maxHeight: 'calc(100dvh - 32px)',
       data: dialogData,
     });
@@ -70,6 +74,8 @@ export class MenuDialogService {
     const dialogConfig = {
       width: config?.width || '800px',
       maxWidth: config?.maxWidth || 'calc(100vw - 32px)',
+      panelClass: 'ngx-design-system-overlay',
+      backdropClass: 'ngx-design-system-backdrop',
       maxHeight: 'calc(100dvh - 32px)',
       disableClose: config?.disableClose || false,
       data,

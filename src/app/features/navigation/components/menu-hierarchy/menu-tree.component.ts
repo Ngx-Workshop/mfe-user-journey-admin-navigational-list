@@ -1,7 +1,8 @@
+import { MenuItemActionEvent } from '../menu-list/menu-item-card.component';
+import { MenuTreeRowComponent } from './menu-tree-row.component';
 import {
   CdkDrag,
   CdkDragDrop,
-  CdkDragHandle,
   CdkDropList,
 } from '@angular/cdk/drag-drop';
 
@@ -12,21 +13,12 @@ import {
   Input,
   Output,
 } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { menuRouteUrl } from '../../utils/menu-route';
 import { MenuItemWithChildren } from '../../models/menu.types';
 
 @Component({
   selector: 'ngx-menu-tree',
   standalone: true,
-  imports: [
-    CdkDropList,
-    CdkDrag,
-    CdkDragHandle,
-    MatIconModule,
-    MatButtonModule,
-  ],
+  imports: [MenuTreeRowComponent, CdkDropList, CdkDrag],
   template: `
     <div class="menu-tree__tree-group">
       <div
@@ -35,7 +27,7 @@ import { MenuItemWithChildren } from '../../models/menu.types';
         [id]="listId"
         cdkDropList
         [cdkDropListData]="items"
-        [cdkDropListDisabled]="disabled"
+        [cdkDropListDisabled]="disabled || reorderDisabled"
         [cdkDropListConnectedTo]="connectedTo"
         [cdkDropListEnterPredicate]="enterPredicate"
         (cdkDropListDropped)="onDrop($event)"
@@ -45,58 +37,35 @@ import { MenuItemWithChildren } from '../../models/menu.types';
             class="menu-tree__tree-item"
             cdkDrag
             [cdkDragData]="item"
-            [cdkDragDisabled]="disabled"
+            [cdkDragDisabled]="disabled || reorderDisabled"
             (cdkDragStarted)="onDragStarted()"
             (cdkDragEnded)="onDragEnded()"
           >
-            <div class="menu-tree__item-row">
-              <span class="menu-tree__handle" cdkDragHandle>
-                <mat-icon fontIcon="drag_indicator" />
-              </span>
-              <div class="menu-tree__labels">
-                <div class="menu-tree__menu-text">
-                  {{ item.menuItemText }}
-                </div>
-                <div class="menu-tree__menu-route-container">
-                  <a
-                    [href]="routeUrl(item)"
-                    target="_blank"
-                    rel="noopener"
-                    class="menu-tree__menu-route"
-                    >{{ item.routePath }}</a
-                  >
-                </div>
-              </div>
-              <button
-                mat-icon-button
-                type="button"
-                [attr.aria-label]="
-                  'Move ' + item.menuItemText + ' up'
-                "
-                [disabled]="disabled || i === 0"
-                (click)="moveRequested.emit({ item, position: i })"
-              >
-                <mat-icon>keyboard_arrow_up</mat-icon>
-              </button>
-              <button
-                mat-icon-button
-                type="button"
-                [attr.aria-label]="
-                  'Move ' + item.menuItemText + ' down'
-                "
-                [disabled]="disabled || i === items.length - 1"
-                (click)="
-                  moveRequested.emit({ item, position: i + 2 })
-                "
-              >
-                <mat-icon>keyboard_arrow_down</mat-icon>
-              </button>
-            </div>
+            <ngx-menu-tree-row
+              [item]="item"
+              [context]="contextIds.has(item._id)"
+              [reorderDisabled]="reorderDisabled"
+              (itemAction)="itemAction.emit($event)"
+              [position]="i + 1"
+              [siblingCount]="items.length"
+              [controlsId]="childListId(item)"
+              [collapsed]="collapsedIds.has(item._id)"
+              [disabled]="disabled"
+              [dragging]="isDragging"
+              (moveRequested)="
+                moveRequested.emit({ item, position: $event })
+              "
+              (toggleRequested)="toggleRequested.emit(item._id)"
+            />
           </div>
 
-          @if (item.children?.length) {
+          @if (item.children?.length && !collapsedIds.has(item._id)) {
             <ngx-menu-tree
-              [class.menu-tree--empty]="!item.children?.length"
+              [collapsedIds]="collapsedIds"
+              [contextIds]="contextIds"
+              [reorderDisabled]="reorderDisabled"
+              (itemAction)="itemAction.emit($event)"
+              (toggleRequested)="toggleRequested.emit($event)"
               [items]="item.children ?? []"
               [listId]="childListId(item)"
               [connectedTo]="connectedTo"
@@ -118,68 +87,30 @@ import { MenuItemWithChildren } from '../../models/menu.types';
         display: block;
         min-width: 0;
       }
-      .menu-tree__handle {
-        cursor: grab;
-        color: var(--mat-sys-on-surface-variant);
-      }
       .menu-tree__tree-list {
-        padding: 0;
         min-height: 12px;
       }
-      .menu-tree__tree-item {
-        margin: 8px 0;
-        border-radius: 10px;
-      }
-      .menu-tree__item-row {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 8px 12px;
-        border: 1px solid var(--mat-sys-outline-variant);
-        border-radius: 10px;
-        background: var(--mat-sys-surface);
-      }
-      .menu-tree__labels {
-        flex: 1;
-        min-width: 0;
-      }
-      .menu-tree__menu-text {
-        font-size: 0.9rem;
-        font-weight: 500;
-        overflow-wrap: anywhere;
-      }
-      .menu-tree__menu-route {
-        color: var(--mat-sys-primary);
-        font-size: 0.75rem;
-        overflow-wrap: anywhere;
-      }
       .menu-tree__tree-list > ngx-menu-tree {
-        margin-left: 20px;
-        padding-left: 12px;
-        border-left: 2px solid var(--mat-sys-outline-variant);
+        margin-left: 16px;
+        padding-left: 4px;
+        border-left: 1px solid var(--ngx-color-border);
       }
       .menu-tree__tree-item.cdk-drag-animating,
       .menu-tree__tree-list.cdk-drop-list-dragging
         .menu-tree__tree-item {
-        transition: transform 200ms ease;
+        transition: transform 180ms ease;
       }
       .menu-tree__tree-list.cdk-drop-list-receiving {
-        outline: 2px dashed var(--mat-sys-primary);
-        outline-offset: 4px;
-        border-radius: 8px;
+        outline: 1px dashed var(--ngx-color-primary);
+        outline-offset: -1px;
+      }
+      .menu-tree__tree-item.cdk-drag-placeholder {
+        opacity: 0.25;
       }
       @media (max-width: 600px) {
-        .menu-tree__item-row {
-          flex-wrap: wrap;
-          padding: 8px;
-          gap: 0;
-        }
-        .menu-tree__labels {
-          flex-basis: calc(100% - 32px);
-        }
         .menu-tree__tree-list > ngx-menu-tree {
           margin-left: 8px;
-          padding-left: 8px;
+          padding-left: 2px;
         }
       }
       @media (prefers-reduced-motion: reduce) {
@@ -192,12 +123,16 @@ import { MenuItemWithChildren } from '../../models/menu.types';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MenuTreeComponent {
-  readonly routeUrl = menuRouteUrl;
   @Input({ required: true }) items: MenuItemWithChildren[] = [];
   @Input({ required: true }) listId!: string;
   @Input() connectedTo: string[] = [];
   @Input() isDragging = false;
   @Input() disabled = false;
+  @Input() reorderDisabled = false;
+  @Input() contextIds: ReadonlySet<string> = new Set();
+  @Output() itemAction = new EventEmitter<MenuItemActionEvent>();
+  @Input() collapsedIds: ReadonlySet<string> = new Set();
+  @Output() toggleRequested = new EventEmitter<string>();
   @Output() moveRequested = new EventEmitter<{
     item: MenuItemWithChildren;
     position: number;

@@ -29,7 +29,8 @@ export const STATE_ICON_MAP = new Map<State, NameIcon>([
 ]);
 
 export function connectedListIds(
-  menuHierarchy: MenuHierarchyMap
+  menuHierarchy: MenuHierarchyMap,
+  collapsedIds: ReadonlySet<string> = new Set()
 ): Map<string, string[]> {
   const result = new Map<string, string[]>();
   const collect = (
@@ -38,7 +39,9 @@ export function connectedListIds(
   ): string[] => [
     id,
     ...items
-      .filter((item) => item.children?.length)
+      .filter(
+        (item) => item.children?.length && !collapsedIds.has(item._id)
+      )
       .flatMap((item) =>
         collect(`${id}-${item._id}`, item.children!)
       ),
@@ -56,4 +59,46 @@ export function connectedListIds(
     }
   }
   return result;
+}
+
+export interface HierarchyScope {
+  id: string;
+  domain: Domain;
+  domainLabel: string;
+  placement: string;
+  state: string;
+  items: MenuItemWithChildren[];
+  count: number;
+}
+
+export function hierarchyScopes(
+  groups: MenuHierarchyWithChildren[]
+): HierarchyScope[] {
+  const count = (items: MenuItemWithChildren[]): number =>
+    items.reduce(
+      (total, item) => total + 1 + count(item.children ?? []),
+      0
+    );
+  return groups.flatMap((group) =>
+    [...SUBTYPE_ICON_MAP].flatMap(([subtype, placement]) =>
+      [...STATE_ICON_MAP].flatMap(([state, label]) => {
+        const items =
+          group.structuralSubtypes[subtype]?.states?.[state];
+        return items?.length
+          ? [
+              {
+                id: `list-${group.domain}-${subtype}-${state}`,
+                domain: group.domain,
+                domainLabel:
+                  group.domain === 'ADMIN' ? 'Admin' : 'Workshop',
+                placement: placement.name,
+                state: label.name,
+                items,
+                count: count(items),
+              },
+            ]
+          : [];
+      })
+    )
+  );
 }

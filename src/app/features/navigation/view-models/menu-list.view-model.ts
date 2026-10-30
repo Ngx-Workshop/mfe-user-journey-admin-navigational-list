@@ -28,7 +28,7 @@ export class MenuListViewModel {
           ? 'Menu item ID copied'
           : 'Could not copy the ID. Please try again.',
         'Close',
-        { duration: 3000 }
+        { duration: 3000, panelClass: 'ngx-design-system-overlay' }
       );
       return;
     }
@@ -61,13 +61,13 @@ export class MenuListViewModel {
               ? 'Menu item restored'
               : 'Menu item deleted',
           'Close',
-          { duration: 3000 }
+          { duration: 3000, panelClass: 'ngx-design-system-overlay' }
         ),
       error: () =>
         this.snackBar.open(
           'Unable to update menu item. Please retry.',
           'Close',
-          { duration: 4000 }
+          { duration: 4000, panelClass: 'ngx-design-system-overlay' }
         ),
     });
   }

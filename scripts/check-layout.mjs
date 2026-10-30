@@ -14,7 +14,7 @@ for (const file of source) {
   if (/templateUrl|styleUrls?\s*:/.test(text)) errors.push(`${file}: component views must be inline`);
   for (const match of text.matchAll(/class="([^"]+)"/g)) {
     for (const name of match[1].split(/\s+/)) {
-      if (!/^(?:menu-[a-z-]+(?:__[a-z-]+)?(?:--[a-z-]+)?|mat-[\w-]+|cdk-[\w-]+)$/.test(name)) errors.push(`${file}: use BEM for ${name}`);
+      if (!/^(?:ngx-design-system(?:-overlay)?|menu-[a-z-]+(?:__[a-z-]+)?(?:--[a-z-]+)?|mat-[\w-]+|cdk-[\w-]+)$/.test(name)) errors.push(`${file}: use BEM for ${name}`);
     }
   }
   const count = text.trimEnd().split('\n').length;

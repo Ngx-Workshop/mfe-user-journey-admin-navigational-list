@@ -6,8 +6,6 @@ import {
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
-import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
-import { MatPaginatorHarness } from '@angular/material/paginator/testing';
 import { Routes } from '../../src/app/app.routes';
 import { MenuItemFormComponent } from '../../src/app/features/navigation/components/menu-item-form/menu-item-form.component';
 import { By } from '@angular/platform-browser';
@@ -27,8 +25,8 @@ describe('Routed navigation workspace', () => {
   });
   afterEach(() => http.verify());
 
-  it('puts statistics above the list and connects toolbar pagination to filtered cards', async () => {
-    const harness = await RouterTestingHarness.create('/');
+  it('combines the complete ordered catalog with hierarchy and redirects legacy hierarchy links', async () => {
+    const harness = await RouterTestingHarness.create('/hierarchy');
     http
       .expectOne('/api/navigational-list')
       .flush(
@@ -36,36 +34,19 @@ describe('Routed navigation workspace', () => {
           menuItem({
             _id: String(i),
             menuItemText: `Item ${String(i).padStart(2, '0')}`,
+            sortId: i + 1,
           })
         )
       );
     harness.detectChanges();
     await harness.fixture.whenStable();
     const root = harness.routeNativeElement!;
-    expect(root.querySelector('mat-tab-group')).toBeNull();
-    expect(
-      root
-        .querySelector('ngx-menu-statistics')!
-        .compareDocumentPosition(
-          root.querySelector('ngx-menu-list')!
-        ) & Node.DOCUMENT_POSITION_FOLLOWING
-    ).toBeTruthy();
-    expect(
-      root.querySelector('ngx-menu-managenment-actions mat-paginator')
-    ).toBeNull();
-    expect(
-      root.querySelector('.menu-grid__controls mat-paginator')
-    ).not.toBeNull();
-    const paginator = await TestbedHarnessEnvironment.loader(
-      harness.fixture
-    ).getHarness(MatPaginatorHarness);
-    await paginator.goToNextPage();
-    expect(root.querySelectorAll('ngx-menu-item-card').length).toBe(
-      12
+    expect(TestBed.inject(Router).url).toBe('/');
+    expect(root.querySelector('mat-paginator')).toBeNull();
+    expect(root.querySelector('a[href="/hierarchy"]')).toBeNull();
+    expect(root.querySelectorAll('ngx-menu-tree-row').length).toBe(
+      25
     );
-    expect(
-      root.querySelector('ngx-menu-item-card')!.textContent
-    ).toContain('Item 12');
     const search = root.querySelector(
       'ngx-menu-filters input'
     ) as HTMLInputElement;
@@ -73,24 +54,26 @@ describe('Routed navigation workspace', () => {
     search.dispatchEvent(new Event('input'));
     harness.detectChanges();
     await harness.fixture.whenStable();
-    expect(root.querySelectorAll('ngx-menu-item-card').length).toBe(
-      1
-    );
-    expect(await paginator.getRangeLabel()).toContain('1 – 1 of 1');
-    const link = root.querySelector(
-      'a[href="/hierarchy"]'
-    ) as HTMLAnchorElement;
-    link.click();
-    await harness.fixture.whenStable();
-    harness.detectChanges();
-    expect(TestBed.inject(Router).url).toBe('/hierarchy');
+    expect(root.querySelectorAll('ngx-menu-tree-row').length).toBe(1);
     expect(
-      harness.routeNativeElement!.querySelector(
-        'ngx-menu-hierarchy-manager'
-      )
-    ).not.toBeNull();
+      root.querySelector('ngx-menu-tree-row')!.textContent
+    ).toContain('Item 24');
+    expect(
+      (
+        root.querySelector(
+          'button[aria-label="Move Item 24 up"]'
+        ) as HTMLButtonElement
+      ).disabled
+    ).toBeTrue();
+    (
+      root.querySelector(
+        'button[aria-label="Edit Item 24"]'
+      ) as HTMLButtonElement
+    ).click();
+    await harness.fixture.whenStable();
+    expect(TestBed.inject(Router).url).toBe('/edit/24');
     await harness.navigateByUrl('/');
-    expect(TestBed.inject(Router).url).toBe('/');
+    expect(root.querySelector('mat-tab-group')).toBeNull();
   });
 
   it('loads direct edit links, retains failed edits, and returns to the list after saving', async () => {
@@ -148,6 +131,8 @@ describe('Routed navigation workspace', () => {
     http.expectOne('/api/navigational-list').flush([first, second]);
     harness.detectChanges();
     await harness.fixture.whenStable();
+    await harness.navigateByUrl('/navigational-list/hierarchy');
+    expect(TestBed.inject(Router).url).toBe('/navigational-list');
     await harness.navigateByUrl('/navigational-list/edit/second');
     const form = harness.fixture.debugElement.query(
       By.directive(MenuItemFormComponent)

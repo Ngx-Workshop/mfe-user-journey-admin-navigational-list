@@ -39,7 +39,7 @@ describe('App navigation journey', () => {
     await fixture.whenStable();
     expect(
       fixture.nativeElement.querySelector('h1').textContent
-    ).toContain('Navigational List');
+    ).toContain('Navigation catalog');
     expect(fixture.nativeElement.textContent).toContain('Dashboard');
     expect(fixture.nativeElement.textContent).not.toContain(
       'Archived link'
@@ -88,12 +88,14 @@ describe('App navigation journey', () => {
     fixture.detectChanges();
     await fixture.whenStable();
     expect(
-      fixture.nativeElement.querySelectorAll('ngx-menu-item-card')
-        .length
+      fixture.nativeElement.querySelectorAll(
+        'ngx-menu-tree-row, ngx-menu-item-card'
+      ).length
     ).toBe(1);
     expect(
-      fixture.nativeElement.querySelector('ngx-menu-item-card')
-        .textContent
+      fixture.nativeElement.querySelector(
+        'ngx-menu-tree-row, ngx-menu-item-card'
+      ).textContent
     ).toContain('Administration');
     const search = fixture.nativeElement.querySelector(
       'ngx-menu-filters input'
@@ -113,8 +115,9 @@ describe('App navigation journey', () => {
     fixture.detectChanges();
     await fixture.whenStable();
     expect(
-      fixture.nativeElement.querySelectorAll('ngx-menu-item-card')
-        .length
+      fixture.nativeElement.querySelectorAll(
+        'ngx-menu-tree-row, ngx-menu-item-card'
+      ).length
     ).toBe(2);
     http.verify();
   });
@@ -234,7 +237,15 @@ describe('App navigation journey', () => {
       'Total Menu Items'
     );
     const store = TestBed.inject(MenuStore);
-    store.refresh();
+    expect(
+      fixture.nativeElement.querySelectorAll(
+        'ngx-menu-statistics dl > div'
+      ).length
+    ).toBe(3);
+    const refresh = fixture.nativeElement.querySelector(
+      'button[aria-label="Refresh catalog"]'
+    ) as HTMLButtonElement;
+    refresh.click();
     http
       .expectOne('/api/navigational-list')
       .flush([menuItem({ archived: true })]);

@@ -44,11 +44,11 @@ import { FormMode } from '../../models/menu.types';
         margin: 0;
         font-size: 0.85rem;
         line-height: 1.6;
-        color: var(--mat-sys-on-surface-variant);
+        color: var(--ngx-color-muted);
       }
       .menu-item-form-header__dialog-header {
         padding: 20px 24px 16px;
-        border-bottom: 1px solid var(--mat-sys-outline-variant);
+        border-bottom: 1px solid var(--ngx-color-border);
       }
     `,
   ],

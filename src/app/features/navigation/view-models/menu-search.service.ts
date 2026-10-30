@@ -24,6 +24,18 @@ export class MenuSearchService {
   readonly filterRole = this.role.asReadonly();
   readonly includeArchived = this.archived.asReadonly();
 
+  readonly hasFilters = computed(
+    () =>
+      !!(
+        this.searchText().trim() ||
+        this.filterDomain() ||
+        this.filterStructuralSubtype() ||
+        this.filterState() ||
+        this.filterRole() ||
+        this.includeArchived()
+      )
+  );
+
   readonly filteredItems = computed(() => {
     const search = this.text().trim().toLowerCase();
     return this.store

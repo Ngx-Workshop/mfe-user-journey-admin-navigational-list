@@ -1,3 +1,4 @@
+import { NgxButton } from '@tmdjr/ngx-workshop-design-system';
 import { MenuItemFormViewModel } from '../../view-models/menu-item-form.view-model';
 
 import {
@@ -36,6 +37,7 @@ export interface MenuItemFormDialogData {
   providers: [MenuItemFormService, MenuItemFormViewModel],
   standalone: true,
   imports: [
+    NgxButton,
     ReactiveFormsModule,
     MatButtonModule,
     MatIconModule,
@@ -61,7 +63,9 @@ export interface MenuItemFormDialogData {
           <mat-icon>error_outline</mat-icon
           ><span>{{ vm.store.error() }}</span>
           <button
-            mat-button
+            mat-flat-button
+            ngxButton
+            surface="outline"
             type="button"
             [disabled]="vm.store.loading()"
             (click)="vm.store.refresh()"
@@ -135,9 +139,9 @@ export interface MenuItemFormDialogData {
         gap: 8px;
         padding: 12px;
         margin-bottom: 16px;
-        border-radius: 12px;
-        color: var(--mat-sys-on-error-container);
-        background: var(--mat-sys-error-container);
+        border-radius: var(--ngx-radius);
+        color: var(--ngx-color-error);
+        background: var(--ngx-color-surface-high);
       }
       .menu-item-form__error span {
         flex: 1;
@@ -147,7 +151,7 @@ export interface MenuItemFormDialogData {
         cursor: pointer;
         padding: 12px 0;
         font-weight: 500;
-        color: var(--mat-sys-primary);
+        color: var(--ngx-color-primary);
       }
       @media (max-width: 480px) {
         .menu-item-form__content {

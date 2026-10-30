@@ -1,9 +1,13 @@
+import { provideRouter } from '@angular/router';
 import { TestBed } from '@angular/core/testing';
 import { MenuTreeComponent } from '../../../../../../src/app/features/navigation/components/menu-hierarchy/menu-tree.component';
 import { menuItem } from '../../menu.fixture';
 
 describe('MenuTreeComponent', () => {
   it('renders labeled keyboard controls and emits one-based sibling positions', () => {
+    TestBed.configureTestingModule({
+      providers: [provideRouter([])],
+    });
     const fixture = TestBed.createComponent(MenuTreeComponent);
     fixture.componentRef.setInput('listId', 'list-ADMIN-NAV-FULL');
     fixture.componentRef.setInput('items', [

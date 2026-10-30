@@ -11,7 +11,7 @@ removing these pins after an upstream fix.
 Regenerate the lockfile with CI's Node 22/npm 10, then verify with `npm ci`;
 npm 11 can omit optional peer entries required by npm 10.
 
-Use the committed package lock and `npm ci` when dependencies are absent. Start with `npm start` or the existing `npm run dev:bundle` watch/static-host workflow on port 4201. Avoid starting another server when that port already hosts the remote. The standalone app has no API proxy or Material theme; full visual/auth integration belongs to the admin shell.
+Use the committed package lock and `npm ci` when dependencies are absent. Start with `npm start` or the existing `npm run dev:bundle` watch/static-host workflow on port 4201. Avoid starting another server when that port already hosts the remote. The standalone app has no API proxy; it supplies a design-system theme fallback. Full authenticated integration belongs to the admin shell.
 
 Checks:
 
@@ -39,3 +39,7 @@ See the active feature handoff for actual verification results and browser obser
 `npm run test:bundle-watch` starts an isolated production watcher, checks the initial build and two incremental builds, and evaluates the emitted Component/Routes factories in fresh VM contexts. It touches source timestamps without changing their contents and cleans up its watcher/output. This checks real generated factories, including their inheritance dependencies; it does not substitute for browser/host rendering or authenticated service tests.
 
 After changing webpack configuration, restart the existing watcher once to load it. Ordinary source edits then rebuild without restarting. The inherited shell command backgrounds its watcher; if stopping the static server leaves an old watcher alive, stop that watcher before starting another process against the same dist directory.
+
+## Design system verification
+
+The standalone app now supplies the design-system theme fallback. Its default catalog read still requires a service/proxy; isolated visual checks can serve the production output with temporary GET-only fixtures outside shipped source. See specs/005-design-system/handoff.md for evidence. Hosted rendering still requires the shell's shared design-system runtime and global adapter/overlay styles.

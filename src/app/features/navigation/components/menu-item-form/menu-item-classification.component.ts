@@ -1,3 +1,4 @@
+import { NgxPanel } from '@tmdjr/ngx-workshop-design-system';
 import type { MenuItemForm } from '../../utils/menu-item-form.service';
 
 import {
@@ -17,74 +18,103 @@ import {
 @Component({
   selector: 'ngx-menu-item-classification',
   standalone: true,
-  imports: [ReactiveFormsModule, MatFormFieldModule, MatSelectModule],
+  imports: [
+    NgxPanel,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatSelectModule,
+  ],
   template: `
-    <div
-      class="menu-item-classification__form-section"
-      [formGroup]="form"
+    <ngx-panel
+      heading="Classification"
+      eyebrow="CONFIGURATION"
+      shape="chamfered"
+      background="solid"
     >
-      <h3>Classification</h3>
-
-      <div class="menu-item-classification__form-row">
-        <mat-form-field appearance="outline">
-          <mat-label>Domain</mat-label>
-          <mat-select formControlName="domain">
-            @for (option of domainOptions; track option.value) {
-              <mat-option [value]="option.value">{{
-                option.label
-              }}</mat-option>
+      <div
+        class="menu-item-classification__form-section"
+        [formGroup]="form"
+      >
+        <div class="menu-item-classification__form-row">
+          <mat-form-field
+            subscriptSizing="dynamic"
+            appearance="outline"
+          >
+            <mat-label>Domain</mat-label>
+            <mat-select
+              panelClass="ngx-design-system-overlay"
+              formControlName="domain"
+            >
+              @for (option of domainOptions; track option.value) {
+                <mat-option [value]="option.value">{{
+                  option.label
+                }}</mat-option>
+              }
+            </mat-select>
+            @if (form.get('domain')?.hasError('required')) {
+              <mat-error>Domain is required</mat-error>
             }
-          </mat-select>
-          @if (form.get('domain')?.hasError('required')) {
-            <mat-error>Domain is required</mat-error>
-          }
-        </mat-form-field>
+          </mat-form-field>
 
-        <mat-form-field appearance="outline">
-          <mat-label>Structural Subtype</mat-label>
-          <mat-select formControlName="structuralSubtype">
-            @for (
-              option of structuralSubtypeOptions;
-              track option.value
+          <mat-form-field
+            subscriptSizing="dynamic"
+            appearance="outline"
+          >
+            <mat-label>Structural Subtype</mat-label>
+            <mat-select
+              panelClass="ngx-design-system-overlay"
+              formControlName="structuralSubtype"
+            >
+              @for (
+                option of structuralSubtypeOptions;
+                track option.value
+              ) {
+                <mat-option [value]="option.value">{{
+                  option.label
+                }}</mat-option>
+              }
+            </mat-select>
+            @if (
+              form.get('structuralSubtype')?.hasError('required')
             ) {
-              <mat-option [value]="option.value">{{
-                option.label
-              }}</mat-option>
+              <mat-error>Structural subtype is required</mat-error>
             }
-          </mat-select>
-          @if (form.get('structuralSubtype')?.hasError('required')) {
-            <mat-error>Structural subtype is required</mat-error>
-          }
-        </mat-form-field>
+          </mat-form-field>
 
-        <mat-form-field appearance="outline">
-          <mat-label>State</mat-label>
-          <mat-select formControlName="state">
-            @for (option of stateOptions; track option.value) {
-              <mat-option [value]="option.value">{{
-                option.label
-              }}</mat-option>
+          <mat-form-field
+            subscriptSizing="dynamic"
+            appearance="outline"
+          >
+            <mat-label>State</mat-label>
+            <mat-select
+              panelClass="ngx-design-system-overlay"
+              formControlName="state"
+            >
+              @for (option of stateOptions; track option.value) {
+                <mat-option [value]="option.value">{{
+                  option.label
+                }}</mat-option>
+              }
+            </mat-select>
+            @if (form.get('state')?.hasError('required')) {
+              <mat-error>State is required</mat-error>
             }
-          </mat-select>
-          @if (form.get('state')?.hasError('required')) {
-            <mat-error>State is required</mat-error>
-          }
-        </mat-form-field>
+          </mat-form-field>
+        </div>
       </div>
-    </div>
+    </ngx-panel>
   `,
   styles: [
     `
       .menu-item-classification__form-section {
-        border: 1px solid var(--mat-sys-outline-variant);
-        border-radius: 12px;
-        padding: 1rem;
+        display: grid;
+        gap: var(--ngx-space-4);
       }
 
       .menu-item-classification__form-section h3 {
         margin-top: 0;
         margin-bottom: 1rem;
-        color: var(--mat-sys-primary);
+        color: var(--ngx-color-primary);
       }
 
       .menu-item-classification__form-row {

@@ -1,3 +1,4 @@
+import { NgxPanel } from '@tmdjr/ngx-workshop-design-system';
 import type { MenuItemForm } from '../../utils/menu-item-form.service';
 
 import {
@@ -16,6 +17,7 @@ import { RoleOption } from '../../models/menu.types';
   selector: 'ngx-menu-item-configuration',
   standalone: true,
   imports: [
+    NgxPanel,
     ReactiveFormsModule,
     MatFormFieldModule,
     MatInputModule,
@@ -23,59 +25,72 @@ import { RoleOption } from '../../models/menu.types';
     MatSelectModule,
   ],
   template: `
-    <div
-      class="menu-item-configuration__form-section"
-      [formGroup]="form"
+    <ngx-panel
+      heading="Configuration"
+      eyebrow="CONFIGURATION"
+      shape="chamfered"
+      background="solid"
     >
-      <h3>Configuration</h3>
-
-      <div class="menu-item-configuration__form-row">
-        <mat-form-field appearance="outline">
-          <mat-label>Sort ID</mat-label>
-          <input
-            matInput
-            type="number"
-            formControlName="sortId"
-            placeholder="Numeric sort order"
-          />
-          @if (form.get('sortId')?.hasError('required')) {
-            <mat-error>Sort ID is required</mat-error>
-          }
-          @if (form.get('sortId')?.hasError('min')) {
-            <mat-error>Sort ID must be 0 or greater</mat-error>
-          }
-        </mat-form-field>
-      </div>
-
-      <div class="menu-item-configuration__form-row">
-        <mat-form-field appearance="outline">
-          <mat-label>Role required</mat-label>
-          <mat-select formControlName="role">
-            @for (option of roleOptions; track option.value) {
-              <mat-option [value]="option.value">{{
-                option.label
-              }}</mat-option>
+      <div
+        class="menu-item-configuration__form-section"
+        [formGroup]="form"
+      >
+        <div class="menu-item-configuration__form-row">
+          <mat-form-field
+            subscriptSizing="dynamic"
+            appearance="outline"
+          >
+            <mat-label>Sort ID</mat-label>
+            <input
+              matInput
+              type="number"
+              formControlName="sortId"
+              placeholder="Numeric sort order"
+            />
+            @if (form.get('sortId')?.hasError('required')) {
+              <mat-error>Sort ID is required</mat-error>
             }
-          </mat-select>
-        </mat-form-field>
-        <mat-checkbox formControlName="archived">
-          Archived
-        </mat-checkbox>
+            @if (form.get('sortId')?.hasError('min')) {
+              <mat-error>Sort ID must be 0 or greater</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <div class="menu-item-configuration__form-row">
+          <mat-form-field
+            subscriptSizing="dynamic"
+            appearance="outline"
+          >
+            <mat-label>Role required</mat-label>
+            <mat-select
+              panelClass="ngx-design-system-overlay"
+              formControlName="role"
+            >
+              @for (option of roleOptions; track option.value) {
+                <mat-option [value]="option.value">{{
+                  option.label
+                }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <mat-checkbox formControlName="archived">
+            Archived
+          </mat-checkbox>
+        </div>
       </div>
-    </div>
+    </ngx-panel>
   `,
   styles: [
     `
       .menu-item-configuration__form-section {
-        border: 1px solid var(--mat-sys-outline-variant);
-        border-radius: 12px;
-        padding: 1rem;
+        display: grid;
+        gap: var(--ngx-space-4);
       }
 
       .menu-item-configuration__form-section h3 {
         margin-top: 0;
         margin-bottom: 1rem;
-        color: var(--mat-sys-primary);
+        color: var(--ngx-color-primary);
       }
 
       .menu-item-configuration__form-row {

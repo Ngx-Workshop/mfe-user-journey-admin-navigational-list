@@ -61,7 +61,10 @@ export class MenuReorderService {
           this.snackBar.open(
             'Failed to reorder menu items. Please retry.',
             'Close',
-            { duration: 4000 }
+            {
+              duration: 4000,
+              panelClass: 'ngx-design-system-overlay',
+            }
           ),
       });
   }

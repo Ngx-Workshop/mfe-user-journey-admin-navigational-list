@@ -1,4 +1,8 @@
 import {
+  NgxStatus,
+  NgxButton,
+} from '@tmdjr/ngx-workshop-design-system';
+import {
   ChangeDetectionStrategy,
   Component,
   EventEmitter,
@@ -19,67 +23,71 @@ export interface MenuItemActionEvent {
 
 @Component({
   selector: 'ngx-menu-item-card',
-  imports: [MatButtonModule, MatIconModule, MatTooltipModule],
+  imports: [
+    NgxStatus,
+    NgxButton,
+    MatButtonModule,
+    MatIconModule,
+    MatTooltipModule,
+  ],
   template: `
     <article
       class="menu-item-card"
       [class.menu-item-card--archived]="item.archived"
       [attr.aria-label]="item.menuItemText"
     >
-      <div class="menu-item-card__heading">
+      <div class="menu-item-card__identity">
+        <h3 [title]="item.description || item.menuItemText">
+          {{ item.menuItemText }}
+        </h3>
+        <a
+          class="menu-item-card__route"
+          [href]="routeUrl"
+          target="_blank"
+          rel="noopener noreferrer"
+          [attr.aria-label]="
+            'Open ' + item.menuItemText + ' in a new tab'
+          "
+        >
+          <span>{{ item.routePath }}</span
+          ><mat-icon>open_in_new</mat-icon>
+        </a>
+      </div>
+      <div class="menu-item-card__classification">
         <span class="menu-item-card__domain"
-          ><mat-icon>{{
-            item.domain === 'ADMIN'
-              ? 'admin_panel_settings'
-              : 'school'
-          }}</mat-icon
-          >{{ item.domain === 'ADMIN' ? 'Admin' : 'Workshop' }}</span
+          >{{ item.domain === 'ADMIN' ? 'Admin' : 'Workshop' }}
+          <span aria-hidden="true">/</span> {{ placement }}</span
         >
-        <span
-          class="menu-item-card__status"
-          [class.menu-item-card__status--archived]="item.archived"
-          >{{ item.archived ? 'Archived' : 'Active' }}</span
+        <span class="menu-item-card__access"
+          >{{ displayState }} · {{ roleLabel }}</span
         >
       </div>
-      <h3>{{ item.menuItemText }}</h3>
-      <a
-        class="menu-item-card__route"
-        [href]="routeUrl"
-        target="_blank"
-        rel="noopener noreferrer"
-        [attr.aria-label]="
-          'Open ' + item.menuItemText + ' in a new tab'
-        "
-      >
-        <span>{{ item.routePath }}</span
-        ><mat-icon>open_in_new</mat-icon>
-      </a>
-      <p class="menu-item-card__description">
-        {{ item.description || 'No description added.' }}
-      </p>
-      <div class="menu-item-card__tags">
-        <span>{{ placement }}</span
-        ><span>{{ displayState }}</span>
-        <span
-          ><mat-icon>{{
-            item.role === 'none' ? 'public' : 'lock_outline'
-          }}</mat-icon
-          >{{ roleLabel }}</span
-        >
-      </div>
-      <div class="menu-item-card__footer">
+      <ngx-status
+        class="menu-item-card__status"
+        [label]="item.archived ? 'Archived' : 'Active'"
+        [tone]="item.archived ? 'warning' : 'success'"
+      />
+      <div class="menu-item-card__actions">
         <button
-          mat-button
+          mat-flat-button
+          ngxButton
+          surface="outline"
+          type="button"
           (click)="onAction('edit')"
           [disabled]="disabled"
           [attr.aria-label]="'Edit ' + item.menuItemText"
         >
-          <mat-icon>edit</mat-icon>Edit
+          Edit
         </button>
         <button
-          mat-button
+          mat-icon-button
+          type="button"
           (click)="onAction(item.archived ? 'unarchive' : 'archive')"
           [disabled]="disabled"
+          [matTooltip]="
+            item.archived ? 'Restore item' : 'Archive item'
+          "
+          matTooltipClass="ngx-design-system-overlay"
           [attr.aria-label]="
             (item.archived ? 'Restore ' : 'Archive ') +
             item.menuItemText
@@ -87,14 +95,14 @@ export interface MenuItemActionEvent {
         >
           <mat-icon>{{
             item.archived ? 'unarchive' : 'archive'
-          }}</mat-icon
-          >{{ item.archived ? 'Restore' : 'Archive' }}
+          }}</mat-icon>
         </button>
         <button
-          class="menu-item-card__copy"
           mat-icon-button
+          type="button"
           (click)="onAction('copy')"
           matTooltip="Copy menu item ID"
+          matTooltipClass="ngx-design-system-overlay"
           [attr.aria-label]="'Copy ID for ' + item.menuItemText"
         >
           <mat-icon>content_copy</mat-icon>
@@ -109,60 +117,35 @@ export interface MenuItemActionEvent {
         min-width: 0;
       }
       .menu-item-card {
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-        box-sizing: border-box;
-        border: 1px solid var(--mat-sys-outline-variant);
-        border-radius: 16px;
-        padding: 20px 20px 8px;
-        background: var(--mat-sys-surface);
+        display: grid;
+        grid-template-columns:
+          minmax(150px, 1.4fr) minmax(150px, 1fr)
+          82px auto;
+        align-items: center;
+        gap: 16px;
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--ngx-color-border);
+        border-left: 2px solid transparent;
+        background: var(--ngx-color-surface-low);
         transition:
-          border-color 160ms,
-          box-shadow 160ms;
+          background 150ms,
+          border-color 150ms;
       }
       .menu-item-card:hover,
       .menu-item-card:focus-within {
-        border-color: var(--mat-sys-primary);
-        box-shadow: 0 4px 16px
-          color-mix(in srgb, var(--mat-sys-shadow) 8%, transparent);
+        background: var(--ngx-color-surface);
+        border-left-color: var(--ngx-color-primary);
       }
       .menu-item-card--archived {
-        background: var(--mat-sys-surface-container-low);
+        border-left-color: var(--ngx-color-warning);
       }
-      .menu-item-card__heading {
-        display: flex;
-        justify-content: space-between;
-        gap: 12px;
-        align-items: center;
-      }
-      .menu-item-card__domain {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        font-size: 0.75rem;
-        color: var(--mat-sys-on-surface-variant);
-        font-weight: 500;
-      }
-      .menu-item-card__domain mat-icon {
-        width: 16px;
-        height: 16px;
-        font-size: 16px;
-      }
-      .menu-item-card__status {
-        font-size: 0.7rem;
-        padding: 4px 8px;
-        border-radius: 6px;
-        color: var(--mat-sys-on-primary-container);
-        background: var(--mat-sys-primary-container);
-      }
-      .menu-item-card__status--archived {
-        color: var(--mat-sys-on-surface-variant);
-        background: var(--mat-sys-surface-container-highest);
+      .menu-item-card__identity,
+      .menu-item-card__classification {
+        min-width: 0;
       }
       h3 {
-        margin: 18px 0 8px;
-        font-size: 1.1rem;
+        margin: 0 0 6px;
+        font-size: 0.88rem;
         line-height: 1.4;
         font-weight: 600;
         overflow-wrap: anywhere;
@@ -173,64 +156,79 @@ export interface MenuItemActionEvent {
         gap: 6px;
         width: fit-content;
         max-width: 100%;
-        color: var(--mat-sys-primary);
-        font-size: 0.8rem;
+        color: var(--ngx-color-primary);
+        font: 0.7rem/1.5 var(--ngx-font-mono);
         text-decoration: none;
       }
       .menu-item-card__route span {
         overflow: hidden;
-        text-overflow: ellipsis;
         white-space: nowrap;
+        text-overflow: ellipsis;
       }
       .menu-item-card__route mat-icon {
-        font-size: 14px;
-        width: 14px;
-        height: 14px;
         flex-shrink: 0;
+        width: 12px;
+        height: 12px;
+        font-size: 12px;
       }
       .menu-item-card__route:hover {
         text-decoration: underline;
       }
-      .menu-item-card__description {
-        color: var(--mat-sys-on-surface-variant);
-        font-size: 0.85rem;
-        line-height: 1.6;
-        margin: 14px 0 18px;
+      .menu-item-card__classification {
+        display: grid;
+        gap: 6px;
+        font-size: 0.72rem;
+        line-height: 1.4;
         overflow-wrap: anywhere;
       }
-      .menu-item-card__tags {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 6px;
-        margin-top: auto;
-        padding-bottom: 18px;
+      .menu-item-card__domain span {
+        margin: 0 4px;
+        color: var(--ngx-color-border);
       }
-      .menu-item-card__tags span {
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-        font-size: 0.7rem;
-        line-height: 1.5;
-        padding: 4px 8px;
-        background: var(--mat-sys-surface-container);
-        border-radius: 6px;
-        color: var(--mat-sys-on-surface-variant);
+      .menu-item-card__access {
+        color: var(--ngx-color-muted);
       }
-      .menu-item-card__tags mat-icon {
-        font-size: 12px;
-        width: 12px;
-        height: 12px;
-      }
-      .menu-item-card__footer {
-        border-top: 1px solid var(--mat-sys-outline-variant);
+      .menu-item-card__actions {
         display: flex;
         align-items: center;
-        gap: 0;
-        padding-top: 8px;
+        gap: 2px;
       }
-      .menu-item-card__copy {
-        margin-left: auto;
-        color: var(--mat-sys-on-surface-variant);
+      @media (min-width: 901px) and (max-width: 1200px) {
+        .menu-item-card {
+          grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+          gap: 8px;
+        }
+        .menu-item-card__status {
+          grid-column: 3;
+          grid-row: 1;
+        }
+        .menu-item-card__actions {
+          grid-column: 1 / -1;
+          justify-content: flex-end;
+        }
+      }
+      @media (max-width: 640px) {
+        .menu-item-card {
+          grid-template-columns: minmax(0, 1fr) auto;
+          padding: 12px;
+          gap: 10px;
+        }
+        .menu-item-card__identity {
+          grid-column: 1;
+        }
+        .menu-item-card__status {
+          grid-column: 2;
+          grid-row: 1;
+        }
+        .menu-item-card__classification {
+          grid-column: 1;
+        }
+        .menu-item-card__actions {
+          grid-column: 1 / -1;
+          flex-wrap: wrap;
+          justify-content: flex-end;
+          max-width: none;
+        }
       }
       @media (prefers-reduced-motion: reduce) {
         .menu-item-card {
