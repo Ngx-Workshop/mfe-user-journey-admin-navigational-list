@@ -66,3 +66,13 @@ admin-shell override now visibly opens the MFE list and selects document-editor;
 ## Menu icon assets — 2026-10-30
 
 Feature 013 verifies 50 admin tests plus 4 tests in each structural remote. The normal admin production build and three production watch builds pass. Structural optimized builds pass with license extraction disabled for verification; their normal production builds retain the existing license-plugin undefined-trim failure. See specs/013-menu-icon-assets/handoff.md for exact scope, fixture browser evidence and remaining authenticated host/upload acceptance.
+
+## Shared workspace feedback adoption — 2026-10-31
+
+Feature 016 adopts the installed design-system 21.0.9 presentation components.
+Mirrored action-adapter tests cover stable live regions, save-state mapping, recovery
+intent, count wording and height/offset integration. Existing store and routed-flow
+tests retain command/timing coverage. See specs/016-shared-workspace-feedback/handoff.md
+for current results and the inherited orchestrator heading failure where applicable.
+The shell must supply >=21.0.9 within the compatible major range before hosted checks;
+a standalone build alone cannot establish its shared runtime version.

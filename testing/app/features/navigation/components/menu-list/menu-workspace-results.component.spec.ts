@@ -57,7 +57,7 @@ describe('Unified catalog interactions', () => {
     expect(down.disabled).toBeTrue();
     expect(
       fixture.nativeElement.querySelector(
-        '.menu-managenment-actions__save'
+        'ngx-save-feedback'
       ).textContent
     ).toContain('Saving Workspace');
     expect(
@@ -85,7 +85,7 @@ describe('Unified catalog interactions', () => {
     expect(down.disabled).toBeFalse();
     expect(
       fixture.nativeElement.querySelector(
-        '.menu-managenment-actions__save'
+        'ngx-save-feedback'
       ).textContent
     ).toContain('Could not save Workspace');
     down.click();
@@ -105,7 +105,7 @@ describe('Unified catalog interactions', () => {
     ).toContain('Settings');
     expect(
       fixture.nativeElement.querySelector(
-        '.menu-managenment-actions__save'
+        'ngx-save-feedback'
       ).textContent
     ).toContain('Changes saved');
   });

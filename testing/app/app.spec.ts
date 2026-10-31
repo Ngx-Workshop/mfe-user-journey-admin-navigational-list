@@ -65,7 +65,7 @@ describe('App navigation journey', () => {
     const http = TestBed.inject(HttpTestingController);
     fixture.detectChanges();
     await fixture.whenStable();
-    const status = () => fixture.nativeElement.querySelector('.menu-managenment-actions__unplaced') as HTMLElement;
+    const status = () => fixture.nativeElement.querySelector('ngx-inline-status') as HTMLElement;
     const text = () => status().textContent!.replace(/\s+/g, ' ').trim();
     expect(text()).toBe('Unplaced destinations: —');
     expect(status().getAttribute('role')).toBe('status');
@@ -76,7 +76,7 @@ describe('App navigation journey', () => {
     fixture.detectChanges();
     await fixture.whenStable();
     expect(text()).toBe('1 unplaced destination');
-    expect(status().classList.contains('menu-managenment-actions__unplaced--active')).toBeTrue();
+    expect(status().getAttribute('data-tone') === 'warning').toBeTrue();
     const search = fixture.nativeElement.querySelector('ngx-menu-filters input') as HTMLInputElement;
     search.value = 'Dashboard';
     search.dispatchEvent(new Event('input'));
@@ -102,7 +102,7 @@ describe('App navigation journey', () => {
     fixture.detectChanges();
     await fixture.whenStable();
     expect(text()).toBe('0 unplaced destinations');
-    expect(status().classList.contains('menu-managenment-actions__unplaced--active')).toBeFalse();
+    expect(status().getAttribute('data-tone') === 'warning').toBeFalse();
     http.verify();
   });
   it('filters by a named role and offers reset for no matches', async () => {

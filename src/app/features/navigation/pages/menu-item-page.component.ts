@@ -3,6 +3,7 @@ import {
   Component,
   computed,
   inject,
+  signal,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
@@ -19,6 +20,9 @@ import { MenuStore } from '../state/menu.store';
 import { CreateMenuItemPage } from './create-menu-item-page.component';
 
 @Component({
+  host: {
+    '[style.--menu-action-bar-height.px]': 'actionBarHeight()',
+  },
   selector: 'ngx-menu-item-page',
   imports: [
     NgxButton,
@@ -30,6 +34,7 @@ import { CreateMenuItemPage } from './create-menu-item-page.component';
   ],
   template: `
     <ngx-menu-managenment-actions
+      (heightChange)="actionBarHeight.set($event)"
       [saveNotification]="store.saveNotification()"
       [unplacedCount]="store.ready() ? store.unplaced().length : null"
     >
@@ -44,43 +49,49 @@ import { CreateMenuItemPage } from './create-menu-item-page.component';
     </ngx-menu-managenment-actions>
     <main class="menu-item-page">
       @if (store.loading() && !store.ready()) {
-      <p role="status">Loading menu item…</p>
+        <p role="status">Loading menu item…</p>
       } @else if (!store.ready() && store.error()) {
-      <p role="alert">{{ store.error() }}</p>
-      <button
-        mat-flat-button
-        ngxButton
-        surface="outline"
-        (click)="store.refresh()"
-      >
-        Retry
-      </button>
-      <a
-        mat-flat-button
-        ngxButton
-        shape="chevron"
-        surface="outline"
-        [routerLink]="[data().mode === 'edit' ? '../../' : '../']"
-        >Back to Menu Items</a
-      >
+        <p role="alert">{{ store.error() }}</p>
+        <button
+          mat-flat-button
+          ngxButton
+          surface="outline"
+          (click)="store.refresh()"
+        >
+          Retry
+        </button>
+        <a
+          mat-flat-button
+          ngxButton
+          shape="chevron"
+          surface="outline"
+          [routerLink]="[data().mode === 'edit' ? '../../' : '../']"
+          >Back to Menu Items</a
+        >
       } @else if (data().mode === 'edit' && !data().item) {
-      <h2>Menu item not found</h2>
-      <p>This menu item is no longer available.</p>
-      <a
-        mat-flat-button
-        ngxButton
-        shape="chevron"
-        surface="outline"
-        [routerLink]="[data().mode === 'edit' ? '../../' : '../']"
-        >Back to Menu Items</a
-      >
-      } @else { @for (key of [params().get('id')]; track key) {
-      <ngx-create-menu-item-page />
-      } }
+        <h2>Menu item not found</h2>
+        <p>This menu item is no longer available.</p>
+        <a
+          mat-flat-button
+          ngxButton
+          shape="chevron"
+          surface="outline"
+          [routerLink]="[data().mode === 'edit' ? '../../' : '../']"
+          >Back to Menu Items</a
+        >
+      } @else {
+        @for (key of [params().get('id')]; track key) {
+          <ngx-create-menu-item-page />
+        }
+      }
     </main>
   `,
   styles: [
     `
+      :host {
+        display: block;
+        min-width: 0;
+      }
       .menu-item-page {
         max-width: 797px;
         margin: 2rem auto;
@@ -91,6 +102,7 @@ import { CreateMenuItemPage } from './create-menu-item-page.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MenuItemPageComponent {
+  readonly actionBarHeight = signal(64);
   readonly store = inject(MenuStore);
   private readonly route = inject(ActivatedRoute);
   readonly params = toSignal(this.route.paramMap, {

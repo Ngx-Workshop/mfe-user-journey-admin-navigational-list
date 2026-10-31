@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   inject,
+  signal,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -14,6 +15,9 @@ import { MenuListComponent } from './menu-list/menu-list.component';
 import { MenuManagenmentActions } from './menu-managenment-actions.component';
 
 @Component({
+  host: {
+    '[style.--menu-action-bar-height.px]': 'actionBarHeight()',
+  },
   selector: 'ngx-menu-management',
   providers: [MenuSearchService],
   imports: [
@@ -27,6 +31,7 @@ import { MenuManagenmentActions } from './menu-managenment-actions.component';
   ],
   template: `
     <ngx-menu-managenment-actions
+      (heightChange)="actionBarHeight.set($event)"
       [saveNotification]="store.saveNotification()"
       [unplacedCount]="store.ready() ? store.unplaced().length : null"
     >
@@ -42,19 +47,19 @@ import { MenuManagenmentActions } from './menu-managenment-actions.component';
     </ngx-menu-managenment-actions>
     <main class="menu-management">
       @if (store.error()) {
-      <div class="menu-management__error" role="alert">
-        <mat-icon>error_outline</mat-icon
-        ><span>{{ store.error() }}</span>
-        <button
-          mat-flat-button
-          ngxButton
-          surface="outline"
-          (click)="store.refresh()"
-          [disabled]="store.loading()"
-        >
-          Retry
-        </button>
-      </div>
+        <div class="menu-management__error" role="alert">
+          <mat-icon>error_outline</mat-icon
+          ><span>{{ store.error() }}</span>
+          <button
+            mat-flat-button
+            ngxButton
+            surface="outline"
+            (click)="store.refresh()"
+            [disabled]="store.loading()"
+          >
+            Retry
+          </button>
+        </div>
       }
       <div class="menu-management__content">
         <ngx-menu-list />
@@ -105,6 +110,7 @@ import { MenuManagenmentActions } from './menu-managenment-actions.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MenuManagementComponent {
+  readonly actionBarHeight = signal(64);
   readonly store = inject(MenuStore);
   constructor() {
     this.store.ensureLoaded();

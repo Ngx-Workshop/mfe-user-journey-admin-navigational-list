@@ -29,3 +29,5 @@
 - [014 Edit step form](014-edit-step-form/spec.md) — Shared Create/Edit wizard; verification recorded in handoff.
 
 - [015 Unplaced action status](015-unplaced-action-status/spec.md) — Catalog-wide action-bar indicator; verification recorded in handoff.
+
+- [016 Shared workspace feedback](016-shared-workspace-feedback/spec.md) — Implemented locally; hosted acceptance pending.

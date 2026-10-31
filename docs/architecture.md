@@ -167,3 +167,23 @@ The edit header's Archive toggle now saves immediately via the existing store ar
 MenuStore now owns the canonical active/unreachable destination projection. MenuWorkspaceViewModel applies local matches to this projection for the repair panel. Management and routed Create/Edit pass the catalog-wide count into the action bar independently of workspace filters. Initial unknown count displays an em dash; refresh/error retains the last known canonical count. Orphan/cycle/unreachable detection matches the repair panel and excludes archived items.
 
 The presentational action bar follows the orchestrator dev-mode status pattern: decorative dot, emphasized count, singular/plural text and polite atomic live region. Zero is muted; nonzero uses semantic warning color/glow. Save notifications and projected actions retain their behavior, and existing measured action-bar height handles wrapping.
+
+## Shared action bar adoption — 2026-10-31
+
+The app consumes published design-system 21.0.9 NgxActionBar, NgxSaveFeedback and
+NgxInlineStatus. Its existing action component is a thin domain adapter for labels,
+notifications and action intent, with display:contents so the shared sticky element
+belongs to the workspace layout. It no longer duplicates live-region/status markup,
+visual styles or ResizeObserver code. The owning workspace binds shared heightChange
+to its existing sizing CSS variable. Stores retain persistence, notification timers,
+retry execution and canonical counts. Routes, DTOs and federation exposures are unchanged.
+
+The design-system singleton now requires ^21.0.9: older releases lack the new exports.
+The local admin shell still pins 21.0.8; upgrade it to the published 21.0.9 or newer
+compatible release before hosted acceptance. This feature does not modify the shell.
+
+Navigation retains --menu-toolbar-top (96px desktop/76px narrow; standalone 0px),
+unknown/zero/singular/plural unplaced labels, and "Try the action again" failure
+instructions without a generic retry button. MenuManagementComponent and
+MenuItemPageComponent own --menu-action-bar-height through local signals; no parent
+inline-style mutation or teardown restoration remains in the action adapter.
