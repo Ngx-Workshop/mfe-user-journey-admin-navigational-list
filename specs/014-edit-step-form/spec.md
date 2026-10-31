@@ -1,0 +1,7 @@
+# Edit step form
+
+Edit navigation records through the same Identity and access, Route and position, and Presentation steps used by Create. Prefill the existing record, show edit-specific heading/save labels, and retain the archive control in the panel header, aligned to the right. The live archive value selects secondary panel tone (primary when active). Keep this edit-only control available across steps and disabled while busy. Preserve the stored position on an untouched edit; exclude self from placement choices. Parent/classification changes reset insertion to first, as in creation.
+
+Save only from the valid final step using the existing PATCH/store workflow, retaining duplicate protection, pending navigation guard, failure retry, parent-clear orchestration and host-relative completion. Changing the edit ID must recreate form and progression. Initial loading, errors and missing records remain explicit. The Route Path label must remain floated above a hydrated input before focus, including during reference-data loading. Dialog forms and federation/API contracts are preserved.
+
+Archive checkbox changes save immediately through the archive/unarchive command, independently of full-form validity or the final-step Save action. Keep the edit route, step and all other draft fields. Reuse action-bar saving/saved/error notifications and pending write protection. On failure restore the previous archive value/tone and allow retry; both archive and restore are immediate commands.

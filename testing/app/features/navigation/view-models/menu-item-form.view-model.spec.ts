@@ -11,6 +11,7 @@ import {
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MenuItemFormService } from '../../../../../src/app/features/navigation/utils/menu-item-form.service';
 import { MenuItemFormViewModel } from '../../../../../src/app/features/navigation/view-models/menu-item-form.view-model';
+import { mfeRemote } from '../mfe.fixture';
 import { menuItem } from '../menu.fixture';
 
 describe('MenuItemFormViewModel', () => {
@@ -38,7 +39,7 @@ describe('MenuItemFormViewModel', () => {
           provide: MAT_DIALOG_DATA,
           useValue: {
             mode: 'edit',
-            item: menuItem({ parentId: parent._id }),
+            item: menuItem({ parentId: parent._id, routePath: 'dashboard' }),
           },
         },
         { provide: MatDialogRef, useValue: dialog },
@@ -53,6 +54,7 @@ describe('MenuItemFormViewModel', () => {
     http
       .expectOne('/api/navigational-list')
       .flush([parent, menuItem({ parentId: parent._id })]);
+    http.expectOne('/api/mfe-remotes/domain/admin').flush([mfeRemote()]);
     TestBed.tick();
   });
   afterEach(() => http.verify());
@@ -64,6 +66,7 @@ describe('MenuItemFormViewModel', () => {
       parent._id,
     ]);
     vm.form.controls.domain.setValue('WORKSHOP');
+    http.expectOne('/api/mfe-remotes/domain/workshop').flush([]);
     TestBed.tick();
     expect(vm.parentOptions().length).toBe(1);
     expect(vm.form.controls.parentId.value).toBe('');

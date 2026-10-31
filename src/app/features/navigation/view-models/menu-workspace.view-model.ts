@@ -36,12 +36,12 @@ export class MenuWorkspaceViewModel {
         )
       )
   );
-  readonly unplaced = computed(() => {
-    const reachable = hierarchyIds(this.store.hierarchy());
-    return this.filtered().filter(
-      (item) => !item.archived && !reachable.has(item._id)
-    );
-  });
+  readonly unplaced = computed(() =>
+    this.store.unplaced().filter((item) => this.matchIds().has(item._id))
+  );
+  readonly listCount = computed(
+    () => this.filtered().length - this.unplaced().length
+  );
   readonly archived = computed(() =>
     this.filtered().filter((item) => item.archived)
   );

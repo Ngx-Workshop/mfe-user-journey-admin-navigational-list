@@ -1,3 +1,4 @@
+import { NgTemplateOutlet } from '@angular/common';
 import { NgxPanel } from '@tmdjr/ngx-workshop-design-system';
 import type { MenuItemForm } from '../../utils/menu-item-form.service';
 
@@ -16,6 +17,7 @@ import { ParentOption } from '../../models/menu.types';
   selector: 'ngx-menu-item-parent-selection',
   standalone: true,
   imports: [
+    NgTemplateOutlet,
     NgxPanel,
     ReactiveFormsModule,
     MatFormFieldModule,
@@ -23,12 +25,19 @@ import { ParentOption } from '../../models/menu.types';
     MatProgressSpinnerModule,
   ],
   template: `
+    @if (embedded) {
+    <ng-container [ngTemplateOutlet]="fields" />
+    } @else {
     <ngx-panel
       heading="Hierarchy"
       eyebrow="CONFIGURATION"
       shape="chamfered"
       background="solid"
     >
+      <ng-container [ngTemplateOutlet]="fields" />
+    </ngx-panel>
+    }
+    <ng-template #fields>
       <div
         class="menu-item-parent-selection__form-section"
         [formGroup]="form"
@@ -45,25 +54,25 @@ import { ParentOption } from '../../models/menu.types';
               [disabled]="loading"
             >
               @for (option of parentOptions; track option.value) {
-                <mat-option
-                  [value]="option.value"
-                  [disabled]="option.disabled"
-                >
-                  {{ option.label }}
-                </mat-option>
+              <mat-option
+                [value]="option.value"
+                [disabled]="option.disabled"
+              >
+                {{ option.label }}
+              </mat-option>
               }
             </mat-select>
-            <mat-hint>
-              Select a parent item to create a hierarchical
-              relationship, or choose "None" for a root-level item.
-            </mat-hint>
+            <mat-hint
+              >Select a parent item to create a hierarchical
+              relationship.</mat-hint
+            >
             @if (loading) {
-              <mat-spinner matSuffix diameter="20"></mat-spinner>
+            <mat-spinner matSuffix diameter="20"></mat-spinner>
             }
           </mat-form-field>
         </div>
       </div>
-    </ngx-panel>
+    </ng-template>
   `,
   styles: [
     `
@@ -107,6 +116,7 @@ import { ParentOption } from '../../models/menu.types';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MenuItemParentSelectionComponent {
+  @Input() embedded = false;
   @Input({ required: true }) form!: MenuItemForm;
   @Input() parentOptions: ParentOption[] = [];
   @Input() loading = false;

@@ -8,149 +8,99 @@ import {
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
-
 export interface MenuStatistic {
   title: string;
   value: string | number;
   description?: string;
 }
-
 @Component({
   selector: 'ngx-menu-statistics',
   imports: [MatButtonModule, MatIconModule, MatTooltipModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <section
-      class="menu-statistics"
-      aria-label="Catalog overview"
-      [attr.aria-busy]="loading"
-    >
-      <span class="menu-statistics__label"
-        ><span
-          class="menu-statistics__indicator"
-          aria-hidden="true"
-        ></span
-        >CATALOG OVERVIEW</span
-      >
+    <section aria-label="Catalog overview" [attr.aria-busy]="loading">
       <dl class="menu-statistics__counts">
-        @for (stat of statistics.slice(0, 3); track stat.title) {
-          <div class="menu-statistics__metric">
-            <dt>{{ stat.title }}</dt>
-            <dd>{{ stat.value }}</dd>
+        @for (label of labels; track label; let i = $index) {
+          <div
+            class="menu-statistics__metric"
+            [attr.aria-label]="statistics[i]?.title || label"
+          >
+            <dt>{{ label }}</dt>
+            <dd>{{ statistics[i]?.value ?? '—' }}</dd>
           </div>
         }
       </dl>
-      <span class="menu-statistics__sync" role="status">{{
-        loading
-          ? 'Syncing catalog…'
-          : statistics.length
-            ? 'Catalog loaded'
-            : 'Awaiting catalog'
-      }}</span>
-      <button
-        mat-icon-button
-        type="button"
-        aria-label="Refresh catalog"
-        matTooltip="Refresh catalog"
-        matTooltipClass="ngx-design-system-overlay"
-        [disabled]="loading || busy"
-        (click)="refreshClick.emit()"
-      >
-        <mat-icon>sync</mat-icon>
-      </button>
+      <div class="menu-statistics__sync">
+        <span role="status">{{
+          loading
+            ? 'Syncing catalog…'
+            : statistics.length
+              ? 'Catalog loaded'
+              : 'Awaiting catalog'
+        }}</span>
+        <button
+          mat-icon-button
+          type="button"
+          aria-label="Refresh catalog"
+          matTooltip="Refresh catalog"
+          matTooltipClass="ngx-design-system-overlay"
+          [disabled]="loading || busy"
+          (click)="refreshClick.emit()"
+        >
+          <mat-icon>sync</mat-icon>
+        </button>
+      </div>
     </section>
   `,
   styles: [
     `
+      @use '@angular/material' as mat;
       :host {
         display: block;
         min-width: 0;
-      }
-      .menu-statistics {
-        display: flex;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 8px 24px;
-        min-height: 48px;
-        border-bottom: 1px solid var(--ngx-color-border);
-      }
-      .menu-statistics__label {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font: var(--ngx-font-label);
-        color: var(--ngx-color-muted);
-        font-size: 0.65rem;
-        letter-spacing: 0.08em;
-      }
-      .menu-statistics__indicator {
-        width: 6px;
-        height: 6px;
-        background: var(--ngx-color-primary);
-        box-shadow: 0 0 8px
-          color-mix(
-            in srgb,
-            var(--ngx-color-primary) 40%,
-            transparent
-          );
+        @include mat.icon-button-density(-3);
       }
       .menu-statistics__counts {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px 24px;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0.35rem;
         margin: 0;
       }
       .menu-statistics__metric {
         display: flex;
-        align-items: baseline;
-        gap: 8px;
+        flex-direction: column;
+        gap: 2px;
+        padding: 0.6rem 0.45rem;
+        color: var(--ngx-color-muted);
+        background: var(--ngx-color-surface);
+        border: 1px solid var(--ngx-color-border);
+        border-radius: var(--ngx-radius);
+        text-align: center;
       }
       dt {
-        color: var(--ngx-color-muted);
-        font-size: 0.72rem;
+        font-size: 0.65rem;
       }
       dd {
+        order: -1;
         margin: 0;
-        color: var(--ngx-color-primary);
+        color: var(--ngx-color-text);
         font: 600 1rem/1.5 var(--ngx-font-mono);
+        overflow-wrap: anywhere;
       }
       .menu-statistics__sync {
-        margin-left: auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 4px 0 8px;
         color: var(--ngx-color-muted);
-        font-size: 0.7rem;
-      }
-      @media (max-width: 900px) {
-        .menu-statistics__label,
-        .menu-statistics__sync {
-          display: none;
-        }
-        .menu-statistics {
-          gap: 4px;
-        }
-        .menu-statistics__counts {
-          flex: 1;
-          gap: 8px 16px;
-        }
-      }
-      @media (max-width: 480px) {
-        dt {
-          font-size: 0.65rem;
-        }
-        .menu-statistics__counts {
-          gap: 12px;
-        }
-        .menu-statistics__metric {
-          flex-direction: column;
-          gap: 0;
-        }
-        .menu-statistics {
-          padding: 8px 0;
-        }
+        font-size: 0.65rem;
       }
     `,
   ],
 })
 export class MenuStatisticsComponent {
+  readonly labels = ['Total', 'Active', 'Archived'];
   @Input() statistics: MenuStatistic[] = [];
   @Input() loading = false;
   @Input() busy = false;

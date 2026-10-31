@@ -1,3 +1,4 @@
+import { NgTemplateOutlet } from '@angular/common';
 import { NgxPanel } from '@tmdjr/ngx-workshop-design-system';
 import type { MenuItemForm } from '../../utils/menu-item-form.service';
 
@@ -17,6 +18,7 @@ import { RoleOption } from '../../models/menu.types';
   selector: 'ngx-menu-item-configuration',
   standalone: true,
   imports: [
+    NgTemplateOutlet,
     NgxPanel,
     ReactiveFormsModule,
     MatFormFieldModule,
@@ -25,60 +27,75 @@ import { RoleOption } from '../../models/menu.types';
     MatSelectModule,
   ],
   template: `
-    <ngx-panel
-      heading="Configuration"
-      eyebrow="CONFIGURATION"
-      shape="chamfered"
-      background="solid"
-    >
+    @if (embedded) {
+      <ng-container [ngTemplateOutlet]="fieldTemplate" />
+    } @else {
+      <ngx-panel
+        heading="Configuration"
+        eyebrow="CONFIGURATION"
+        shape="chamfered"
+        background="solid"
+      >
+        <ng-container [ngTemplateOutlet]="fieldTemplate" />
+      </ngx-panel>
+    }
+    <ng-template #fieldTemplate>
       <div
         class="menu-item-configuration__form-section"
         [formGroup]="form"
       >
-        <div class="menu-item-configuration__form-row">
-          <mat-form-field
-            subscriptSizing="dynamic"
-            appearance="outline"
-          >
-            <mat-label>Sort ID</mat-label>
-            <input
-              matInput
-              type="number"
-              formControlName="sortId"
-              placeholder="Numeric sort order"
-            />
-            @if (form.get('sortId')?.hasError('required')) {
-              <mat-error>Sort ID is required</mat-error>
-            }
-            @if (form.get('sortId')?.hasError('min')) {
-              <mat-error>Sort ID must be 0 or greater</mat-error>
-            }
-          </mat-form-field>
-        </div>
-
-        <div class="menu-item-configuration__form-row">
-          <mat-form-field
-            subscriptSizing="dynamic"
-            appearance="outline"
-          >
-            <mat-label>Role required</mat-label>
-            <mat-select
-              panelClass="ngx-design-system-overlay"
-              formControlName="role"
+        @if (fields.includes('sortId')) {
+          <div class="menu-item-configuration__form-row">
+            <mat-form-field
+              subscriptSizing="dynamic"
+              appearance="outline"
             >
-              @for (option of roleOptions; track option.value) {
-                <mat-option [value]="option.value">{{
-                  option.label
-                }}</mat-option>
+              <mat-label>Sort ID</mat-label>
+              <input
+                matInput
+                type="number"
+                formControlName="sortId"
+                placeholder="Numeric sort order"
+              />
+              @if (form.get('sortId')?.hasError('required')) {
+                <mat-error>Sort ID is required</mat-error>
               }
-            </mat-select>
-          </mat-form-field>
-          <mat-checkbox formControlName="archived">
-            Archived
-          </mat-checkbox>
-        </div>
+              @if (form.get('sortId')?.hasError('min')) {
+                <mat-error>Sort ID must be 0 or greater</mat-error>
+              }
+            </mat-form-field>
+          </div>
+        }
+
+        @if (fields.includes('role') || fields.includes('archived')) {
+          <div class="menu-item-configuration__form-row">
+            @if (fields.includes('role')) {
+              <mat-form-field
+                subscriptSizing="dynamic"
+                appearance="outline"
+              >
+                <mat-label>Role required</mat-label>
+                <mat-select
+                  panelClass="ngx-design-system-overlay"
+                  formControlName="role"
+                >
+                  @for (option of roleOptions; track option.value) {
+                    <mat-option [value]="option.value">{{
+                      option.label
+                    }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            }
+            @if (fields.includes('archived')) {
+              <mat-checkbox formControlName="archived">
+                Archived
+              </mat-checkbox>
+            }
+          </div>
+        }
       </div>
-    </ngx-panel>
+    </ng-template>
   `,
   styles: [
     `
@@ -124,6 +141,12 @@ import { RoleOption } from '../../models/menu.types';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MenuItemConfigurationComponent {
+  @Input() embedded = false;
+  @Input() fields: readonly ('sortId' | 'role' | 'archived')[] = [
+    'sortId',
+    'role',
+    'archived',
+  ];
   @Input({ required: true }) form!: MenuItemForm;
   @Input({ required: true }) roleOptions!: RoleOption[];
 }

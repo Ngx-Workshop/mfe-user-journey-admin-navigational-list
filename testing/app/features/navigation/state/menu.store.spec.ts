@@ -18,7 +18,10 @@ describe('MenuStore', () => {
     store = TestBed.inject(MenuStore);
     http = TestBed.inject(HttpTestingController);
   });
-  afterEach(() => http.verify());
+  afterEach(() => {
+    http.verify();
+    jasmine.clock().uninstall();
+  });
 
   it('shares one initial request and derives hierarchy/statistics from all items', () => {
     store.ensureLoaded();
@@ -131,5 +134,78 @@ describe('MenuStore', () => {
     http.expectOne(url).flush([menuItem({ archived: true })]);
     expect(store.items()[0].archived).toBeTrue();
     expect(store.pending()).toBeFalse();
+  });
+  it('reports confirmed saves and prevents an old success timer from clearing newer work', () => {
+    jasmine.clock().install();
+    store.refresh();
+    http.expectOne(url).flush([menuItem()]);
+    store.archive$(menuItem()._id).subscribe();
+    expect(store.saveNotification()).toEqual({
+      status: 'saving',
+      name: 'Dashboard',
+    });
+    http
+      .expectOne(`${url}/${menuItem()._id}/archive`)
+      .flush(menuItem({ archived: true }));
+    expect(store.saveNotification()?.status).toBe('saved');
+    http.expectOne(url).flush([menuItem({ archived: true })]);
+    jasmine.clock().tick(2000);
+    store.unarchive$(menuItem()._id).subscribe();
+    jasmine.clock().tick(1000);
+    expect(store.saveNotification()?.status).toBe('saving');
+    http
+      .expectOne(`${url}/${menuItem()._id}/unarchive`)
+      .flush(menuItem());
+    http.expectOne(url).flush([menuItem()]);
+    jasmine.clock().tick(2999);
+    expect(store.saveNotification()?.status).toBe('saved');
+    jasmine.clock().tick(1);
+    expect(store.saveNotification()).toBeNull();
+  });
+
+  it('keeps errors visible and only labels a multi-request parent change saved after both writes', () => {
+    jasmine.clock().install();
+    store.refresh();
+    http.expectOne(url).flush([menuItem({ parentId: 'parent' })]);
+    store
+      .update$(menuItem()._id, {
+        menuItemText: 'Edited',
+        parentId: undefined,
+      })
+      .subscribe({ error: () => {} });
+    http
+      .expectOne(`${url}/${menuItem()._id}`)
+      .flush(
+        menuItem({ menuItemText: 'Edited', parentId: 'parent' })
+      );
+    expect(store.saveNotification()).toEqual({
+      status: 'saving',
+      name: 'Edited',
+    });
+    http
+      .expectOne(`${url}/sort`)
+      .flush('failed', { status: 500, statusText: 'Error' });
+    jasmine.clock().tick(5000);
+    expect(store.saveNotification()).toEqual({
+      status: 'error',
+      name: 'Edited',
+    });
+    expect(store.items()[0].parentId).toBe('parent');
+  });
+
+  it('distinguishes successful persistence from a failed refresh', () => {
+    jasmine.clock().install();
+    store.refresh();
+    http.expectOne(url).flush([menuItem()]);
+    store.reorder$({ _id: menuItem()._id, sortId: 2 }).subscribe();
+    http.expectOne(`${url}/sort`).flush({});
+    http.expectOne(url).flush('unavailable', {
+      status: 503,
+      statusText: 'Unavailable',
+    });
+    expect(store.saveNotification()?.status).toBe('saved');
+    expect(store.error()).toContain('Failed to load');
+    jasmine.clock().tick(3000);
+    expect(store.saveNotification()).toBeNull();
   });
 });

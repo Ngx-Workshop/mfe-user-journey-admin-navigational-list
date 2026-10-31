@@ -1,4 +1,3 @@
-import { NgxButton } from '@tmdjr/ngx-workshop-design-system';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -13,12 +12,11 @@ import {
   CanDeactivateFn,
   RouterLink,
 } from '@angular/router';
-import {
-  MenuItemFormComponent,
-  MenuItemFormDialogData,
-} from '../components/menu-item-form/menu-item-form.component';
+import { NgxButton } from '@tmdjr/ngx-workshop-design-system';
+import type { MenuItemFormDialogData } from '../components/menu-item-form/menu-item-form.component';
 import { MenuManagenmentActions } from '../components/menu-managenment-actions.component';
 import { MenuStore } from '../state/menu.store';
+import { CreateMenuItemPage } from './create-menu-item-page.component';
 
 @Component({
   selector: 'ngx-menu-item-page',
@@ -27,51 +25,64 @@ import { MenuStore } from '../state/menu.store';
     RouterLink,
     MatButtonModule,
     MatIconModule,
-    MenuItemFormComponent,
+    CreateMenuItemPage,
     MenuManagenmentActions,
   ],
   template: `
-    <ngx-menu-managenment-actions>
+    <ngx-menu-managenment-actions
+      [saveNotification]="store.saveNotification()"
+      [unplacedCount]="store.ready() ? store.unplaced().length : null"
+    >
       <a
         mat-flat-button
         ngxButton
+        shape="chevron"
+        surface="outline"
         [routerLink]="[data().mode === 'edit' ? '../../' : '../']"
-        ><mat-icon>arrow_back</mat-icon>Back to Menu Items</a
+        ><mat-icon>arrow_forward</mat-icon>Destinations</a
       >
     </ngx-menu-managenment-actions>
     <main class="menu-item-page">
       @if (store.loading() && !store.ready()) {
-        <p role="status">Loading menu item…</p>
+      <p role="status">Loading menu item…</p>
       } @else if (!store.ready() && store.error()) {
-        <p role="alert">{{ store.error() }}</p>
-        <button
-          mat-flat-button
-          ngxButton
-          surface="outline"
-          (click)="store.refresh()"
-        >
-          Retry
-        </button>
-        <a mat-flat-button ngxButton surface="outline" routerLink=".."
-          >Back to Menu Items</a
-        >
+      <p role="alert">{{ store.error() }}</p>
+      <button
+        mat-flat-button
+        ngxButton
+        surface="outline"
+        (click)="store.refresh()"
+      >
+        Retry
+      </button>
+      <a
+        mat-flat-button
+        ngxButton
+        shape="chevron"
+        surface="outline"
+        [routerLink]="[data().mode === 'edit' ? '../../' : '../']"
+        >Back to Menu Items</a
+      >
       } @else if (data().mode === 'edit' && !data().item) {
-        <h2>Menu item not found</h2>
-        <p>This menu item is no longer available.</p>
-        <a mat-flat-button ngxButton surface="outline" routerLink=".."
-          >Back to Menu Items</a
-        >
-      } @else {
-        @for (key of [params().get('id')]; track key) {
-          <ngx-menu-item-form />
-        }
-      }
+      <h2>Menu item not found</h2>
+      <p>This menu item is no longer available.</p>
+      <a
+        mat-flat-button
+        ngxButton
+        shape="chevron"
+        surface="outline"
+        [routerLink]="[data().mode === 'edit' ? '../../' : '../']"
+        >Back to Menu Items</a
+      >
+      } @else { @for (key of [params().get('id')]; track key) {
+      <ngx-create-menu-item-page />
+      } }
     </main>
   `,
   styles: [
     `
       .menu-item-page {
-        max-width: 960px;
+        max-width: 797px;
         margin: 2rem auto;
         padding: 0 1rem;
       }

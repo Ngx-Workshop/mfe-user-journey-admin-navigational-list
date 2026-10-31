@@ -80,7 +80,8 @@ export interface MenuItemFormDialogData {
         [formGroup]="form"
         class="menu-item-form__form"
       >
-        <ngx-menu-item-basic-info [form]="form">
+        <ngx-menu-item-basic-info [form]="form"
+          [routeState]="vm.routes.state()" (retryRoutes)="vm.routes.reload()">
         </ngx-menu-item-basic-info>
 
         <ngx-menu-item-classification
@@ -105,7 +106,7 @@ export interface MenuItemFormDialogData {
         </ngx-menu-item-configuration>
 
         <details class="menu-item-form__advanced">
-          <summary>Optional SVG icons</summary>
+          <summary>Optional menu icons</summary>
           <ngx-menu-item-svg-icons [form]="form" />
         </details>
       </form>

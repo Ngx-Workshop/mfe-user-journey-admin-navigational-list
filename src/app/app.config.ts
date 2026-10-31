@@ -11,9 +11,12 @@ import {
 import { ReactiveFormsModule } from '@angular/forms';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
+import { provideAssetManager } from '@tmdjr/ngx-asset-manager';
+
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
+    provideAssetManager(),
     provideZonelessChangeDetection(),
     provideAnimationsAsync(),
     provideHttpClient(withInterceptorsFromDi()),

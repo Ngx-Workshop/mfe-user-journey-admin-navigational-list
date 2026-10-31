@@ -9,6 +9,7 @@ import { MatSelectHarness } from '@angular/material/select/testing';
 import { TestBed } from '@angular/core/testing';
 import App from '../../src/app/app';
 import { MatDialog, MatDialogState } from '@angular/material/dialog';
+import { mfeRemote } from './features/navigation/mfe.fixture';
 import { MenuItemFormComponent } from '../../src/app/features/navigation/components/menu-item-form/menu-item-form.component';
 import { MenuStore } from '../../src/app/features/navigation/state/menu.store';
 import { menuItem } from './features/navigation/menu.fixture';
@@ -53,6 +54,55 @@ describe('App navigation journey', () => {
     expect(fixture.nativeElement.textContent).toContain(
       'Archived link'
     );
+    http.verify();
+  });
+  it('shows a catalog-wide unplaced status through filtering, refreshes and retained-data errors', async () => {
+    TestBed.configureTestingModule({
+      imports: [App],
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
+    });
+    const fixture = TestBed.createComponent(App);
+    const http = TestBed.inject(HttpTestingController);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const status = () => fixture.nativeElement.querySelector('.menu-managenment-actions__unplaced') as HTMLElement;
+    const text = () => status().textContent!.replace(/\s+/g, ' ').trim();
+    expect(text()).toBe('Unplaced destinations: —');
+    expect(status().getAttribute('role')).toBe('status');
+    expect(status().getAttribute('aria-live')).toBe('polite');
+    const orphan = menuItem({ _id: 'orphan', parentId: 'missing', menuItemText: 'Orphan' });
+    const archived = menuItem({ _id: 'archived-orphan', parentId: 'missing', archived: true });
+    http.expectOne('/api/navigational-list').flush([menuItem(), orphan, archived]);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect(text()).toBe('1 unplaced destination');
+    expect(status().classList.contains('menu-managenment-actions__unplaced--active')).toBeTrue();
+    const search = fixture.nativeElement.querySelector('ngx-menu-filters input') as HTMLInputElement;
+    search.value = 'Dashboard';
+    search.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect(text()).toBe('1 unplaced destination');
+    const store = TestBed.inject(MenuStore);
+    store.refresh();
+    http.expectOne('/api/navigational-list').flush([
+      menuItem(), orphan, archived,
+      menuItem({ _id: 'cycle-a', parentId: 'cycle-b' }),
+      menuItem({ _id: 'cycle-b', parentId: 'cycle-a' }),
+    ]);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect(text()).toBe('3 unplaced destinations');
+    store.refresh();
+    http.expectOne('/api/navigational-list').flush('failed', { status: 500, statusText: 'Error' });
+    fixture.detectChanges();
+    expect(text()).toBe('3 unplaced destinations');
+    store.refresh();
+    http.expectOne('/api/navigational-list').flush([menuItem(), { ...orphan, parentId: undefined }, archived]);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect(text()).toBe('0 unplaced destinations');
+    expect(status().classList.contains('menu-managenment-actions__unplaced--active')).toBeFalse();
     http.verify();
   });
   it('filters by a named role and offers reset for no matches', async () => {
@@ -148,8 +198,8 @@ describe('App navigation journey', () => {
     await fixture.whenStable();
     dialog.componentInstance.form.patchValue({
       menuItemText: 'New destination',
-      routePath: '/new',
       domain: 'ADMIN',
+      routePath: 'new',
       structuralSubtype: 'NAV',
       state: 'FULL',
     });
@@ -158,12 +208,15 @@ describe('App navigation journey', () => {
     const submit = document.querySelector(
       '.cdk-overlay-container button[type="submit"]'
     ) as HTMLButtonElement;
+    http.expectOne('/api/mfe-remotes/domain/admin').flush([mfeRemote('New')]);
+    fixture.detectChanges();
     expect(submit.form?.id).toBe(dialog.componentInstance.vm.formId);
     expect(submit.disabled).toBeFalse();
     submit.click();
     const request = http.expectOne('/api/navigational-list');
     expect(request.request.method).toBe('POST');
     expect(request.request.body.menuItemText).toBe('New destination');
+    expect(request.request.body.routePath).toBe('new');
     request.flush(menuItem({ menuItemText: 'New destination' }));
     http
       .expectOne('/api/navigational-list')
@@ -217,7 +270,7 @@ describe('App navigation journey', () => {
     http.verify();
   });
 
-  it('renders statistics above the list and shares refreshed data', async () => {
+  it('renders canonical statistics and refresh inside the Filter console', async () => {
     TestBed.configureTestingModule({
       imports: [App],
       providers: [
@@ -233,9 +286,30 @@ describe('App navigation journey', () => {
     http.expectOne('/api/navigational-list').flush([menuItem()]);
     fixture.detectChanges();
     await fixture.whenStable();
-    expect(fixture.nativeElement.textContent).toContain(
-      'Total Menu Items'
+    const stats = fixture.nativeElement.querySelector(
+      'ngx-menu-filters ngx-panel ngx-menu-statistics'
     );
+    expect(stats).not.toBeNull();
+    expect(
+      fixture.nativeElement.querySelectorAll('ngx-menu-statistics')
+        .length
+    ).toBe(1);
+    expect(
+      fixture.nativeElement.querySelector(
+        '.menu-management > ngx-menu-statistics'
+      )
+    ).toBeNull();
+    const search = fixture.nativeElement.querySelector(
+      'ngx-menu-filters input'
+    ) as HTMLInputElement;
+    search.value = 'No matching destination';
+    search.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect(stats.querySelector('dd').textContent.trim()).toBe('1');
+    expect(
+      fixture.nativeElement.querySelector('ngx-menu-empty-state')
+    ).not.toBeNull();
     const store = TestBed.inject(MenuStore);
     expect(
       fixture.nativeElement.querySelectorAll(

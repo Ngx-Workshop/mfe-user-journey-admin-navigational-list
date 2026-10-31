@@ -1,8 +1,4 @@
 import {
-  NgxStatus,
-  NgxButton,
-} from '@tmdjr/ngx-workshop-design-system';
-import {
   ChangeDetectionStrategy,
   Component,
   EventEmitter,
@@ -12,6 +8,7 @@ import {
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { NgxStatus } from '@tmdjr/ngx-workshop-design-system';
 import { MenuItemDto } from '@tmdjr/service-navigational-list-contracts';
 
 import { menuRouteUrl } from '../../utils/menu-route';
@@ -25,7 +22,6 @@ export interface MenuItemActionEvent {
   selector: 'ngx-menu-item-card',
   imports: [
     NgxStatus,
-    NgxButton,
     MatButtonModule,
     MatIconModule,
     MatTooltipModule,
@@ -69,15 +65,13 @@ export interface MenuItemActionEvent {
       />
       <div class="menu-item-card__actions">
         <button
-          mat-flat-button
-          ngxButton
-          surface="outline"
+          mat-icon-button
           type="button"
           (click)="onAction('edit')"
           [disabled]="disabled"
           [attr.aria-label]="'Edit ' + item.menuItemText"
         >
-          Edit
+          <mat-icon>edit</mat-icon>
         </button>
         <button
           mat-icon-button
@@ -113,6 +107,7 @@ export interface MenuItemActionEvent {
   styles: [
     `
       :host {
+        container-type: inline-size;
         display: block;
         min-width: 0;
       }
@@ -127,9 +122,7 @@ export interface MenuItemActionEvent {
         border-bottom: 1px solid var(--ngx-color-border);
         border-left: 2px solid transparent;
         background: var(--ngx-color-surface-low);
-        transition:
-          background 150ms,
-          border-color 150ms;
+        transition: background 150ms, border-color 150ms;
       }
       .menu-item-card:hover,
       .menu-item-card:focus-within {
@@ -199,6 +192,7 @@ export interface MenuItemActionEvent {
           gap: 8px;
         }
         .menu-item-card__status {
+          justify-self: end;
           grid-column: 3;
           grid-row: 1;
         }
@@ -207,7 +201,7 @@ export interface MenuItemActionEvent {
           justify-content: flex-end;
         }
       }
-      @media (max-width: 640px) {
+      @container (max-width: 640px) {
         .menu-item-card {
           grid-template-columns: minmax(0, 1fr) auto;
           padding: 12px;
@@ -217,6 +211,7 @@ export interface MenuItemActionEvent {
           grid-column: 1;
         }
         .menu-item-card__status {
+          justify-self: end;
           grid-column: 2;
           grid-row: 1;
         }
@@ -224,10 +219,8 @@ export interface MenuItemActionEvent {
           grid-column: 1;
         }
         .menu-item-card__actions {
-          grid-column: 1 / -1;
-          flex-wrap: wrap;
-          justify-content: flex-end;
-          max-width: none;
+          grid-column: 2;
+          grid-row: 2;
         }
       }
       @media (prefers-reduced-motion: reduce) {

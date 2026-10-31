@@ -43,3 +43,26 @@ After changing webpack configuration, restart the existing watcher once to load 
 ## Design system verification
 
 The standalone app now supplies the design-system theme fallback. Its default catalog read still requires a service/proxy; isolated visual checks can serve the production output with temporary GET-only fixtures outside shipped source. See specs/005-design-system/handoff.md for evidence. Hosted rendering still requires the shell's shared design-system runtime and global adapter/overlay styles.
+
+
+## Domain route selection — 2026-10-30
+
+Feature 012 uses installed orchestrator contracts ^0.0.57. All 48 ChromeHeadless
+tests pass; layout, Angular typecheck, test TypeScript compilation and isolated
+production build pass. HTTP doubles cover domain mapping/cancellation/retry and
+Material harnesses cover searching/slug selection and invalid typing. The build
+retains the unused menu-dialog.service.ts warning; license output is non-empty.
+No live gateway/service reads or writes were used. The running static server's
+dist was preserved; preview changes through a normal local build when desired.
+See specs/012-domain-route-selection/handoff.md for integration acceptance.
+
+Hosted correction for feature 012: import MatAutocomplete, MatAutocompleteTrigger
+and MatOption from the same shared autocomplete entry point. Tests of standalone
+components cannot alone establish federation content-query identity. The local
+admin-shell override now visibly opens the MFE list and selects document-editor;
+48 tests and production build pass. See the feature handoff's correction record.
+
+
+## Menu icon assets — 2026-10-30
+
+Feature 013 verifies 50 admin tests plus 4 tests in each structural remote. The normal admin production build and three production watch builds pass. Structural optimized builds pass with license extraction disabled for verification; their normal production builds retain the existing license-plugin undefined-trim failure. See specs/013-menu-icon-assets/handoff.md for exact scope, fixture browser evidence and remaining authenticated host/upload acceptance.

@@ -78,6 +78,12 @@ module.exports = withModuleFederationPlugin({
       requiredVersion: '2.8.1',
     },
 
+    '@tmdjr/ngx-asset-manager': {
+      singleton: true,
+      strictVersion: true,
+      requiredVersion: '21.1.0',
+    },
+
     // Theming
     '@tmdjr/ngx-workshop-design-system': {
       singleton: true,

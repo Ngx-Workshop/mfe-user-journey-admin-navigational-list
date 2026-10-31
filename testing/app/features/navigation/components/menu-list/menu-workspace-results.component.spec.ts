@@ -38,11 +38,11 @@ describe('Unified catalog interactions', () => {
     http = TestBed.inject(HttpTestingController);
   });
   afterEach(() => http.verify());
-  const setup = async () => {
+  const setup = async (items = rows) => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
     await fixture.whenStable();
-    http.expectOne('/api/navigational-list').flush(rows);
+    http.expectOne('/api/navigational-list').flush(items);
     fixture.detectChanges();
     await fixture.whenStable();
     return fixture;
@@ -55,6 +55,18 @@ describe('Unified catalog interactions', () => {
     down.click();
     fixture.detectChanges();
     expect(down.disabled).toBeTrue();
+    expect(
+      fixture.nativeElement.querySelector(
+        '.menu-managenment-actions__save'
+      ).textContent
+    ).toContain('Saving Workspace');
+    expect(
+      (
+        fixture.nativeElement.querySelector(
+          'ngx-menu-filters button[aria-label="Refresh catalog"]'
+        ) as HTMLButtonElement
+      ).disabled
+    ).toBeTrue();
     const request = http.expectOne('/api/navigational-list/sort');
     expect(JSON.parse(JSON.stringify(request.request.body))).toEqual({
       _id: 'parent',
@@ -71,6 +83,11 @@ describe('Unified catalog interactions', () => {
       fixture.nativeElement.querySelector('[role="alert"]')
     ).not.toBeNull();
     expect(down.disabled).toBeFalse();
+    expect(
+      fixture.nativeElement.querySelector(
+        '.menu-managenment-actions__save'
+      ).textContent
+    ).toContain('Could not save Workspace');
     down.click();
     http.expectOne('/api/navigational-list/sort').flush({});
     http
@@ -86,6 +103,11 @@ describe('Unified catalog interactions', () => {
       fixture.nativeElement.querySelector('ngx-menu-tree-row')
         .textContent
     ).toContain('Settings');
+    expect(
+      fixture.nativeElement.querySelector(
+        '.menu-managenment-actions__save'
+      ).textContent
+    ).toContain('Changes saved');
   });
   it('blocks filtered move/drop intent while keeping matched ancestors and edit actions visible', async () => {
     const fixture = await setup();
@@ -169,5 +191,46 @@ describe('Unified catalog interactions', () => {
     expect(
       fixture.nativeElement.querySelector('ngx-menu-item-card')
     ).toBeNull();
+  });
+  it('places repair records in their own sibling panel and excludes them from hierarchy counts', async () => {
+    const fixture = await setup([
+      ...rows,
+      menuItem({
+        _id: 'orphan',
+        parentId: 'missing',
+        menuItemText: 'Unplaced link',
+      }),
+    ]);
+    const layout = fixture.nativeElement.querySelector(
+      '.menu-workspace-layout'
+    );
+    const repairs = layout.querySelector('ngx-menu-unplaced-panel');
+    expect(repairs).not.toBeNull();
+    expect(repairs.textContent).toContain('Unplaced link');
+    expect(
+      layout.classList.contains('menu-workspace-layout--repairs')
+    ).toBeTrue();
+    expect(
+      layout.querySelector('.menu-workspace__rows').textContent
+    ).not.toContain('Unplaced link');
+    expect(
+      layout.querySelector('.menu-workspace__count').textContent
+    ).toContain('3');
+    const search = fixture.nativeElement.querySelector(
+      'ngx-menu-filters input'
+    ) as HTMLInputElement;
+    search.value = 'Unplaced link';
+    search.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect(
+      repairs.querySelectorAll('ngx-menu-item-card').length
+    ).toBe(1);
+    expect(
+      layout.querySelector('.menu-workspace__count').textContent
+    ).toContain('0');
+    expect(
+      layout.querySelector('.menu-workspace__rows').textContent
+    ).toContain('No placed destinations');
   });
 });

@@ -12,7 +12,6 @@ import { MenuStore } from '../state/menu.store';
 import { MenuSearchService } from '../view-models/menu-search.service';
 import { MenuListComponent } from './menu-list/menu-list.component';
 import { MenuManagenmentActions } from './menu-managenment-actions.component';
-import { MenuStatisticsComponent } from './menu-statistics.component';
 
 @Component({
   selector: 'ngx-menu-management',
@@ -24,11 +23,13 @@ import { MenuStatisticsComponent } from './menu-statistics.component';
     MatIconModule,
     MatSnackBarModule,
     MenuListComponent,
-    MenuStatisticsComponent,
     MenuManagenmentActions,
   ],
   template: `
-    <ngx-menu-managenment-actions>
+    <ngx-menu-managenment-actions
+      [saveNotification]="store.saveNotification()"
+      [unplacedCount]="store.ready() ? store.unplaced().length : null"
+    >
       <a
         mat-flat-button
         ngxButton
@@ -36,7 +37,7 @@ import { MenuStatisticsComponent } from './menu-statistics.component';
         shape="chevron"
         routerLink="create"
       >
-        <mat-icon>add</mat-icon>Create Menu Item
+        <mat-icon>add</mat-icon>New Menu Item
       </a>
     </ngx-menu-managenment-actions>
     <main class="menu-management">
@@ -55,12 +56,6 @@ import { MenuStatisticsComponent } from './menu-statistics.component';
         </button>
       </div>
       }
-      <ngx-menu-statistics
-        [statistics]="store.ready() ? store.statistics() : []"
-        [loading]="store.loading()"
-        [busy]="store.pending()"
-        (refreshClick)="store.refresh()"
-      />
       <div class="menu-management__content">
         <ngx-menu-list />
       </div>

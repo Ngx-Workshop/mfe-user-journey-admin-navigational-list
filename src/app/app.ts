@@ -8,9 +8,9 @@ import { MenuManagementComponent } from './features/navigation/components/menu-m
   imports: [RouterOutlet, MenuManagementComponent],
   template: `
     @if (routed) {
-      <router-outlet />
+    <router-outlet />
     } @else {
-      <ngx-menu-management />
+    <ngx-menu-management />
     }
   `,
   encapsulation: ViewEncapsulation.None,
@@ -19,7 +19,7 @@ import { MenuManagementComponent } from './features/navigation/components/menu-m
       .menu-app {
         display: block;
         min-width: 0;
-        min-height: 100dvh;
+        // min-height: 100dvh;
         color: var(--ngx-color-text);
         background: var(--ngx-color-canvas);
         .cdk-drop-list.cdk-drop-list-dragging

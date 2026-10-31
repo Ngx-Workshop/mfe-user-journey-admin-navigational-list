@@ -18,6 +18,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { finalize, startWith } from 'rxjs';
 import { MenuItemFormDialogData } from '../components/menu-item-form/menu-item-form.component';
+import { createMenuRouteOptions } from './menu-route-options';
 import { MenuStore } from '../state/menu.store';
 import { MenuItemFormService } from '../utils/menu-item-form.service';
 
@@ -46,6 +47,7 @@ export class MenuItemFormViewModel {
   readonly formId = `${this.dialog?.id ?? 'route'}-menu-form`;
   readonly form = this.forms.createMenuItemForm();
   readonly saving = signal(false);
+  readonly routes: ReturnType<typeof createMenuRouteOptions>;
   private readonly values = toSignal(
     this.form.valueChanges.pipe(startWith(this.form.getRawValue()))
   );
@@ -64,6 +66,7 @@ export class MenuItemFormViewModel {
     this.store.ensureLoaded();
     if (this.data.item)
       this.forms.populateForm(this.form, this.data.item);
+    this.routes = createMenuRouteOptions(this.form);
     effect(() => {
       const options = this.parentOptions();
       const parent = this.form.controls.parentId.value;
@@ -76,6 +79,28 @@ export class MenuItemFormViewModel {
       ) {
         this.form.controls.parentId.setValue('');
       }
+    });
+  }
+
+  setArchived(archived: boolean): void {
+    const id = this.data.item?._id;
+    const control = this.form.controls.archived;
+    if (
+      this.data.mode !== 'edit' || !id ||
+      this.saving() || this.store.pending() || this.store.loading() ||
+      !this.store.ready() || control.value === archived
+    ) return;
+
+    const previous = control.value;
+    control.setValue(archived);
+    this.saving.set(true);
+    const request = archived ? this.store.archive$(id) : this.store.unarchive$(id);
+    request.pipe(
+      finalize(() => this.saving.set(false)),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
+      // Keep other draft fields and the current step intact after an archive change.
+      error: () => control.setValue(previous),
     });
   }
 

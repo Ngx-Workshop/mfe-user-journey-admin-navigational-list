@@ -1,3 +1,4 @@
+import { CreateMenuItemPage } from '../../src/app/features/navigation/pages/create-menu-item-page.component';
 import { provideHttpClient } from '@angular/common/http';
 import {
   HttpTestingController,
@@ -7,8 +8,8 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { Routes } from '../../src/app/app.routes';
-import { MenuItemFormComponent } from '../../src/app/features/navigation/components/menu-item-form/menu-item-form.component';
 import { By } from '@angular/platform-browser';
+import { mfeRemote } from './features/navigation/mfe.fixture';
 import { menuItem } from './features/navigation/menu.fixture';
 
 describe('Routed navigation workspace', () => {
@@ -27,17 +28,15 @@ describe('Routed navigation workspace', () => {
 
   it('combines the complete ordered catalog with hierarchy and redirects legacy hierarchy links', async () => {
     const harness = await RouterTestingHarness.create('/hierarchy');
-    http
-      .expectOne('/api/navigational-list')
-      .flush(
-        Array.from({ length: 25 }, (_, i) =>
-          menuItem({
-            _id: String(i),
-            menuItemText: `Item ${String(i).padStart(2, '0')}`,
-            sortId: i + 1,
-          })
-        )
-      );
+    http.expectOne('/api/navigational-list').flush(
+      Array.from({ length: 25 }, (_, i) =>
+        menuItem({
+          _id: String(i),
+          menuItemText: `Item ${String(i).padStart(2, '0')}`,
+          sortId: i + 1,
+        })
+      )
+    );
     harness.detectChanges();
     await harness.fixture.whenStable();
     const root = harness.routeNativeElement!;
@@ -72,6 +71,7 @@ describe('Routed navigation workspace', () => {
     ).click();
     await harness.fixture.whenStable();
     expect(TestBed.inject(Router).url).toBe('/edit/24');
+    http.expectOne('/api/mfe-remotes/domain/admin').flush([mfeRemote()]);
     await harness.navigateByUrl('/');
     expect(root.querySelector('mat-tab-group')).toBeNull();
   });
@@ -88,14 +88,19 @@ describe('Routed navigation workspace', () => {
     harness.detectChanges();
     await harness.fixture.whenStable();
     const form = harness.fixture.debugElement.query(
-      By.directive(MenuItemFormComponent)
-    ).componentInstance as MenuItemFormComponent;
+      By.directive(CreateMenuItemPage)
+    ).componentInstance.model as CreateMenuItemPage['model'];
     expect(form.form.controls.menuItemText.value).toBe(
       item.menuItemText
     );
+    http.expectOne('/api/mfe-remotes/domain/admin').flush([mfeRemote()]);
+    expect(form.form.controls.routePath.invalid).toBeTrue();
+    form.form.controls.routePath.setValue('dashboard');
     form.form.controls.menuItemText.setValue('Changed destination');
-    form.onSave();
-    form.onSave();
+    form.next();
+    form.next();
+    form.submit();
+    form.submit();
     expect(
       await TestBed.inject(Router).navigateByUrl('/hierarchy')
     ).toBeFalse();
@@ -106,7 +111,7 @@ describe('Routed navigation workspace', () => {
       'Changed destination'
     );
     expect(TestBed.inject(Router).url).toBe(`/edit/${item._id}`);
-    form.onSave();
+    form.submit();
     http
       .expectOne(`/api/navigational-list/${item._id}`)
       .flush({ ...item, menuItemText: 'Changed destination' });
@@ -131,16 +136,18 @@ describe('Routed navigation workspace', () => {
     http.expectOne('/api/navigational-list').flush([first, second]);
     harness.detectChanges();
     await harness.fixture.whenStable();
+    http.expectOne('/api/mfe-remotes/domain/admin').flush([mfeRemote()]);
     await harness.navigateByUrl('/navigational-list/hierarchy');
     expect(TestBed.inject(Router).url).toBe('/navigational-list');
     await harness.navigateByUrl('/navigational-list/edit/second');
     const form = harness.fixture.debugElement.query(
-      By.directive(MenuItemFormComponent)
-    ).componentInstance as MenuItemFormComponent;
+      By.directive(CreateMenuItemPage)
+    ).componentInstance.model as CreateMenuItemPage['model'];
     expect(form.form.controls.menuItemText.value).toBe(
       'Second destination'
     );
-    form.onCancel();
+    http.expectOne('/api/mfe-remotes/domain/admin').flush([mfeRemote()]);
+    form.editor.cancel();
     await harness.fixture.whenStable();
     expect(TestBed.inject(Router).url).toBe('/navigational-list');
     const link = harness.routeNativeElement!.querySelector(
@@ -163,17 +170,20 @@ describe('Routed navigation workspace', () => {
       'Menu item not found'
     );
     await harness.navigateByUrl('/create');
-    const form = harness.fixture.debugElement.query(
-      By.directive(MenuItemFormComponent)
-    ).componentInstance as MenuItemFormComponent;
-    form.form.patchValue({
+    const create = harness.fixture.debugElement.query(
+      By.directive(CreateMenuItemPage)
+    ).componentInstance as CreateMenuItemPage;
+    create.model.form.patchValue({
       menuItemText: 'New destination',
-      routePath: '/new',
       domain: 'ADMIN',
+      routePath: 'new',
       structuralSubtype: 'NAV',
       state: 'FULL',
     });
-    form.onSave();
+    http.expectOne('/api/mfe-remotes/domain/admin').flush([mfeRemote('New')]);
+    create.model.next();
+    create.model.next();
+    create.model.submit();
     const request = http.expectOne('/api/navigational-list');
     expect(request.request.method).toBe('POST');
     request.flush(menuItem());

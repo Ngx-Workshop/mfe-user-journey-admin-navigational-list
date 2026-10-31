@@ -163,6 +163,7 @@ import { menuRouteUrl } from '../../utils/menu-route';
     `
       @use '@angular/material' as mat;
       :host {
+        container-type: inline-size;
         display: block;
         min-width: 0;
         @include mat.icon-button-density(-3);
@@ -253,7 +254,7 @@ import { menuRouteUrl } from '../../utils/menu-route';
         flex-shrink: 0;
       }
 
-      @media (max-width: 600px) {
+      @container (max-width: 480px) {
         .menu-tree-row__item-row {
           flex-wrap: wrap;
           padding: 4px;

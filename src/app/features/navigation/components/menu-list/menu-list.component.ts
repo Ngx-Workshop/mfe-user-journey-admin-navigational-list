@@ -9,16 +9,16 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MenuListViewModel } from '../../view-models/menu-list.view-model';
 
-import { MenuWorkspaceViewModel } from '../../view-models/menu-workspace.view-model';
 import { MenuReorderService } from '../../view-models/menu-reorder.service';
 import { MenuSearchService } from '../../view-models/menu-search.service';
+import { MenuWorkspaceViewModel } from '../../view-models/menu-workspace.view-model';
 import { MenuEmptyStateComponent } from './menu-empty-state.component';
 import {
   FilterChangeEvent,
   MenuFiltersComponent,
 } from './menu-filters.component';
-import { MenuWorkspaceResultsComponent } from './menu-workspace-results.component';
 import { MenuItemActionEvent } from './menu-item-card.component';
+import { MenuWorkspaceResultsComponent } from './menu-workspace-results.component';
 
 @Component({
   selector: 'ngx-menu-list',
@@ -41,6 +41,10 @@ import { MenuItemActionEvent } from './menu-item-card.component';
     <div class="menu-list__list">
       <!-- Filters Section -->
       <ngx-menu-filters
+        [statistics]="vm.store.ready() ? vm.store.statistics() : []"
+        [loading]="loading()"
+        [busy]="vm.store.pending()"
+        (refreshClick)="reload()"
         [searchText]="searchText()"
         [filterDomain]="filterDomain()"
         [filterStructuralSubtype]="filterStructuralSubtype()"
@@ -51,7 +55,7 @@ import { MenuItemActionEvent } from './menu-item-card.component';
       />
 
       <div class="menu-list__results">
-        @if (loading() || vm.store.pending()) {
+        <!-- @if (loading() || vm.store.pending()) {
           <div class="menu-list__progress" role="status">
             <span>{{
               vm.store.pending()
@@ -65,22 +69,21 @@ import { MenuItemActionEvent } from './menu-item-card.component';
               aria-label="Menu items loading"
             ></mat-progress-bar>
           </div>
-        }
+        } -->
 
         <!-- Results Section -->
         @if (filtered().length > 0) {
-          <ngx-menu-workspace-results />
+        <ngx-menu-workspace-results />
         }
 
         <!-- Empty State -->
-        @if (
-          !loading() && !vm.store.error() && filtered().length === 0
-        ) {
-          <ngx-menu-empty-state
-            [filtered]="hasFilters()"
-            (resetClick)="clearAllFilters()"
-            (createClick)="openCreate()"
-          />
+        @if ( !loading() && !vm.store.error() && filtered().length ===
+        0 ) {
+        <ngx-menu-empty-state
+          [filtered]="hasFilters()"
+          (resetClick)="clearAllFilters()"
+          (createClick)="openCreate()"
+        />
         }
       </div>
     </div>
@@ -93,25 +96,25 @@ import { MenuItemActionEvent } from './menu-item-card.component';
       }
       .menu-list__list {
         display: grid;
-        grid-template-columns: 248px minmax(0, 1fr);
+        grid-template-columns: minmax(280px, 320px) minmax(0, 1fr);
         gap: 16px;
         height: max(
           420px,
-          calc(100dvh - var(--menu-toolbar-top, 96px) - 144px)
+          calc(
+            100dvh - var(--menu-toolbar-top, 96px) -
+              var(--menu-action-bar-height, 64px) - 32px
+          )
         );
       }
       ngx-menu-filters {
         min-height: 0;
-        overflow: auto;
-        scrollbar-width: thin;
+        align-self: start;
       }
       .menu-list__results {
         min-width: 0;
         min-height: 0;
         display: flex;
         flex-direction: column;
-        border: 1px solid var(--ngx-color-border);
-        background: var(--ngx-color-surface-low);
       }
       ngx-menu-workspace-results {
         flex: 1;

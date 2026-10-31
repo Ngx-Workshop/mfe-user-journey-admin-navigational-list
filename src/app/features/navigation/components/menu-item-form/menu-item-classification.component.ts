@@ -1,3 +1,4 @@
+import { NgTemplateOutlet } from '@angular/common';
 import { NgxPanel } from '@tmdjr/ngx-workshop-design-system';
 import type { MenuItemForm } from '../../utils/menu-item-form.service';
 
@@ -19,23 +20,32 @@ import {
   selector: 'ngx-menu-item-classification',
   standalone: true,
   imports: [
+    NgTemplateOutlet,
     NgxPanel,
     ReactiveFormsModule,
     MatFormFieldModule,
     MatSelectModule,
   ],
   template: `
+    @if (embedded) {
+    <ng-container [ngTemplateOutlet]="fieldTemplate" />
+    } @else {
     <ngx-panel
       heading="Classification"
       eyebrow="CONFIGURATION"
       shape="chamfered"
       background="solid"
     >
+      <ng-container [ngTemplateOutlet]="fieldTemplate" />
+    </ngx-panel>
+    }
+    <ng-template #fieldTemplate>
       <div
         class="menu-item-classification__form-section"
         [formGroup]="form"
       >
         <div class="menu-item-classification__form-row">
+          @if (fields.includes('domain')) {
           <mat-form-field
             subscriptSizing="dynamic"
             appearance="outline"
@@ -46,16 +56,16 @@ import {
               formControlName="domain"
             >
               @for (option of domainOptions; track option.value) {
-                <mat-option [value]="option.value">{{
-                  option.label
-                }}</mat-option>
+              <mat-option [value]="option.value">{{
+                option.label
+              }}</mat-option>
               }
             </mat-select>
             @if (form.get('domain')?.hasError('required')) {
-              <mat-error>Domain is required</mat-error>
+            <mat-error>Domain is required</mat-error>
             }
           </mat-form-field>
-
+          } @if (fields.includes('structuralSubtype')) {
           <mat-form-field
             subscriptSizing="dynamic"
             appearance="outline"
@@ -65,22 +75,19 @@ import {
               panelClass="ngx-design-system-overlay"
               formControlName="structuralSubtype"
             >
-              @for (
-                option of structuralSubtypeOptions;
-                track option.value
-              ) {
-                <mat-option [value]="option.value">{{
-                  option.label
-                }}</mat-option>
+              @for ( option of structuralSubtypeOptions; track
+              option.value ) {
+              <mat-option [value]="option.value">{{
+                option.label
+              }}</mat-option>
               }
             </mat-select>
-            @if (
-              form.get('structuralSubtype')?.hasError('required')
+            @if ( form.get('structuralSubtype')?.hasError('required')
             ) {
-              <mat-error>Structural subtype is required</mat-error>
+            <mat-error>Structural subtype is required</mat-error>
             }
           </mat-form-field>
-
+          } @if (fields.includes('state')) {
           <mat-form-field
             subscriptSizing="dynamic"
             appearance="outline"
@@ -91,18 +98,19 @@ import {
               formControlName="state"
             >
               @for (option of stateOptions; track option.value) {
-                <mat-option [value]="option.value">{{
-                  option.label
-                }}</mat-option>
+              <mat-option [value]="option.value">{{
+                option.label
+              }}</mat-option>
               }
             </mat-select>
             @if (form.get('state')?.hasError('required')) {
-              <mat-error>State is required</mat-error>
+            <mat-error>State is required</mat-error>
             }
           </mat-form-field>
+          }
         </div>
       </div>
-    </ngx-panel>
+    </ng-template>
   `,
   styles: [
     `
@@ -121,6 +129,7 @@ import {
         display: flex;
         gap: 1rem;
         flex-wrap: wrap;
+        align-items: flex-start;
       }
 
       .menu-item-classification__form-row mat-form-field {
@@ -142,6 +151,12 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MenuItemClassificationComponent {
+  @Input() embedded = false;
+  @Input() fields: readonly (
+    | 'domain'
+    | 'structuralSubtype'
+    | 'state'
+  )[] = ['domain', 'structuralSubtype', 'state'];
   @Input({ required: true }) form!: MenuItemForm;
   @Input({ required: true }) domainOptions!: DomainOption[];
   @Input({ required: true })
