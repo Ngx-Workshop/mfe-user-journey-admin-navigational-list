@@ -12,7 +12,7 @@ import type { MenuItemForm } from '../../utils/menu-item-form.service';
     <div [formGroup]="form">
       <mat-form-field appearance="outline" subscriptSizing="dynamic">
         <mat-label>Position After</mat-label>
-        <mat-select formControlName="sortId" panelClass="ngx-design-system-overlay">
+        <mat-select formControlName="sortId" panelClass="ngx-design-system-overlay ngx-select-panel">
           <mat-option [value]="0">None</mat-option>
           @for (option of options; track option.id) {
             <mat-option [value]="option.value">{{ option.label }}</mat-option>

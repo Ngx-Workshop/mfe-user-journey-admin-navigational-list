@@ -187,3 +187,17 @@ unknown/zero/singular/plural unplaced labels, and "Try the action again" failure
 instructions without a generic retry button. MenuManagementComponent and
 MenuItemPageComponent own --menu-action-bar-height through local signals; no parent
 inline-style mutation or teardown restoration remains in the action adapter.
+
+## Shared overlay policy adoption — 2026-10-31
+
+The shell and both migrated remotes install design-system 21.0.10 and require
+^21.0.10 in federation sharing. Shell theme() emits the shared overlay-policy()
+once globally; standalone remote theme() supplies the same policy for isolated use.
+The page and portal scopes no longer regenerate a dark Material adapter. Root theme
+roles, typography and color scheme reach controls and overlays in both palettes.
+Local duplicated portal font/text/backdrop and fixed-dark rules are removed.
+
+All owned mat-select panels have ngx-design-system-overlay and ngx-select-panel.
+Autocomplete/menu/tooltip/dialog markers retain their public configuration without
+receiving select-only animation policy. Existing app-specific layout, dialog sizing,
+classes, forms, values, routes, stores and persistence are retained.

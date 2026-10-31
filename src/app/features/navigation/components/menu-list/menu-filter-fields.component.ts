@@ -32,7 +32,7 @@ export type ClassificationFilterChange =
     <mat-form-field appearance="outline" subscriptSizing="dynamic">
       <mat-label>Domain</mat-label>
       <mat-select
-        panelClass="ngx-design-system-overlay"
+        panelClass="ngx-design-system-overlay ngx-select-panel"
         [value]="filterDomain"
         [canSelectNullableOptions]="true"
         (valueChange)="
@@ -50,7 +50,7 @@ export type ClassificationFilterChange =
     <mat-form-field appearance="outline" subscriptSizing="dynamic">
       <mat-label>Placement</mat-label>
       <mat-select
-        panelClass="ngx-design-system-overlay"
+        panelClass="ngx-design-system-overlay ngx-select-panel"
         [value]="filterStructuralSubtype"
         [canSelectNullableOptions]="true"
         (valueChange)="
@@ -74,7 +74,7 @@ export type ClassificationFilterChange =
     <mat-form-field appearance="outline" subscriptSizing="dynamic">
       <mat-label>Display state</mat-label>
       <mat-select
-        panelClass="ngx-design-system-overlay"
+        panelClass="ngx-design-system-overlay ngx-select-panel"
         [value]="filterState"
         [canSelectNullableOptions]="true"
         (valueChange)="
@@ -92,7 +92,7 @@ export type ClassificationFilterChange =
     <mat-form-field appearance="outline" subscriptSizing="dynamic">
       <mat-label>Role required</mat-label>
       <mat-select
-        panelClass="ngx-design-system-overlay"
+        panelClass="ngx-design-system-overlay ngx-select-panel"
         [value]="filterRole"
         [canSelectNullableOptions]="true"
         (valueChange)="

@@ -88,7 +88,7 @@ module.exports = withModuleFederationPlugin({
     '@tmdjr/ngx-workshop-design-system': {
       singleton: true,
       strictVersion: true,
-      requiredVersion: '^21.0.9',
+      requiredVersion: '^21.0.10',
     },
 
     // Metadata service

@@ -76,7 +76,7 @@ import { RoleOption } from '../../models/menu.types';
               >
                 <mat-label>Role required</mat-label>
                 <mat-select
-                  panelClass="ngx-design-system-overlay"
+                  panelClass="ngx-design-system-overlay ngx-select-panel"
                   formControlName="role"
                 >
                   @for (option of roleOptions; track option.value) {

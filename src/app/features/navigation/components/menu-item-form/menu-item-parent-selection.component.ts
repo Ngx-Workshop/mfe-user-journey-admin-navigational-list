@@ -49,7 +49,7 @@ import { ParentOption } from '../../models/menu.types';
           >
             <mat-label>Parent Item</mat-label>
             <mat-select
-              panelClass="ngx-design-system-overlay"
+              panelClass="ngx-design-system-overlay ngx-select-panel"
               formControlName="parentId"
               [disabled]="loading"
             >

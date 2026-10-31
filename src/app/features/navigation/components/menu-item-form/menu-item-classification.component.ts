@@ -52,7 +52,7 @@ import {
           >
             <mat-label>Domain</mat-label>
             <mat-select
-              panelClass="ngx-design-system-overlay"
+              panelClass="ngx-design-system-overlay ngx-select-panel"
               formControlName="domain"
             >
               @for (option of domainOptions; track option.value) {
@@ -72,7 +72,7 @@ import {
           >
             <mat-label>Structural Subtype</mat-label>
             <mat-select
-              panelClass="ngx-design-system-overlay"
+              panelClass="ngx-design-system-overlay ngx-select-panel"
               formControlName="structuralSubtype"
             >
               @for ( option of structuralSubtypeOptions; track
@@ -94,7 +94,7 @@ import {
           >
             <mat-label>State</mat-label>
             <mat-select
-              panelClass="ngx-design-system-overlay"
+              panelClass="ngx-design-system-overlay ngx-select-panel"
               formControlName="state"
             >
               @for (option of stateOptions; track option.value) {

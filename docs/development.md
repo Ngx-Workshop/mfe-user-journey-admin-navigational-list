@@ -76,3 +76,14 @@ tests retain command/timing coverage. See specs/016-shared-workspace-feedback/ha
 for current results and the inherited orchestrator heading failure where applicable.
 The shell must supply >=21.0.9 within the compatible major range before hosted checks;
 a standalone build alone cannot establish its shared runtime version.
+
+## Shared overlay policy adoption — 2026-10-31
+
+Feature 017 uses installed design-system 21.0.10 policy via global theme().
+Existing native closing tests now assert the shared panel marker and loaded CSS;
+no component-local final-frame rules remain. Navigation adds light-theme native
+select regressions for selection/outside click/Escape, value retention and reopening.
+The shell theme integration suite checks actual detached select/dialog policy in
+light and dark modes. See specs/017-shared-overlay-policy/handoff.md for results.
+Start/rebuild shell and remotes together when previewing the raised ^21.0.10 shared
+requirement; an older running shell bundle cannot supply the new policy reliably.

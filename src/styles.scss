@@ -3,27 +3,6 @@
 // Standalone fallback; federated routes use the admin shell's shared styles.
 @include ngx.theme();
 
-.ngx-design-system,
-.ngx-design-system-overlay {
-  @include ngx.material-adapter();
-  color-scheme: dark;
-  color: var(--ngx-color-text);
-  font-family: var(--ngx-font-body);
-}
-
-.ngx-design-system-backdrop {
-  background: var(--ngx-overlay-backdrop-fallback);
-  @supports (backdrop-filter: blur(1px)) {
-    background: var(--ngx-overlay-backdrop-tint);
-    backdrop-filter: blur(var(--ngx-overlay-backdrop-blur))
-      saturate(var(--ngx-overlay-backdrop-saturation));
-  }
-  @media (prefers-reduced-transparency: reduce) {
-    background: var(--ngx-overlay-backdrop-fallback);
-    backdrop-filter: none;
-  }
-}
-
 html {
   min-width: 320px;
   background: var(--ngx-color-canvas);
